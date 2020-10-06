@@ -12,6 +12,8 @@ namespace Chapubelich.Database.Models
 
         [Index(IsUnique = true)]
         public long GroupId { get; set; }
+        public bool IsAvailable { get; set; }
+        
 
         public ICollection<UserGroup> UserGroup { get; set; }
     }

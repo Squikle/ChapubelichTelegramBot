@@ -31,19 +31,16 @@ namespace Chapubelich.ChapubelichBot.Init
                 new GamesCommand(),
                 new RegistrationCommand(),
                 new StartCommand(),
-                new FiftyFiftyCommand(),
+                new FiftyFiftyStartCommand(),
                 };
                 BotGroupCommands = new List<Command>()
                 {
 
                 };
-                BotGames = new List<Game>()
-                {
-                    new FiftyFiftyGame()
-                };
                 BotCallbackMessages = new List<CallBackMessage>()
                 {
                     new GenderCallbackMessage(),
+                    new FiftyFiftyStartCallbackMessage(),
                 };
                 BotRegexCommands = new List<RegexCommand>()
                 {
@@ -52,7 +49,8 @@ namespace Chapubelich.ChapubelichBot.Init
                     new FiftyFiftyRollRegexCommand(),
                     new FiftyFiftyCancelRegexCommand(),
                     new FiftyFiftyCheckBetCommand(),
-                    new BalanceRegexCommand()
+                    new BalanceRegexCommand(),
+                    new TransferRegexCommand(),
                 };
 
                 _client = new TelegramBotClient(AppSettings.Key) { Timeout = TimeSpan.FromSeconds(10) };
@@ -64,11 +62,9 @@ namespace Chapubelich.ChapubelichBot.Init
         private static List<Command>            BotGroupCommands;
         private static List<RegexCommand>       BotRegexCommands;
         private static List<CallBackMessage>    BotCallbackMessages;
-        private static List<Game>               BotGames;
         public static IReadOnlyList<Command>            BotPrivateCommandsList { get => BotPrivateCommands.AsReadOnly(); }
         public static IReadOnlyList<Command>            BotGroupCommandsList { get => BotGroupCommands.AsReadOnly(); }
         public static IReadOnlyList<RegexCommand>       BotRegexCommandsList { get => BotRegexCommands.AsReadOnly(); }
         public static IReadOnlyList<CallBackMessage>    CallBackMessagesList { get => BotCallbackMessages.AsReadOnly(); }
-        public static IReadOnlyList<Game>               BotGamesList { get => BotGames.AsReadOnly(); }
     }
 }

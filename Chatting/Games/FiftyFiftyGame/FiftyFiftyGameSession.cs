@@ -14,32 +14,39 @@ using User = Chapubelich.Database.Models.User;
 
 namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
-    class FiftyFiftyGameSession : GameSession
+    class FiftyFiftyGameSession
     {
-        public override Game CurrentGame { get; set; }
-        public override long ChatId { get; set; }
-        public override List<BetToken> BetTokens { get; set; }
-        public override bool IsActive { get; set; }
+        public long ChatId { get; set; }
+        public List<BetToken> BetTokens { get; set; }
+        public bool IsActive { get; set; }
 
         public int ResultNumber { get; set; }
-        public override Message GameMessage { get; set; }
+        public Message GameMessage { get; set; }
 
-        public FiftyFiftyGameSession(Message message) : base(message)
+        public FiftyFiftyGameSession(Message message)
         {
-            CurrentGame = Bot.BotGamesList.First(x => x.Name == "\U0001F3B0 50/50");
+            BetTokens = new List<BetToken>();
+            ChatId = message.Chat.Id;
         }
 
-        public override async void Start(Message message, ITelegramBotClient client)
+        public async void Start(Message message, ITelegramBotClient client)
         {
             IsActive = true;
             Random rand = new Random();
             ResultNumber = rand.Next(0, 2);
-            GameMessage = await client.TrySendTextMessageAsync(
-                message.Chat.Id,
-                "Игра в процессе. Ждем ваши ставки: ");
+
+            if (message.From.Id == client.BotId)
+                GameMessage = await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    "Игра в процессе. Ждем ваши ставки: ");
+            else
+                GameMessage = await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    "Игра в процессе. Ждем ваши ставки: ",
+                    replyToMessageId: message.MessageId);
         }
 
-        public override async void Result(ITelegramBotClient client, CallbackQuery query = null, Message message = null)
+        public async void Result(ITelegramBotClient client, CallbackQuery query = null, Message message = null)
         {
             using (var db = new ChapubelichdbContext())
             {
@@ -85,17 +92,25 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
                     {
                         IsActive = false;
 
-                        if (null != GameMessage)
-                            await client.TryDeleteMessageAsync(
-                                GameMessage.Chat.Id,
-                                GameMessage.MessageId);
+                        var inlineKeyboard = new InlineKeyboardMarkup(new[]
+                        {
+                            new []
+                            {
+                                InlineKeyboardButton.WithCallbackData("Играть снова", "PlayAgain")
+                            }
+                        });
+
+                        await client.TryDeleteMessageAsync(
+                            GameMessage.Chat.Id,
+                            GameMessage.MessageId);
 
                         await client.TrySendTextMessageAsync(
                             ChatId,
                             result,
-                            Telegram.Bot.Types.Enums.ParseMode.Html);
+                            Telegram.Bot.Types.Enums.ParseMode.Html,
+                            replyMarkup: inlineKeyboard);
 
-                        CurrentGame.GameSessions.Remove(this);
+                        FiftyFiftyGame.GameSessions.Remove(this);
 
                         db.SaveChanges();
                     }

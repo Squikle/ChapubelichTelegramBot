@@ -1,0 +1,79 @@
+﻿using Chapubelich.Abstractions;
+using Chapubelich.Database;
+using Chapubelich.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Telegram.Bot;
+using Telegram.Bot.Types;
+
+namespace Chapubelich.Chatting.RegexCommands
+{
+    class TransferRegexCommand : RegexCommand
+    {
+        public override string Pattern => @"^\/? *\+(\d{1,4})(@ChapubelichBot)?$";
+
+        public override async void Execute(Message message, ITelegramBotClient client)
+        {
+            var markedUser = message?.ReplyToMessage?.From;
+            string transferSumString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
+
+            int transferSum = 0;
+            if (!Int32.TryParse(transferSumString, out transferSum) || null == markedUser)
+                return;
+            if (transferSum == 0)
+            {
+                await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    $"Вы не можете передать {transferSum} монет\U0001F614",
+                    replyToMessageId: message.MessageId);
+                return;
+            }
+
+            using (var db = new ChapubelichdbContext())
+            {
+                var transferTo = db.Users.FirstOrDefault(x => x.UserId == markedUser.Id);
+                var transferFrom = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+
+                if (null == transferTo)
+                {
+                    await client.TrySendTextMessageAsync(
+                        message.Chat.Id,
+                        $"Пользователь <<a href=\"tg://user?id={transferTo.UserId}\">{transferTo.FirstName}</a> еще не зарегестрировался\U0001F614",
+                        Telegram.Bot.Types.Enums.ParseMode.Html,
+                        replyToMessageId: message.MessageId);
+                    return;
+                }
+
+                if (transferTo == transferFrom)
+                    return;
+
+                if (transferFrom.Balance >= transferSum)
+                {
+                    string genderWord = transferTo.Gender == true ? "него" : "неё";
+
+                    transferFrom.Balance -= transferSum;
+                    transferTo.Balance += transferSum;
+                    await client.TrySendTextMessageAsync(
+                        message.Chat.Id,
+                        $"Вы передали {transferSum} монет пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
+                        $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance}\U0001F4B0",
+                        Telegram.Bot.Types.Enums.ParseMode.Html,
+                        replyToMessageId: message.MessageId);
+
+                    db.SaveChanges();
+                    return;
+                }
+
+                await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    $"У вас недостаточно средств\U0001F614",
+                    replyToMessageId: message.MessageId);
+            }
+        }
+    }
+}
+ 

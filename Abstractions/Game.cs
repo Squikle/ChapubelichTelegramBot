@@ -6,7 +6,7 @@ namespace Chapubelich.Abstractions
 {
     public abstract class Game
     {
-        public abstract string Name { get; }
+        /*public abstract string Name { get; }
         public abstract List<GameSession> GameSessions { get; set; }
 
         public Game()
@@ -16,12 +16,12 @@ namespace Chapubelich.Abstractions
 
         public static GameSession GetGameSession(string name, long chatId)
         {
-            var gameSession = Bot.BotGamesList.
+            var gameSession = .BotGamesList.
                 FirstOrDefault(x => x.Name == name)
                 ?.GameSessions
                 .FirstOrDefault(x => x.ChatId == chatId);
             
             return gameSession;
-        }
+        }*/
     }
 }

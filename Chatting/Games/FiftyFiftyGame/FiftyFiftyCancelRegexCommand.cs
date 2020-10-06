@@ -15,11 +15,11 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
     class FiftyFiftyCancelRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^ *\/?(отмена|cancel)(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *(отмена|cancel)(@ChapubelichBot)?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var gameSession = Game.GetGameSession("\U0001F3B0 50/50", message.Chat.Id);
+            var gameSession = FiftyFiftyGame.GetGameSessionByChatId(message.Chat.Id);
             if (null != gameSession)
             {
                 using (var db = new ChapubelichdbContext())

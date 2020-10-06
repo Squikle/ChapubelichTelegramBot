@@ -8,9 +8,9 @@ namespace Chapubelich.Abstractions
     {
         public abstract string Pattern { get; }
         public abstract void Execute(Message message, ITelegramBotClient client);
-        public bool Contains(Message message)
+        public bool Contains(string text)
         {
-            return Regex.IsMatch(message.Text, Pattern, RegexOptions.IgnoreCase);
+            return Regex.IsMatch(text, Pattern, RegexOptions.IgnoreCase);
         }
     }
 }

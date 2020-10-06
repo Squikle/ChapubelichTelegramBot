@@ -14,26 +14,26 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
     class FiftyFiftyBetRegexCommand : RegexCommand
     {
-        public override string Pattern => @"(^ *\/?\d{1,6}) ?(к|красный|ч|черный)(@ChapubelichBot)?$";
+        public override string Pattern => @"(^ *\/?\d{1,6}) ?(к(расный)?)|(ч(черный)?)(@ChapubelichBot)?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var gameSession = Game.GetGameSession("\U0001F3B0 50/50", message.Chat.Id);
+            var gameSession = FiftyFiftyGame.GetGameSessionByChatId(message.Chat.Id);
 
             if (null == gameSession)
                 return;
 
-            string bet = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
-            string choose = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[2].Value.ToLower();
-
-            if (null == bet || null == choose)
-                return;
+            string betString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
+            string chooseString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[2].Value.ToLower();
 
             // Определение ставки игрока
-            int playerBet = Convert.ToInt32(bet);
+            int playerBet = 0;
             int playerChoose = 0;
 
-            switch (choose[0])
+            if (!Int32.TryParse(betString, out playerBet) || chooseString == null)
+                return;
+
+            switch (chooseString[0])
             {
                 case 'к':
                     playerChoose = 0;
@@ -46,8 +46,6 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
             using (var db = new ChapubelichdbContext())
             {
                 User user = db.Users.First(x => x.UserId == message.From.Id);
-                if (null == user)
-                    return;
 
                 BetToken currentBetToken = gameSession.BetTokens.FirstOrDefault(x => x.Choose == playerChoose && x.UserId == user.UserId);
 

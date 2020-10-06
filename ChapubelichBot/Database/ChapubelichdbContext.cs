@@ -1,6 +1,4 @@
 ﻿using Chapubelich.Database.Models;
-using Npgsql;
-using System;
 using System.Data.Entity;
 
 namespace Chapubelich.Database

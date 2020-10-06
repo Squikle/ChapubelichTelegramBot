@@ -12,7 +12,7 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
     class FiftyFiftyStartRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^ *\/?(рулетка|roulette)(@ChapubelichBot)?$";
+        public override string Pattern => @"^ *\/? *(рулетка|roulette)(@ChapubelichBot)?$";
 
         public override void Execute(Message message, ITelegramBotClient client)
         {

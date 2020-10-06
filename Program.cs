@@ -85,13 +85,13 @@ namespace Chapubelich
             {
                 foreach (var privateCommand in Bot.BotPrivateCommandsList)
                 {
-                    if (privateCommand.Contains(e.Message, privateChat: true))
+                    if (privateCommand.Contains(e.Message.Text, privateChat: true))
                         privateCommand.Execute(e.Message, client);
                 }
 
                 foreach (var regexCommand in Bot.BotRegexCommandsList)
                 {
-                    if (regexCommand.Contains(e.Message))
+                    if (regexCommand.Contains(e.Message.Text))
                         regexCommand.Execute(e.Message, client);
                 }
             }
@@ -100,7 +100,7 @@ namespace Chapubelich
                 var startCommand = Bot.BotPrivateCommandsList.First(x => x.Name == "/start");
                 var registrationCommand = Bot.BotPrivateCommandsList.First(x => x.Name == "\U0001F511 Register");
 
-                if (!startCommand.Contains(e.Message, privateChat: true) && !registrationCommand.Contains(e.Message, privateChat: true))
+                if (!startCommand.Contains(e.Message.Text, privateChat: true) && !registrationCommand.Contains(e.Message.Text, privateChat: true))
                     await client.TrySendTextMessageAsync(
                     e.Message.Chat.Id,
                     $"Упс, кажется вас нет в базе данных. Пожалуйста, пройдите процесс регистрации: ");
@@ -114,7 +114,7 @@ namespace Chapubelich
 
             foreach (var groupCommand in Bot.BotGroupCommandsList)
             {
-                if (groupCommand.Contains(e.Message, privateChat: false))
+                if (groupCommand.Contains(e.Message.Text, privateChat: false))
                 {
                     if (registred)
                         groupCommand.Execute(e.Message, client);
@@ -128,7 +128,7 @@ namespace Chapubelich
 
             foreach (var regexCommand in Bot.BotRegexCommandsList)
             {
-                if (regexCommand.Contains(e.Message))
+                if (regexCommand.Contains(e.Message.Text))
                     if (registred)
                         regexCommand.Execute(e.Message, client);
                     else 

@@ -7,9 +7,15 @@ using System.Threading.Tasks;
 
 namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
-    class FiftyFiftyGame : Game
+    class FiftyFiftyGame
     {
-        public override string Name => "\U0001F3B0 50/50";
-        public override List<GameSession> GameSessions { get; set; }
+        public static string Name => "\U0001F3B0 50/50";
+        public static List<FiftyFiftyGameSession> GameSessions { get; set; } = new List<FiftyFiftyGameSession>();
+        public static FiftyFiftyGameSession GetGameSessionByChatId(long chatId)
+        {
+            var gameSession = GameSessions.FirstOrDefault(x => x.ChatId == chatId);
+
+            return gameSession;
+        }
     }
 }

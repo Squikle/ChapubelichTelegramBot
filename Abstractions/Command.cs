@@ -8,12 +8,12 @@ namespace Chapubelich.Abstractions
     {
         public abstract string Name { get; }
         public abstract void Execute(Message message, ITelegramBotClient client);
-        public bool Contains(Message message, bool privateChat)
+        public bool Contains(string text, bool privateChat)
         {
             if (privateChat)
-                return message.Text.Contains(Name);
+                return text.Contains(Name);
 
-            return message.Text.Contains(Name) && message.Text.Contains(AppSettings.Name);
+            return text.Contains(Name) && text.Contains(AppSettings.Name);
         }
     }
 }

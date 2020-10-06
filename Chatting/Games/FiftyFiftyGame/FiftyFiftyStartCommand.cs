@@ -8,18 +8,17 @@ using Telegram.Bot.Types;
 
 namespace Chapubelich.Chatting.Commands
 {
-    class FiftyFiftyCommand : Command
+    class FiftyFiftyStartCommand : Command
     {
         public override string Name => "\U0001F3B0 50/50";
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var game = Bot.BotGamesList.First(x => x.Name == Name);
-            var session = game.GameSessions.FirstOrDefault(x => x.ChatId == message.Chat.Id);
+            var session = FiftyFiftyGame.GetGameSessionByChatId(message.Chat.Id);
             if (null == session)
             {
                 var gameSession = new FiftyFiftyGameSession(message);
                 gameSession.Start(message, client);
-                game.GameSessions.Add(gameSession);
+                FiftyFiftyGame.GameSessions.Add(gameSession);
             }
             else
             {

@@ -107,7 +107,7 @@
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyBetRegexCommand.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyCancelRegexCommand.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyCheckBetCommand.cs" />
-    <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyCommand.cs" />
+    <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyStartCommand.cs" />
     <Compile Include="Chatting\Commands\GamesCommand.cs" />
     <Compile Include="Chatting\Commands\HelloCommand.cs" />
     <Compile Include="Chatting\Commands\MenuCommand.cs" />
@@ -124,8 +124,10 @@
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyGame.cs" />
     <Compile Include="Abstractions\Game.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyRollRegexCommand.cs" />
+    <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyStartCallbackMessage.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyStartRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\BalanceRegexCommand.cs" />
+    <Compile Include="Chatting\RegexCommands\TransferRegexCommand.cs" />
     <Compile Include="Extensions\TelegramBotExtensions.cs" />
     <Compile Include="Migrations\202009301524029_init.cs" />
     <Compile Include="Migrations\202009301524029_init.designer.cs">
@@ -146,6 +148,10 @@
     <Compile Include="Migrations\202010052256170_balanceOnStartChanged.cs" />
     <Compile Include="Migrations\202010052256170_balanceOnStartChanged.designer.cs">
       <DependentUpon>202010052256170_balanceOnStartChanged.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202010062232051_Added IsAvailable for groups and changed order for users.cs" />
+    <Compile Include="Migrations\202010062232051_Added IsAvailable for groups and changed order for users.designer.cs">
+      <DependentUpon>202010062232051_Added IsAvailable for groups and changed order for users.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
@@ -170,6 +176,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010052256170_balanceOnStartChanged.resx">
       <DependentUpon>202010052256170_balanceOnStartChanged.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010062232051_Added IsAvailable for groups and changed order for users.resx">
+      <DependentUpon>202010062232051_Added IsAvailable for groups and changed order for users.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
