@@ -50,7 +50,7 @@ namespace Chapubelich.ChapubelichBot.Init
                     new FiftyFiftyStartRegexCommand(),
                     new FiftyFiftyRollRegexCommand(),
                     new FiftyFiftyCancelRegexCommand(),
-                    new FiftyFiftyCheckBetCommand(),
+                    new FiftyFiftyCheckBetRegexCommand(),
                     new BalanceRegexCommand(),
                     new TransferRegexCommand(),
                 };

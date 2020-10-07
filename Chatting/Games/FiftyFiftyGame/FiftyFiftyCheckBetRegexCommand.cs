@@ -11,9 +11,9 @@ using User = Chapubelich.Database.Models.User;
 
 namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
-    class FiftyFiftyCheckBetCommand : RegexCommand
+    class FiftyFiftyCheckBetRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^ *\/?((мо(и|я))|(my))?\s*((ставк(и|а))|(bets?))(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *((мо(и|я))|(my))?\s*((ставк(и|а))|(bets?))(@ChapubelichBot)?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {

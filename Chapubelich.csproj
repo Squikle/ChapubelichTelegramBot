@@ -107,7 +107,7 @@
     <Compile Include="Abstractions\Command.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyBetRegexCommand.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyCancelRegexCommand.cs" />
-    <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyCheckBetCommand.cs" />
+    <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyCheckBetRegexCommand.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyStartCommand.cs" />
     <Compile Include="Chatting\Commands\GamesCommand.cs" />
     <Compile Include="Chatting\Commands\HelloCommand.cs" />
