@@ -6,6 +6,7 @@ using Chapubelich.Database;
 using Telegram.Bot.Types.ReplyMarkups;
 using Chapubelich.Abstractions;
 using Chapubelich.Extensions;
+using Chapubelich.ChapubelichBot.Statics;
 
 namespace Chapubelich.Chatting.CallbackMessages
 {
@@ -35,12 +36,6 @@ namespace Chapubelich.Chatting.CallbackMessages
                 FirstName = query.From.FirstName
             };
 
-            var keyboard = new[] { 
-                new KeyboardButton("\U0001F4B0 Баланс"),
-                new KeyboardButton("\U0001F579 Игры")
-            };
-            var markup = new ReplyKeyboardMarkup(keyboard, resizeKeyboard: false, oneTimeKeyboard: false);
-
             using (var db = new ChapubelichdbContext())
             {
                 if (!db.Users.Any(x => x.UserId == user.UserId))
@@ -50,15 +45,9 @@ namespace Chapubelich.Chatting.CallbackMessages
                     await client.TrySendTextMessageAsync(
                         user.UserId,
                         "Вы были успешно зарегестрированы!",
-                        replyMarkup: markup
+                        replyMarkup: ReplyKeyboards.mainMenuMarkup
                         );
                 }
-                else 
-                    await client.TrySendTextMessageAsync(
-                        user.UserId,
-                        "Вы уже зарегестрированы!",
-                        replyMarkup: markup
-                        );
             }
 
             await client.TryDeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId);

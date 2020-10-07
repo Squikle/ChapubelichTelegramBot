@@ -21,17 +21,19 @@ namespace Chapubelich.ChapubelichBot.Init
                 if (_client != null)
                     return _client;
 
+
+                StartCommand = new StartCommand();
+                RegistrationCommand = new RegistrationCommand();
+
                 BotPrivateCommands = new List<Command>()
                 {
-                new HelloCommand(),
-                new SetShutdownCommand(),
-                new CancelShutdownCommand(),
-                new BalanceCommand(),
-                new MenuCommand(),
-                new GamesCommand(),
-                new RegistrationCommand(),
-                new StartCommand(),
-                new FiftyFiftyStartCommand(),
+                    new HelloCommand(),
+                    new SetShutdownCommand(),
+                    new CancelShutdownCommand(),
+                    new BalanceCommand(),
+                    new MenuCommand(),
+                    new GamesCommand(),
+                    new FiftyFiftyStartCommand(),
                 };
                 BotGroupCommands = new List<Command>()
                 {
@@ -58,10 +60,13 @@ namespace Chapubelich.ChapubelichBot.Init
             }
         }
 
-        private static List<Command>            BotPrivateCommands;
-        private static List<Command>            BotGroupCommands;
-        private static List<RegexCommand>       BotRegexCommands;
-        private static List<CallBackMessage>    BotCallbackMessages;
+        public static StartCommand                      StartCommand;
+        public static RegistrationCommand               RegistrationCommand;
+
+        private static List<Command>                    BotPrivateCommands;
+        private static List<Command>                    BotGroupCommands;
+        private static List<RegexCommand>               BotRegexCommands;
+        private static List<CallBackMessage>            BotCallbackMessages;
         public static IReadOnlyList<Command>            BotPrivateCommandsList { get => BotPrivateCommands.AsReadOnly(); }
         public static IReadOnlyList<Command>            BotGroupCommandsList { get => BotGroupCommands.AsReadOnly(); }
         public static IReadOnlyList<RegexCommand>       BotRegexCommandsList { get => BotRegexCommands.AsReadOnly(); }

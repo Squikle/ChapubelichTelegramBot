@@ -1,4 +1,5 @@
 ﻿using Chapubelich.Abstractions;
+using Chapubelich.ChapubelichBot.Statics;
 using Chapubelich.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -12,18 +13,15 @@ namespace Chapubelich.Chating.Commands
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var inlineKeyboard = new InlineKeyboardMarkup(new[]
+            InlineKeyboardMarkup genderChooseMarkup = new InlineKeyboardMarkup(new[]
             {
-                new []
-                {
-                    InlineKeyboardButton.WithCallbackData("\U00002642", "Male"),
-                    InlineKeyboardButton.WithCallbackData("\U00002640", "Female")
-                }
+                InlineKeyboardButton.WithCallbackData("М\U00002642", "Male"),
+                InlineKeyboardButton.WithCallbackData("Ж\U00002640", "Female")
             });
 
             await client.TrySendTextMessageAsync(message.From.Id,
             "Пожалуйста, укажите ваш гендер:",
-            replyMarkup: inlineKeyboard);
+            replyMarkup: genderChooseMarkup);
         }
     }
 }

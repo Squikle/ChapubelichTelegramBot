@@ -1,6 +1,7 @@
 ﻿using Chapubelich.Abstractions;
 using Chapubelich.ChapubelichBot.Init;
 using Chapubelich.ChapubelichBot.LocalModels;
+using Chapubelich.ChapubelichBot.Statics;
 using Chapubelich.Database;
 using Chapubelich.Extensions;
 using System;
@@ -92,12 +93,9 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
                     {
                         IsActive = false;
 
-                        var inlineKeyboard = new InlineKeyboardMarkup(new[]
+                        InlineKeyboardMarkup playAgainMarkup = new InlineKeyboardMarkup(new[]
                         {
-                            new []
-                            {
-                                InlineKeyboardButton.WithCallbackData("Играть снова", "PlayAgain")
-                            }
+                            InlineKeyboardButton.WithCallbackData("Играть снова", "50/50 PlayAgain")
                         });
 
                         await client.TryDeleteMessageAsync(
@@ -108,7 +106,7 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
                             ChatId,
                             result,
                             Telegram.Bot.Types.Enums.ParseMode.Html,
-                            replyMarkup: inlineKeyboard);
+                            replyMarkup: playAgainMarkup);
 
                         FiftyFiftyGame.GameSessions.Remove(this);
 

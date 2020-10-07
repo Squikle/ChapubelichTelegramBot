@@ -13,7 +13,7 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
     class FiftyFiftyStartCallbackMessage : CallBackMessage
     {
-        public override List<string> IncludingData => new List<string> { "PlayAgain" };
+        public override List<string> IncludingData => new List<string> { "50/50 PlayAgain" };
 
         public override async void Execute(CallbackQuery query, ITelegramBotClient client)
         {

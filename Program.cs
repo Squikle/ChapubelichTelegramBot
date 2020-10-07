@@ -1,4 +1,5 @@
 ﻿using Chapubelich.ChapubelichBot.Init;
+using Chapubelich.ChapubelichBot.Statics;
 using Chapubelich.Chating.Commands;
 using Chapubelich.Database;
 using Chapubelich.Extensions;
@@ -8,6 +9,8 @@ using System.Linq;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Chapubelich
 {
@@ -81,36 +84,71 @@ namespace Chapubelich
         }
         static async void PrivateMessageProcess(MessageEventArgs e)
         {
-            if (Registred(e.Message.From))
-            {
-                foreach (var privateCommand in Bot.BotPrivateCommandsList)
+            bool userIsRegistered = Registered(e.Message.From);
+            bool repeatedRegisterRequest = false;
+
+            foreach (var privateCommand in Bot.BotPrivateCommandsList)
+                if (privateCommand.Contains(e.Message.Text, privateChat: true))
                 {
-                    if (privateCommand.Contains(e.Message.Text, privateChat: true))
+                    if (userIsRegistered)
                         privateCommand.Execute(e.Message, client);
+                    else
+                        RegistrationInvite(e.Message);
+
+                    return;
                 }
 
-                foreach (var regexCommand in Bot.BotRegexCommandsList)
+            foreach (var regexCommand in Bot.BotRegexCommandsList)
+                if (regexCommand.Contains(e.Message.Text))
                 {
-                    if (regexCommand.Contains(e.Message.Text))
+                    if (userIsRegistered)
                         regexCommand.Execute(e.Message, client);
+                    else 
+                        RegistrationInvite(e.Message);
+
+                    return;
                 }
-            }
-            else
+
+            if (Bot.StartCommand.Contains(e.Message.Text, privateChat: true))
             {
-                var startCommand = Bot.BotPrivateCommandsList.First(x => x.Name == "/start");
-                var registrationCommand = Bot.BotPrivateCommandsList.First(x => x.Name == "\U0001F511 Register");
-
-                if (!startCommand.Contains(e.Message.Text, privateChat: true) && !registrationCommand.Contains(e.Message.Text, privateChat: true))
-                    await client.TrySendTextMessageAsync(
-                    e.Message.Chat.Id,
-                    $"Упс, кажется вас нет в базе данных. Пожалуйста, пройдите процесс регистрации: ");
-
-                registrationCommand.Execute(e.Message, client);
+                if (!userIsRegistered)
+                {
+                    Bot.StartCommand.Execute(e.Message, client);
+                    return;
+                }
+                repeatedRegisterRequest = true;
             }
+            else if (Bot.RegistrationCommand.Contains(e.Message.Text, privateChat: true))
+            {
+                if (!userIsRegistered)
+                {
+                    Bot.RegistrationCommand.Execute(e.Message, client);
+                    return;
+                }
+                repeatedRegisterRequest = true;
+            }
+
+            if (repeatedRegisterRequest)
+            {
+                await client.TrySendTextMessageAsync(
+                e.Message.Chat.Id,
+                $"Вы уже зарегестрированы",
+                replyMarkup: ReplyKeyboards.mainMenuMarkup);
+
+                return;
+            }
+
+            if (!userIsRegistered)
+                RegistrationInvite(e.Message);
+            else await client.TrySendTextMessageAsync(
+                e.Message.Chat.Id,
+                $"Пользуйтесь меню внизу чата. (Если его нет - воспользуйтесь кнопкой на поле ввода)",
+                replyMarkup: ReplyKeyboards.mainMenuMarkup,
+                replyToMessageId: e.Message.MessageId);
         }
         static async void GroupMessageProcess(MessageEventArgs e)
         {
-            bool registred = Registred(e.Message.From);
+            bool registred = Registered(e.Message.From);
 
             foreach (var groupCommand in Bot.BotGroupCommandsList)
             {
@@ -153,7 +191,16 @@ namespace Chapubelich
             }
         }
 
-        static bool Registred(Telegram.Bot.Types.User sender)
+        static async void RegistrationInvite(Message message)
+        {
+            await client.TrySendTextMessageAsync(
+                        message.Chat.Id,
+                        $"Упс, кажется вас нет в базе данных. Пожалуйста, пройдите процесс регистрации: ",
+                        replyToMessageId: message.MessageId);
+            Bot.RegistrationCommand.Execute(message, client);
+        }
+
+        static bool Registered(Telegram.Bot.Types.User sender)
         {
             using (var db = new ChapubelichdbContext())
                 return db.Users.Any(x => x.UserId == sender.Id);

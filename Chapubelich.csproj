@@ -99,6 +99,7 @@
     <Compile Include="Abstractions\GameSession.cs" />
     <Compile Include="Abstractions\RegexCommand.cs" />
     <Compile Include="ChapubelichBot\LocalModels\BetToken.cs" />
+    <Compile Include="ChapubelichBot\Statics\ReplyKeyboards.cs" />
     <Compile Include="Chatting\CallbackMessages\GenderCallbackMessage.cs" />
     <Compile Include="ChapubelichBot\Init\AppSettings.cs" />
     <Compile Include="ChapubelichBot\Init\Bot.cs" />
