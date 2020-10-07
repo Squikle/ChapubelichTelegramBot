@@ -87,27 +87,22 @@ namespace Chapubelich
             bool userIsRegistered = Registered(e.Message.From);
             bool repeatedRegisterRequest = false;
 
-            foreach (var privateCommand in Bot.BotPrivateCommandsList)
-                if (privateCommand.Contains(e.Message.Text, privateChat: true))
-                {
-                    if (userIsRegistered)
+            if (userIsRegistered)
+            {
+                foreach (var privateCommand in Bot.BotPrivateCommandsList)
+                    if (privateCommand.Contains(e.Message.Text, privateChat: true))
+                    {
                         privateCommand.Execute(e.Message, client);
-                    else
-                        RegistrationInvite(e.Message);
+                        return;
+                    }
 
-                    return;
-                }
-
-            foreach (var regexCommand in Bot.BotRegexCommandsList)
-                if (regexCommand.Contains(e.Message.Text))
-                {
-                    if (userIsRegistered)
+                foreach (var regexCommand in Bot.BotRegexCommandsList)
+                    if (regexCommand.Contains(e.Message.Text))
+                    {
                         regexCommand.Execute(e.Message, client);
-                    else 
-                        RegistrationInvite(e.Message);
-
-                    return;
-                }
+                        return;
+                    }
+            }
 
             if (Bot.StartCommand.Contains(e.Message.Text, privateChat: true))
             {
@@ -133,7 +128,7 @@ namespace Chapubelich
                 await client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
                 $"Вы уже зарегестрированы",
-                replyMarkup: ReplyKeyboards.mainMenuMarkup);
+                replyMarkup: ReplyKeyboards.MainMarkup);
 
                 return;
             }
@@ -142,8 +137,8 @@ namespace Chapubelich
                 RegistrationInvite(e.Message);
             else await client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
-                $"Пользуйтесь меню внизу чата. (Если его нет - воспользуйтесь кнопкой на поле ввода)",
-                replyMarkup: ReplyKeyboards.mainMenuMarkup,
+                $"Воспользуйтесь меню. (Если его нет - нажмите на соответствующую кнопку на поле ввода)",
+                replyMarkup: ReplyKeyboards.MainMarkup,
                 replyToMessageId: e.Message.MessageId);
         }
         static async void GroupMessageProcess(MessageEventArgs e)

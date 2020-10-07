@@ -99,12 +99,17 @@
     <Compile Include="Abstractions\GameSession.cs" />
     <Compile Include="Abstractions\RegexCommand.cs" />
     <Compile Include="ChapubelichBot\LocalModels\BetToken.cs" />
+    <Compile Include="ChapubelichBot\Statics\InlineKeyboards.cs" />
     <Compile Include="ChapubelichBot\Statics\ReplyKeyboards.cs" />
     <Compile Include="Chatting\CallbackMessages\GenderCallbackMessage.cs" />
     <Compile Include="ChapubelichBot\Init\AppSettings.cs" />
     <Compile Include="ChapubelichBot\Init\Bot.cs" />
     <Compile Include="Chatting\Commands\BalanceCommand.cs" />
     <Compile Include="Abstractions\Command.cs" />
+    <Compile Include="Chatting\Commands\GenderChangeCommand.cs" />
+    <Compile Include="Chatting\Commands\HelpCommand.cs" />
+    <Compile Include="Chatting\Commands\MyProfileCommand.cs" />
+    <Compile Include="Chatting\Commands\SettingsCommand.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyBetRegexCommand.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyCancelRegexCommand.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyCheckBetRegexCommand.cs" />
@@ -127,6 +132,7 @@
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyRollRegexCommand.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyStartCallbackMessage.cs" />
     <Compile Include="Chatting\Games\FiftyFiftyGame\FiftyFiftyStartRegexCommand.cs" />
+    <Compile Include="Chatting\Games\IsHeGame\IsItGameRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\BalanceRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\TransferRegexCommand.cs" />
     <Compile Include="Extensions\TelegramBotExtensions.cs" />
@@ -154,6 +160,10 @@
     <Compile Include="Migrations\202010062232051_Added IsAvailable for groups and changed order for users.designer.cs">
       <DependentUpon>202010062232051_Added IsAvailable for groups and changed order for users.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202010070816349_not null gender.cs" />
+    <Compile Include="Migrations\202010070816349_not null gender.designer.cs">
+      <DependentUpon>202010070816349_not null gender.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -180,6 +190,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010062232051_Added IsAvailable for groups and changed order for users.resx">
       <DependentUpon>202010062232051_Added IsAvailable for groups and changed order for users.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010070816349_not null gender.resx">
+      <DependentUpon>202010070816349_not null gender.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

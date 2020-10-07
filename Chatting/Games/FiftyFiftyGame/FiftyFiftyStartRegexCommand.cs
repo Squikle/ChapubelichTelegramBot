@@ -16,7 +16,7 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 
         public override void Execute(Message message, ITelegramBotClient client)
         {
-            var startCommand = Bot.BotPrivateCommandsList.First(x => x.Name == "\U0001F3B0 50/50");
+            var startCommand = Bot.BotPrivateCommandsList.First(x => x.Name == FiftyFiftyGame.Name);
             if (null != startCommand)
                 startCommand.Execute(message, client);
         }

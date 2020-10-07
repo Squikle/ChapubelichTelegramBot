@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
-    class FiftyFiftyGame
+    static class FiftyFiftyGame
     {
-        public static string Name => "\U0001F3B0 50/50";
+        public static string Name => "\U0001F534 50/50 \U000026AB";
         public static List<FiftyFiftyGameSession> GameSessions { get; set; } = new List<FiftyFiftyGameSession>();
         public static FiftyFiftyGameSession GetGameSessionByChatId(long chatId)
         {

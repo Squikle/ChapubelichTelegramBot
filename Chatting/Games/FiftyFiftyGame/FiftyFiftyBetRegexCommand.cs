@@ -14,7 +14,7 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
 {
     class FiftyFiftyBetRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/?(\d{1,6}) ?((к(расный)?)|(ч(ерный)?))(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/?(\d{1,4}) ?((к(расный)?)|(ч(ерный)?))(@ChapubelichBot)?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {

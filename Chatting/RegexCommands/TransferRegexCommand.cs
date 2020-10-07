@@ -14,7 +14,7 @@ namespace Chapubelich.Chatting.RegexCommands
 {
     class TransferRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *\+(\d{1,4})(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *\+(\d{1,3})(@ChapubelichBot)?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
@@ -28,7 +28,7 @@ namespace Chapubelich.Chatting.RegexCommands
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"Вы не можете передать {transferSum} монет\U0001F614",
+                    $"Вы не можете передать {transferSum} 💵 \U0001F614",
                     replyToMessageId: message.MessageId);
                 return;
             }
@@ -53,13 +53,13 @@ namespace Chapubelich.Chatting.RegexCommands
 
                 if (transferFrom.Balance >= transferSum)
                 {
-                    string genderWord = transferTo.Gender == true ? "него" : "неё";
+                    string genderWord = transferTo.Gender ? "него" : "неё";
 
                     transferFrom.Balance -= transferSum;
                     transferTo.Balance += transferSum;
                     await client.TrySendTextMessageAsync(
                         message.Chat.Id,
-                        $"Вы передали {transferSum} монет пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
+                        $"Вы передали {transferSum} 💵 пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
                         $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance}\U0001F4B0",
                         Telegram.Bot.Types.Enums.ParseMode.Html,
                         replyToMessageId: message.MessageId);

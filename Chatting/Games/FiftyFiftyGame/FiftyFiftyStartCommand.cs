@@ -10,7 +10,7 @@ namespace Chapubelich.Chatting.Commands
 {
     class FiftyFiftyStartCommand : Command
     {
-        public override string Name => "\U0001F3B0 50/50";
+        public override string Name => FiftyFiftyGame.Name;
         public override async void Execute(Message message, ITelegramBotClient client)
         {
             var session = FiftyFiftyGame.GetGameSessionByChatId(message.Chat.Id);

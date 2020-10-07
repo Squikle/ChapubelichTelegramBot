@@ -39,11 +39,11 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
             if (message.From.Id == client.BotId)
                 GameMessage = await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    "Игра в процессе. Ждем ваши ставки: ");
+                    "Игра запущена. Ждем ваши ставки: ");
             else
                 GameMessage = await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    "Игра в процессе. Ждем ваши ставки: ",
+                    "Игра запущена. Ждем ваши ставки: ",
                     replyToMessageId: message.MessageId);
         }
 
@@ -64,12 +64,12 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
                     // Определение победителей
                     if (winTokens.Any())
                     {
-                        result += "\n\U0001F3C6<b>Выиграли:</b>";
+                        result += "\n🏆<b>Выиграли:</b>";
                         foreach (var token in winTokens)
                         {
                             User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
 
-                            result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{token.BetSum}</b>\U0001F4B0";
+                            result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{token.BetSum}</b>💵";
 
                             user.Balance += token.BetSum*2;
                         }
@@ -78,13 +78,13 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
                     // Определение проигравших
                     if (looseTokens.Any())
                     {
-                        result += "\n\U0001F44E<b>Проиграли:</b>";
+                        result += "\n📉<b>Проиграли:</b>";
 
                         foreach (var player in looseTokens)
                         {
                             User user = db.Users.FirstOrDefault(x => x.UserId == player.UserId);
 
-                            result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum}</b>\U0001F4B0";
+                            result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum}</b>💵";
                         }
                     }
 

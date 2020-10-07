@@ -3,7 +3,7 @@ using System.Data.Entity;
 
 namespace Chapubelich.Database
 {
-    public class ChapubelichdbContext : DbContext
+    class ChapubelichdbContext : DbContext
     {
         public ChapubelichdbContext() : base("ChapubelichConnectionString")
         {

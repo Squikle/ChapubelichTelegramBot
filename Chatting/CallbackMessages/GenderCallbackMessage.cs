@@ -3,10 +3,10 @@ using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Chapubelich.Database;
-using Telegram.Bot.Types.ReplyMarkups;
 using Chapubelich.Abstractions;
 using Chapubelich.Extensions;
 using Chapubelich.ChapubelichBot.Statics;
+using User = Chapubelich.Database.Models.User;
 
 namespace Chapubelich.Chatting.CallbackMessages
 {
@@ -16,36 +16,51 @@ namespace Chapubelich.Chatting.CallbackMessages
 
         public override async void Execute(CallbackQuery query, ITelegramBotClient client)
         {
-            bool userGender = false;
-
-            switch (query.Data)
-            {
-                case "Male":
-                    userGender = true;
-                    break;
-                case "Female":
-                    userGender = false;
-                    break;
-            }
-
-            Database.Models.User user = new Database.Models.User()
-            {
-                Gender = userGender,
-                Username = query.From.Username,
-                UserId = query.From.Id,
-                FirstName = query.From.FirstName
-            };
-
             using (var db = new ChapubelichdbContext())
             {
-                if (!db.Users.Any(x => x.UserId == user.UserId))
+                bool choosenGender = false;
+
+                switch (query.Data)
                 {
-                    db.Users.Add(user);
+                    case "Male":
+                        choosenGender = true;
+                        break;
+                    case "Female":
+                        choosenGender = false;
+                        break;
+                }
+
+                User senderUser = db.Users.FirstOrDefault(x => x.UserId == query.From.Id);
+                if (senderUser != null)
+                {
+                    senderUser.Gender = choosenGender;
+                    db.SaveChanges();
+                    await client.TryDeleteMessageAsync(
+                        query.Message.Chat.Id,
+                        query.Message.MessageId);
+                    await client.TrySendTextMessageAsync(
+                        query.Message.Chat.Id,
+                        "Настройки успешно сохранены!",
+                        replyMarkup: ReplyKeyboards.SettingsMarkup
+                        );
+                    return;
+                }
+                else
+                {
+                    senderUser = new User()
+                    {
+                        Gender = choosenGender,
+                        Username = query.From.Username,
+                        UserId = query.From.Id,
+                        FirstName = query.From.FirstName
+                    };
+
+                    db.Users.Add(senderUser);
                     db.SaveChanges();
                     await client.TrySendTextMessageAsync(
-                        user.UserId,
+                        query.Message.Chat.Id,
                         "Вы были успешно зарегестрированы!",
-                        replyMarkup: ReplyKeyboards.mainMenuMarkup
+                        replyMarkup: ReplyKeyboards.MainMarkup
                         );
                 }
             }

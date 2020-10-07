@@ -11,10 +11,11 @@ namespace Chapubelich.Database.Models
         {
             Balance = 300;
             IsAvailable = true;
+            Gender = true;
         }
         [Key]
         public int Id { get; set; }
-        public bool? Gender { get; set; }
+        public bool Gender { get; set; }
         public string Username { get; set; }
         public string FirstName { get; set; }
         public int Balance { get; set; }

@@ -4,6 +4,7 @@ using Chapubelich.Chatting.CallbackMessages;
 using Chapubelich.Chatting.Commands;
 using Chapubelich.Chatting.Commands.ShutdownCommands;
 using Chapubelich.Chatting.Games.FiftyFiftyGame;
+using Chapubelich.Chatting.Games.IsHeGame;
 using Chapubelich.Chatting.RegexCommands;
 using System;
 using System.Collections.Generic;
@@ -28,10 +29,17 @@ namespace Chapubelich.ChapubelichBot.Init
                 BotPrivateCommands = new List<Command>()
                 {
                     new HelloCommand(),
+
                     new SetShutdownCommand(),
                     new CancelShutdownCommand(),
+
                     new BalanceCommand(),
                     new MenuCommand(),
+                    new HelpCommand(),
+                    new SettingsCommand(),
+                    new GenderChangeCommand(),
+                    new MyProfileCommand(),
+
                     new GamesCommand(),
                     new FiftyFiftyStartCommand(),
                 };
@@ -51,8 +59,11 @@ namespace Chapubelich.ChapubelichBot.Init
                     new FiftyFiftyRollRegexCommand(),
                     new FiftyFiftyCancelRegexCommand(),
                     new FiftyFiftyCheckBetRegexCommand(),
+
                     new BalanceRegexCommand(),
                     new TransferRegexCommand(),
+
+                    new IsItGameRegexCommand(),
                 };
 
                 _client = new TelegramBotClient(AppSettings.Key) { Timeout = TimeSpan.FromSeconds(10) };

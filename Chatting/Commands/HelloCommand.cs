@@ -11,7 +11,7 @@ namespace Chapubelich.Chatting.Commands
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            await client.TrySendTextMessageAsync(message.Chat.Id, "Yo!", replyToMessageId: message.MessageId);
+            await client.TrySendTextMessageAsync(message.Chat.Id, "Привет!\U0001F604", replyToMessageId: message.MessageId);
         }
     }
 }

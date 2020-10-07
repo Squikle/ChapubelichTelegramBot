@@ -20,7 +20,7 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
             var session = FiftyFiftyGame.GetGameSessionByChatId(query.Message.Chat.Id);
             if (null == session)
             {
-                await client.EditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
+                await client.TryEditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
                 var gameSession = new FiftyFiftyGameSession(query.Message);
                 gameSession.Start(query.Message, client);
                 FiftyFiftyGame.GameSessions.Add(gameSession);
@@ -34,4 +34,4 @@ namespace Chapubelich.Chatting.Games.FiftyFiftyGame
             }
         }
     }
-}
+} 
