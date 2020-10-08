@@ -1,16 +1,13 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.Database;
-using Chapubelich.Extensions;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Database;
+using ChapubelichBot.Types.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.RegexCommands
+namespace ChapubelichBot.Chatting.RegexCommands
 {
     class TransferRegexCommand : RegexCommand
     {
@@ -21,9 +18,9 @@ namespace Chapubelich.Chatting.RegexCommands
             var markedUser = message?.ReplyToMessage?.From;
             string transferSumString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
 
-            int transferSum = 0;
-            if (!Int32.TryParse(transferSumString, out transferSum) || null == markedUser)
+            if (!Int32.TryParse(transferSumString, out int transferSum) || null == markedUser)
                 return;
+
             if (transferSum == 0)
             {
                 await client.TrySendTextMessageAsync(

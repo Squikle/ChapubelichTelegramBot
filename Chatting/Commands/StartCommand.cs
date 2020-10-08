@@ -1,10 +1,10 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.ChapubelichBot.Statics;
-using Chapubelich.Extensions;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     public class StartCommand : Command
     {
@@ -18,7 +18,7 @@ namespace Chapubelich.Chatting.Commands
                 "Чтобы поздороваться с ботом - отправь команду /hello\n" +
                 "По поводу возникших вопросов - @Squikle\n" +
                 "Для начала нужно зарегестрироваться. Для этого нажми на кнопку снизу\U0001F609",
-                replyMarkup: ReplyKeyboards.RegistrationMarkup);
+                replyMarkup: ReplyKeyboardsStatic.RegistrationMarkup);
             return;
         }
     }

@@ -1,11 +1,11 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.Database;
-using Chapubelich.Extensions;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Extensions;
+using ChapubelichBot.Database;
 using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     class BalanceCommand : Command
     {

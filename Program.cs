@@ -1,23 +1,20 @@
-﻿using Chapubelich.ChapubelichBot.Init;
-using Chapubelich.ChapubelichBot.Statics;
-using Chapubelich.Chating.Commands;
-using Chapubelich.Database;
-using Chapubelich.Extensions;
+﻿using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Database;
+using ChapubelichBot.Types.Extensions;
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
+using ChapubelichBot.Init;
 
-namespace Chapubelich
+namespace ChapubelichBot
 {
     class Program
     {
-        private static ITelegramBotClient client = Bot.Client;
-        static void Main(string[] args)
+        private static readonly ITelegramBotClient client = Bot.Client;
+        static void Main()
         {
             var me = client.GetMeAsync().Result;
             Console.Title = me.Username;
@@ -128,7 +125,7 @@ namespace Chapubelich
                 await client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
                 $"Вы уже зарегестрированы",
-                replyMarkup: ReplyKeyboards.MainMarkup);
+                replyMarkup: ReplyKeyboardsStatic.MainMarkup);
 
                 return;
             }
@@ -138,7 +135,7 @@ namespace Chapubelich
             else await client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
                 $"Воспользуйтесь меню. (Если его нет - нажмите на соответствующую кнопку на поле ввода)",
-                replyMarkup: ReplyKeyboards.MainMarkup,
+                replyMarkup: ReplyKeyboardsStatic.MainMarkup,
                 replyToMessageId: e.Message.MessageId);
         }
         static async void GroupMessageProcess(MessageEventArgs e)
@@ -185,7 +182,6 @@ namespace Chapubelich
                     command.Execute(e.CallbackQuery, client);
             }
         }
-
         static async void RegistrationInvite(Message message)
         {
             await client.TrySendTextMessageAsync(
@@ -194,8 +190,7 @@ namespace Chapubelich
                         replyToMessageId: message.MessageId);
             Bot.RegistrationCommand.Execute(message, client);
         }
-
-        static bool Registered(Telegram.Bot.Types.User sender)
+        static bool Registered(User sender)
         {
             using (var db = new ChapubelichdbContext())
                 return db.Users.Any(x => x.UserId == sender.Id);

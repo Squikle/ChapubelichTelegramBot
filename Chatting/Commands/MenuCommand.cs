@@ -1,11 +1,10 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.ChapubelichBot.Statics;
-using Chapubelich.Extensions;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     class MenuCommand : Command
     {
@@ -16,7 +15,7 @@ namespace Chapubelich.Chatting.Commands
             await client.TrySendTextMessageAsync(
                         message.Chat.Id,
                         "\U0001F3E0 Главное меню!",
-                        replyMarkup: ReplyKeyboards.MainMarkup,
+                        replyMarkup: ReplyKeyboardsStatic.MainMarkup,
                         replyToMessageId: message.MessageId);
         }
     }

@@ -44,3 +44,4 @@ C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\Chapu
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\Chapubelich.Migrations.balanceOnStartChanged.resources
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\Chapubelich.Migrations.AddedIsAvailableforgroupsandchangedorderforusers.resources
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\Chapubelich.Migrations.notnullgender.resources
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\Chapubelich.Migrations.Balanceofusershasbeenconvertedtolong.resources

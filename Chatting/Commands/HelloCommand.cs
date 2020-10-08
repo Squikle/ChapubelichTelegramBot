@@ -1,9 +1,9 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.Extensions;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     class HelloCommand : Command
     {

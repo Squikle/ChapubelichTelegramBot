@@ -1,14 +1,10 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.ChapubelichBot.Init;
-using System;
-using System.Collections.Generic;
+﻿using ChapubelichBot.Init;
+using ChapubelichBot.Types.Abstractions;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.RegexCommands
+namespace ChapubelichBot.Chatting.RegexCommands
 {
     class BalanceRegexCommand : RegexCommand
     {

@@ -1,10 +1,10 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.ChapubelichBot.Statics;
-using Chapubelich.Extensions;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     class GamesCommand : Command
     {
@@ -15,7 +15,7 @@ namespace Chapubelich.Chatting.Commands
             await client.TrySendTextMessageAsync(
                         message.Chat.Id,
                         "\U0001F579 Список доступных игр!",
-                        replyMarkup: ReplyKeyboards.GameMarkup,
+                        replyMarkup: ReplyKeyboardsStatic.GameMarkup,
                         replyToMessageId: message.MessageId);
         }
     }

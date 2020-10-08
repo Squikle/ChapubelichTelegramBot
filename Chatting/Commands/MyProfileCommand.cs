@@ -1,16 +1,12 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.ChapubelichBot.Statics;
-using Chapubelich.Database;
-using Chapubelich.Extensions;
-using System;
-using System.Collections.Generic;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Database;
+using ChapubelichBot.Types.Extensions;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     class MyProfileCommand : Command
     {
@@ -37,7 +33,7 @@ namespace Chapubelich.Chatting.Commands
                 await client.TrySendTextMessageAsync(message.From.Id, answerMessage, 
                     replyToMessageId: message.MessageId, 
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html, 
-                    replyMarkup: ReplyKeyboards.SettingsMarkup);
+                    replyMarkup: ReplyKeyboardsStatic.SettingsMarkup);
             }
         }
     }

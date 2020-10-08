@@ -1,4 +1,4 @@
-﻿namespace Chapubelich.Migrations
+﻿namespace ChapubelichBot.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;

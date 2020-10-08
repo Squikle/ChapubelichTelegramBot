@@ -1,15 +1,10 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.ChapubelichBot.Statics;
-using Chapubelich.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     class SettingsCommand : Command
     {
@@ -20,7 +15,7 @@ namespace Chapubelich.Chatting.Commands
             await client.TrySendTextMessageAsync(
             message.Chat.Id,
             "\U00002699 Меню настроек!",
-            replyMarkup: ReplyKeyboards.SettingsMarkup, 
+            replyMarkup: ReplyKeyboardsStatic.SettingsMarkup, 
             replyToMessageId: message.MessageId);
         }
     }

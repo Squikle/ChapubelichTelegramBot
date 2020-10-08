@@ -1,10 +1,10 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.ChapubelichBot.Statics;
-using Chapubelich.Extensions;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chating.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     public class RegistrationCommand : Command
     {
@@ -14,7 +14,7 @@ namespace Chapubelich.Chating.Commands
         {
             await client.TrySendTextMessageAsync(message.From.Id,
             "Пожалуйста, укажите ваш гендер:",
-            replyMarkup: InlineKeyboards.genderChooseMarkup);
+            replyMarkup: InlineKeyboardsStatic.genderChooseMarkup);
         }
     }
 }

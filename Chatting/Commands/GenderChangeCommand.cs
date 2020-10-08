@@ -1,15 +1,10 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.ChapubelichBot.Statics;
-using Chapubelich.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     class GenderChangeCommand : Command
     {
@@ -19,7 +14,7 @@ namespace Chapubelich.Chatting.Commands
         {
             await client.TrySendTextMessageAsync(message.From.Id,
                 "Пожалуйста, укажите ваш гендер:",
-                replyMarkup: InlineKeyboards.genderChooseMarkup,
+                replyMarkup: InlineKeyboardsStatic.genderChooseMarkup,
                 replyToMessageId: message.MessageId);
         }
     }

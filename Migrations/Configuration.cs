@@ -1,18 +1,18 @@
-﻿namespace Chapubelich.Migrations
+﻿namespace ChapubelichBot.Migrations
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<Chapubelich.Database.ChapubelichdbContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<ChapubelichBot.Database.ChapubelichdbContext>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(Chapubelich.Database.ChapubelichdbContext context)
+        protected override void Seed(ChapubelichBot.Database.ChapubelichdbContext context)
         {
             //  This method will be called after migrating to the latest version.
 

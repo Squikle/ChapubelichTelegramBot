@@ -1,14 +1,9 @@
-﻿using Chapubelich.Abstractions;
-using Chapubelich.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Chapubelich.Chatting.Commands
+namespace ChapubelichBot.Chatting.Commands
 {
     class HelpCommand : Command
     {
@@ -37,8 +32,7 @@ namespace Chapubelich.Chatting.Commands
 
                 "     💠Задать боту вопрос:\n" +
                 "         🔹Формат команды для вопроса - \"*что-то*=*чему-то*?\" .\n" +
-                "                   🔸Пример: \"бот=молодец?\" .\n" +
-                "         🔹Формат команды для вопроса отмечая сообщение - \"=*чему-то*?\" .\n\n" +
+                "                   🔸Пример: \"бот=молодец?\" .\n\n" +
 
                 "💬Так же некоторые команды можно посмотреть нажав на \"слеш\" на поле ввода.\n\n" +
 

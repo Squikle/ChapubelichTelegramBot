@@ -2,13 +2,13 @@
 using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Chapubelich.Database;
-using Chapubelich.Abstractions;
-using Chapubelich.Extensions;
-using Chapubelich.ChapubelichBot.Statics;
-using User = Chapubelich.Database.Models.User;
+using ChapubelichBot.Database;
+using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Extensions;
+using ChapubelichBot.Types.Statics;
+using User = ChapubelichBot.Database.Models.User;
 
-namespace Chapubelich.Chatting.CallbackMessages
+namespace ChapubelichBot.Chatting.CallbackMessages
 {
     class GenderCallbackMessage : CallBackMessage
     {
@@ -41,7 +41,7 @@ namespace Chapubelich.Chatting.CallbackMessages
                     await client.TrySendTextMessageAsync(
                         query.Message.Chat.Id,
                         "Настройки успешно сохранены!",
-                        replyMarkup: ReplyKeyboards.SettingsMarkup
+                        replyMarkup: ReplyKeyboardsStatic.SettingsMarkup
                         );
                     return;
                 }
@@ -60,7 +60,7 @@ namespace Chapubelich.Chatting.CallbackMessages
                     await client.TrySendTextMessageAsync(
                         query.Message.Chat.Id,
                         "Вы были успешно зарегестрированы!",
-                        replyMarkup: ReplyKeyboards.MainMarkup
+                        replyMarkup: ReplyKeyboardsStatic.MainMarkup
                         );
                 }
             }
