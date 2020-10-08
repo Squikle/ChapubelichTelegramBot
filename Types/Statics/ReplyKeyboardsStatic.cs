@@ -28,7 +28,7 @@ namespace ChapubelichBot.Types.Statics
                 {
                     new KeyboardButton[]
                     {
-                        new KeyboardButton(RouletteGameStatic.Name)
+                        new KeyboardButton(RouletteTableStatic.Name)
                     },
                     new KeyboardButton[]
                     {

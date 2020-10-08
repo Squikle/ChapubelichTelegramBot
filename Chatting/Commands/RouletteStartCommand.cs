@@ -9,13 +9,13 @@ namespace ChapubelichBot.Chatting.Commands
 {
     class FiftyFiftyStartCommand : Command
     {
-        public override string Name => RouletteGameStatic.Name;
+        public override string Name => RouletteTableStatic.Name;
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var session = RouletteGameStatic.GetGameSessionByChatId(message.Chat.Id);
+            var session = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
             if (session == null)
             {
-                RouletteGameStatic.GameSessions.Add(new RouletteGameSession(client, message));
+                RouletteTableStatic.GameSessions.Add(new RouletteGameSession(client, message));
                 return;
             }
 

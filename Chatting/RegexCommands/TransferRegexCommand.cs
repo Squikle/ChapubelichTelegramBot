@@ -11,14 +11,21 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class TransferRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *\+(\d{1,3})(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *\+(\d{1,3}) ?(.*?)$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
             var markedUser = message.ReplyToMessage?.From;
-            string transferSumString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
 
-            if (!Int32.TryParse(transferSumString, out int transferSum) || markedUser == null || markedUser == message.From || transferSum == 0)
+            Match match = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase);
+            string transferSumString = match.Groups[1].Value;
+            string attachedMessage = match.Groups[2].Value;
+
+            if (!Int32.TryParse(transferSumString, out int transferSum) ||
+                markedUser == null ||
+                markedUser == message.From ||
+                transferSum == 0 ||
+                markedUser.Id == client.BotId)
                 return;
 
             using (var db = new ChapubelichdbContext())
@@ -42,10 +49,15 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
                     transferFrom.Balance -= transferSum;
                     transferTo.Balance += transferSum;
+
+                    string resultMessage = $"Вы передали {transferSum} 💵 пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
+                        $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance}\U0001F4B0\n";
+                    if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 20)
+                        resultMessage += $"Подпись: {attachedMessage}";
+
                     await client.TrySendTextMessageAsync(
                         message.Chat.Id,
-                        $"Вы передали {transferSum} 💵 пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
-                        $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance}\U0001F4B0",
+                        resultMessage,
                         Telegram.Bot.Types.Enums.ParseMode.Html,
                         replyToMessageId: message.MessageId);
 

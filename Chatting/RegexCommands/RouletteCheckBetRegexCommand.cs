@@ -15,7 +15,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var gameSession = RouletteGameStatic.GetGameSessionByChatId(message.Chat.Id);
+            var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
             if (null == gameSession)
                 return;
 
@@ -28,10 +28,8 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 if (!userTokens.Any())
                     transactionResult += "\nУ вас нет текущих ставок";
                 else
-                {
-                    transactionResult += $"Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:";
-                    RouletteGameStatic.GetUserListOfBets(user, gameSession);
-                }
+                    transactionResult += $"Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:" 
+                        + gameSession.UserBetsToString(user);
                     
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,

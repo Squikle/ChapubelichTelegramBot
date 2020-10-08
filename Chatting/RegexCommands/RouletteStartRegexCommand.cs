@@ -14,7 +14,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
         public override void Execute(Message message, ITelegramBotClient client)
         {
-            var startCommand = Bot.BotPrivateCommandsList.First(x => x.Name == RouletteGameStatic.Name);
+            var startCommand = Bot.BotPrivateCommandsList.First(x => x.Name == RouletteTableStatic.Name);
             if (null != startCommand)
                 startCommand.Execute(message, client);
         }

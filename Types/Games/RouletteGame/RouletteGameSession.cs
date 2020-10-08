@@ -18,7 +18,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         public long ChatId { get; set; }
         public List<RouletteBetToken> BetTokens { get; set; }
         public bool Resulting { get; set; }
-        public bool Rolling { get; set; }
         public int ResultNumber { get; set; }
         public Message GameMessage { get; set; }
 
@@ -32,10 +31,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private async void Start(ITelegramBotClient client, Message message)
         {
             Resulting = false;
-            Rolling = false;
 
-            ResultNumber = RouletteColorStatic.GetRandomResultNumber();
-
+            ResultNumber = RouletteTableStatic.GetRandomResultNumber();
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
             GameMessage = await client.TrySendTextMessageAsync(
                 message.Chat.Id,
@@ -44,70 +41,93 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         public async void Result(ITelegramBotClient client, Message startMessage = null)
         {
-            if (Rolling)
+            if (Resulting)
                 return;
 
-            Rolling = true;
+            Resulting = true;
+            Message animationMessage = await client.TrySendAnimationAsync(ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 
-            Message animationMessage = await client.SendAnimationAsync(ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
             // Удаление сообщений и отправка результатов
-            if (!Resulting)
-            {
-                Resulting = true;
-                string result = GetResultMessage();
+            string result = GetResultMessage();
 
-                Thread.Sleep(3000);
-                await client.TryDeleteMessageAsync(animationMessage.Chat.Id, animationMessage.MessageId);
-                await client.TryDeleteMessageAsync( GameMessage.Chat.Id, GameMessage.MessageId);
+            Thread.Sleep(3000);
+            await client.TryDeleteMessageAsync(animationMessage.Chat.Id, animationMessage.MessageId);
+            await client.TryDeleteMessageAsync(GameMessage.Chat.Id, GameMessage.MessageId);
 
-                await client.TrySendTextMessageAsync(
-                    ChatId,
-                    result,
-                    Telegram.Bot.Types.Enums.ParseMode.Html,
-                    replyMarkup: InlineKeyboardsStatic.roulettePlayAgainMarkup,
-                    replyToMessageId: startMessage.MessageId);
+            await client.TrySendTextMessageAsync(
+                ChatId,
+                result,
+                Telegram.Bot.Types.Enums.ParseMode.Html,
+                replyMarkup: InlineKeyboardsStatic.roulettePlayAgainMarkup,
+                replyToMessageId: startMessage.MessageId);
 
-                RouletteGameStatic.GameSessions.Remove(this);
-            }
+            RouletteTableStatic.GameSessions.Remove(this);
         }
 
         private string GetResultMessage()
         {
+            RouletteColorEnum? resultColor = ResultNumber.ToRouletteColor();
+
             string result = "Игра окончена.\nРезультат: ";
-            result += RouletteColorStatic.GetEmojiByColor(RouletteColorStatic.GetColorByNumber(ResultNumber));
-            var winTokens = BetTokens.Where(x => x.ColorChoose == RouletteColorStatic.GetColorByNumber(ResultNumber));
-            var groupendLooseTokens = new List<RouletteBetToken>();
-            foreach (var el in BetTokens.Except(winTokens))
+            result += $"{ResultNumber} {resultColor.ToEmoji()}";
+
+            // Токены с цветом
+            var winTokensColor = BetTokens.Where(x => x.ChoosenColor == resultColor)?.ToArray();
+            var looseTokensColor = new List<RouletteBetToken>();
+            foreach (var el in BetTokens.Where(x => x.ChoosenColor != resultColor && x.ChoosenColor != null))
             {
-                var token = groupendLooseTokens.FirstOrDefault(x => x.UserId == el.UserId);
-                    if (token != null)
+                var token = looseTokensColor.FirstOrDefault(x => x.UserId == el.UserId);
+                if (token != null)
                     token.BetSum += el.BetSum;
-                else groupendLooseTokens.Add(el);
+                else looseTokensColor.Add(el);
             }
+
+            // Токены с числами
+            /*var winTokensNumbers = BetTokens.Where(x => x.ChoosenNumbers.Contains(ResultNumber))?.ToArray();
+            var looseTokensNumbers = new List<RouletteBetToken>();
+            foreach (var el in BetTokens.Where(x => !x.ChoosenNumbers.Contains(ResultNumber)))
+            {
+                var token = looseTokensNumbers.FirstOrDefault(x => x.UserId == el.UserId);
+                if (token != null)
+                    token.BetSum += el.BetSum;
+                else looseTokensNumbers.Add(el);
+            }*/
 
             using (var db = new ChapubelichdbContext())
             {
                 // Определение победителей
-                if (winTokens.Any())
+                if (winTokensColor.Any()) // || winTokensNumbers.Any())
                 {
                     result += "\n🏆<b>Выиграли:</b>";
-                    foreach (var token in winTokens)
+                    foreach (var token in winTokensColor)
                     {
-                        int gainSum = GetGainSum(token.ColorChoose, token.BetSum);
+                        int gainSum = GetGainSum(token.ChoosenColor, token.BetSum);
                         User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
-                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum-token.BetSum}</b>💵";
+                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum - token.BetSum}</b>💵";
                         user.Balance += gainSum;
                     }
+                    /*foreach (var token in winTokensNumbers)
+                    {
+                        int gainSum = GetGainSum(token.ChoosenNumbers, token.BetSum);
+                        User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
+                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum - token.BetSum}</b>💵";
+                        user.Balance += gainSum;
+                    }*/
                 }
                 // Определение проигравших
-                if (groupendLooseTokens.Any())
+                if (looseTokensColor.Any()) // || looseTokensNumbers.Any())
                 {
                     result += "\n\U0001F614<b>Проиграли:</b>";
-                    foreach (var player in groupendLooseTokens)
+                    foreach (var player in looseTokensColor)
                     {
                         User user = db.Users.FirstOrDefault(x => x.UserId == player.UserId);
                         result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum}</b>💵";
                     }
+                    /*foreach (var player in looseTokensNumbers)
+                    {
+                        User user = db.Users.FirstOrDefault(x => x.UserId == player.UserId);
+                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum}</b>💵";
+                    }*/
                 }
 
                 db.SaveChanges();
@@ -115,7 +135,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             return result;
         }
-        private static int GetGainSum(RouletteColorEnum color, int betSum)
+        private static int GetGainSum(RouletteColorEnum? color, int betSum)
         {
             switch (color)
             {
@@ -128,6 +148,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 default:
                     return betSum;
             }
+        }
+        private static int GetGainSum(int[] choosenNumbers, int betSum)
+        {
+            return (int)(betSum * RouletteTableStatic.tableSize * ((RouletteTableStatic.tableSize - choosenNumbers.Length) / (double)RouletteTableStatic.tableSize));
         }
         private static InputOnlineFile GetRandomAnimationLink()
         {

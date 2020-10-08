@@ -10,21 +10,20 @@ using Telegram.Bot.Types;
 using User = ChapubelichBot.Database.Models.User;
 using ChapubelichBot.Types.Enums;
 using ChapubelichBot.Types.Games.RouletteGame;
-using System.Collections.Generic;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
-    class RouletteBetRegexCommand : RegexCommand
+    class RouletteColorBetRegexCommand : RegexCommand
     {
         public override string Pattern => @"^\/?(\d{1,4}) ?(к(расный)?|ч(ерный)?|з(еленый)?|r(ed)?|b(lack)?|g(reen)?) *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var gameSession = RouletteGameStatic.GetGameSessionByChatId(message.Chat.Id);
+            var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
 
             if (null == gameSession)
                 return;
-            if (gameSession.Rolling)
+            if (gameSession.Resulting)
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id,
                         "Барабан уже крутится, слишком поздно для ставок",
@@ -32,25 +31,28 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 return;
             }
 
-            string betString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
-            string chooseString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[2].Value.ToLower();
+            Match matchString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase);
+
+            if (!Int32.TryParse(matchString.Groups[1].Value, out int playerBet) || playerBet == 0)
+                return;
+            char betColor = matchString.Groups[2].Value.ToLower().ElementAtOrDefault(0);
 
             // Определение ставки игрока
-            RouletteColorEnum playerChoose = RouletteColorEnum.Red;
+            RouletteColorEnum? playerChoose = null;
 
-            if (!Int32.TryParse(betString, out int playerBet) || chooseString == null || playerBet == 0)
-                return;
-
-            if (chooseString[0] == 'к' || chooseString[0] == 'r')
+            if (betColor == 'к' || betColor == 'r')
                 playerChoose = RouletteColorEnum.Red;
-            else if (chooseString[0] == 'ч' || chooseString[0] == 'b')
+            else if (betColor == 'ч' || betColor == 'b')
                 playerChoose = RouletteColorEnum.Black;
-            else if (chooseString[0] == 'з' || chooseString[0] == 'g')
+            else if (betColor == 'з' || betColor == 'g')
                 playerChoose = RouletteColorEnum.Green;
+            else return;
 
             using (var db = new ChapubelichdbContext())
             {
-                User user = db.Users.First(x => x.UserId == message.From.Id);
+                User user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+                if (user == null) 
+                    return;
 
                 if (playerBet > user.Balance)
                 {
@@ -60,7 +62,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     return;
                 }
 
-                RouletteBetToken currentBetToken = gameSession.BetTokens.FirstOrDefault(x => x.ColorChoose == playerChoose && x.UserId == user.UserId);
+                RouletteBetToken currentBetToken = gameSession.BetTokens.FirstOrDefault(x => x.ChoosenColor == playerChoose && x.UserId == user.UserId);
 
                 if (null != currentBetToken)
                     currentBetToken.BetSum += playerBet;
@@ -73,8 +75,8 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 user.Balance -= playerBet;
                 await db.SaveChangesAsync();
 
-                string transactionResult = $"Ставка принята. Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:";
-                transactionResult += RouletteGameStatic.GetUserListOfBets(user, gameSession);
+                string transactionResult = $"Ставка принята. Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
+                    + gameSession.UserBetsToString(user);
                                 
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
@@ -82,7 +84,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     replyToMessageId: message.MessageId,
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
-                if (!string.IsNullOrEmpty(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[9].Value))
+                if (!string.IsNullOrEmpty(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[5].Value))
                     gameSession.Result(client, message);
             }
         }

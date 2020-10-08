@@ -227,7 +227,7 @@ namespace ChapubelichBot
         }
         private static async void SendRegistrationAlert(CallbackQuery callbackQuery)
         {
-            await client.AnswerCallbackQueryAsync(
+            await client.TryAnswerCallbackQueryAsync(
                         callbackQuery.Id,
                         $"Пожалуйста, пройдите процесс регистрации.",
                         showAlert: true);

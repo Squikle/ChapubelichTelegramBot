@@ -15,7 +15,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var gameSession = RouletteGameStatic.GetGameSessionByChatId(message.Chat.Id);
+            var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
             if (null != gameSession)
             {
                 using (var db = new ChapubelichdbContext())

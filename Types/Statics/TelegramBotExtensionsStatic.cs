@@ -50,18 +50,6 @@ namespace ChapubelichBot.Types.Extensions
                 return message;
             }
         }
-        public static async Task TryDeleteMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                await client.DeleteMessageAsync(chatId, messageId, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось удалить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
-            }
-        }
         public static async Task<Message> TryEditMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, InlineKeyboardMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             Message message;
@@ -110,5 +98,30 @@ namespace ChapubelichBot.Types.Extensions
 
             return message;
         }
+        public static async Task TryDeleteMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await client.DeleteMessageAsync(chatId, messageId, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                if (e is ApiRequestException)
+                    Console.WriteLine($"Не удалось удалить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
+            }
+        }
+        public static async Task TryAnswerCallbackQueryAsync(this ITelegramBotClient client, string callbackQueryId, string text = null, bool showAlert = false, string url = null, int cacheTime = 0, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await client.AnswerCallbackQueryAsync(callbackQueryId, text, showAlert, url, cacheTime, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                if (e is ApiRequestException)
+                    Console.WriteLine($"Не удалось удалить сообщение. callbackQueryId: {callbackQueryId}\nОшибка: {e.Message}");
+            }
+        }
+
     }
 }

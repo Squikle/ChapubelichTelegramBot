@@ -95,9 +95,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chatting\RegexCommands\RouletteNumberBetRegexCommand.cs" />
     <Compile Include="Types\Abstractions\CallbackMessage.cs" />
     <Compile Include="Types\Abstractions\RegexCommand.cs" />
-    <Compile Include="Types\Statics\RouletteColorStatic.cs" />
     <Compile Include="Types\Games\RouletteGame\RouletteBetToken.cs" />
     <Compile Include="Types\Statics\InlineKeyboardsStatic.cs" />
     <Compile Include="Types\Statics\ReplyKeyboardsStatic.cs" />
@@ -110,7 +110,7 @@
     <Compile Include="Chatting\Commands\HelpCommand.cs" />
     <Compile Include="Chatting\Commands\MyProfileCommand.cs" />
     <Compile Include="Chatting\Commands\SettingsCommand.cs" />
-    <Compile Include="Chatting\RegexCommands\RouletteBetRegexCommand.cs" />
+    <Compile Include="Chatting\RegexCommands\RouletteColorBetRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteCancelRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteCheckBetRegexCommand.cs" />
     <Compile Include="Chatting\Commands\RouletteStartCommand.cs" />
@@ -127,7 +127,7 @@
     <Compile Include="Database\Models\User.cs" />
     <Compile Include="Database\Models\UserGroup.cs" />
     <Compile Include="Types\Games\RouletteGame\RouletteGameSession.cs" />
-    <Compile Include="Types\Statics\RouletteGameStatic.cs" />
+    <Compile Include="Types\Statics\RouletteTableStatic.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteRollRegexCommand.cs" />
     <Compile Include="Chatting\CallbackMessages\RouletteStartCallbackMessage.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteStartRegexCommand.cs" />
@@ -135,7 +135,7 @@
     <Compile Include="Chatting\RegexCommands\IsItGameRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\BalanceRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\TransferRegexCommand.cs" />
-    <Compile Include="Types\Extensions\TelegramBotExtensions.cs" />
+    <Compile Include="Types\Statics\TelegramBotExtensionsStatic.cs" />
     <Compile Include="Migrations\202009301524029_init.cs" />
     <Compile Include="Migrations\202009301524029_init.designer.cs">
       <DependentUpon>202009301524029_init.cs</DependentUpon>

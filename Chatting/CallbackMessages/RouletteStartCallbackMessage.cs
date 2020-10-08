@@ -14,17 +14,18 @@ namespace ChapubelichBot.Chatting.CallbackMessages
 
         public override async void Execute(CallbackQuery query, ITelegramBotClient client)
         {
-            var session = RouletteGameStatic.GetGameSessionByChatId(query.Message.Chat.Id);
+            var session = RouletteTableStatic.GetGameSessionByChatId(query.Message.Chat.Id);
             if (null == session)
             {
                 await client.TryEditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
-                RouletteGameStatic.GameSessions.Add(new RouletteGameSession(client, query.Message));
+                RouletteTableStatic.GameSessions.Add(new RouletteGameSession(client, query.Message));
                 return;
             }
 
-            await client.TrySendTextMessageAsync(query.Message.Chat.Id,
-            "Игра уже запущена!",
-            replyToMessageId: session.GameMessage.MessageId);
+            if (session.GameMessage != null)
+                await client.TrySendTextMessageAsync(query.Message.Chat.Id,
+                "Игра уже запущена!",
+                replyToMessageId: session.GameMessage.MessageId);
         }
     }
 } 
