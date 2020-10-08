@@ -22,6 +22,7 @@ namespace ChapubelichBot.Init
 
                 StartCommand = new StartCommand();
                 RegistrationCommand = new RegistrationCommand();
+                GenderCallbackMessage = new GenderCallbackMessage();
 
                 BotPrivateCommands = new List<Command>()
                 {
@@ -46,7 +47,6 @@ namespace ChapubelichBot.Init
                 };
                 BotCallbackMessages = new List<CallBackMessage>()
                 {
-                    new GenderCallbackMessage(),
                     new RouletteStartCallbackMessage(),
                 };
                 BotRegexCommands = new List<RegexCommand>()
@@ -70,6 +70,7 @@ namespace ChapubelichBot.Init
 
         public static StartCommand                      StartCommand;
         public static RegistrationCommand               RegistrationCommand;
+        public static GenderCallbackMessage             GenderCallbackMessage;
 
         private static List<Command>                    BotPrivateCommands;
         private static List<Command>                    BotGroupCommands;

@@ -38,7 +38,7 @@ namespace ChapubelichBot.Types.Extensions
                             db.SaveChanges();
                         }
                     }
-                    Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.GetType()}");
+                    Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
                     return null;
                 }
 
@@ -59,7 +59,7 @@ namespace ChapubelichBot.Types.Extensions
             catch (Exception e)
             {
                 if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось удалить сообщение. ChatId: {chatId}\nОшибка: {e.GetType()}");
+                    Console.WriteLine($"Не удалось удалить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
             }
         }
         public static async Task<Message> TryEditMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, InlineKeyboardMarkup replyMarkup = null, CancellationToken cancellationToken = default)
@@ -72,7 +72,7 @@ namespace ChapubelichBot.Types.Extensions
             catch (Exception e)
             {
                 if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось редактировать сообщение. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.GetType()}");
+                    Console.WriteLine($"Не удалось редактировать сообщение. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.Message}");
                 return null;
             }
 
@@ -88,7 +88,7 @@ namespace ChapubelichBot.Types.Extensions
             catch (Exception e)
             {
                 if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось редактировать разметку сообщения. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.GetType()}");
+                    Console.WriteLine($"Не удалось редактировать разметку сообщения. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.Message}");
                 return null;
             }
 
@@ -104,7 +104,7 @@ namespace ChapubelichBot.Types.Extensions
             catch (Exception e)
             {
                 if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось отправить анимацию ChatId: {chatId}\nОшибка: {e.GetType()}");
+                    Console.WriteLine($"Не удалось отправить анимацию ChatId: {chatId}\nОшибка: {e.Message}");
                 return null;
             }
 

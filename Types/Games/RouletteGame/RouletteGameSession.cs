@@ -47,10 +47,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (Rolling)
                 return;
 
-            await client.SendAnimationAsync(ChatId, GetRandomAnimationLink(), duration: 3000, disableNotification: true);
-            Message resultMessage = await client.TrySendTextMessageAsync(ChatId, "Крутим барабан...", replyToMessageId: startMessage.MessageId);
-
             Rolling = true;
+
+            Message animationMessage = await client.SendAnimationAsync(ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
             // Удаление сообщений и отправка результатов
             if (!Resulting)
             {
@@ -58,17 +57,15 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 string result = GetResultMessage();
 
                 Thread.Sleep(3000);
+                await client.TryDeleteMessageAsync(animationMessage.Chat.Id, animationMessage.MessageId);
+                await client.TryDeleteMessageAsync( GameMessage.Chat.Id, GameMessage.MessageId);
 
-                await client.TryDeleteMessageAsync(
-                    GameMessage.Chat.Id,
-                    GameMessage.MessageId);
-
-                await client.TryEditMessageAsync(
+                await client.TrySendTextMessageAsync(
                     ChatId,
-                    resultMessage.MessageId,
                     result,
                     Telegram.Bot.Types.Enums.ParseMode.Html,
-                    replyMarkup: InlineKeyboardsStatic.roulettePlayAgainMarkup);
+                    replyMarkup: InlineKeyboardsStatic.roulettePlayAgainMarkup,
+                    replyToMessageId: startMessage.MessageId);
 
                 RouletteGameStatic.GameSessions.Remove(this);
             }
@@ -98,7 +95,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     {
                         int gainSum = GetGainSum(token.ColorChoose, token.BetSum);
                         User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
-                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum}</b>💵";
+                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum-token.BetSum}</b>💵";
                         user.Balance += gainSum;
                     }
                 }
@@ -123,9 +120,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             switch (color)
             {
                 case RouletteColorEnum.Red:
-                    return betSum;
+                    return betSum * 2;
                 case RouletteColorEnum.Black:
-                    return betSum;
+                    return betSum * 2;
                 case RouletteColorEnum.Green:
                     return betSum * 35;
                 default:

@@ -10,7 +10,7 @@ using User = ChapubelichBot.Database.Models.User;
 
 namespace ChapubelichBot.Chatting.CallbackMessages
 {
-    class GenderCallbackMessage : CallBackMessage
+    public class GenderCallbackMessage : CallBackMessage
     {
         public override List<string> IncludingData => new List<string> { "Male", "Female" };
 

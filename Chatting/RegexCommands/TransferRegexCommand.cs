@@ -15,20 +15,11 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            var markedUser = message?.ReplyToMessage?.From;
+            var markedUser = message.ReplyToMessage?.From;
             string transferSumString = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
 
-            if (!Int32.TryParse(transferSumString, out int transferSum) || null == markedUser)
+            if (!Int32.TryParse(transferSumString, out int transferSum) || markedUser == null || markedUser == message.From || transferSum == 0)
                 return;
-
-            if (transferSum == 0)
-            {
-                await client.TrySendTextMessageAsync(
-                    message.Chat.Id,
-                    $"Вы не можете передать {transferSum} 💵 \U0001F614",
-                    replyToMessageId: message.MessageId);
-                return;
-            }
 
             using (var db = new ChapubelichdbContext())
             {
@@ -39,14 +30,11 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 {
                     await client.TrySendTextMessageAsync(
                         message.Chat.Id,
-                        $"Пользователь <<a href=\"tg://user?id={transferTo.UserId}\">{transferTo.FirstName}</a> еще не зарегестрировался\U0001F614",
+                        $"Пользователь <a href=\"tg://user?id={markedUser.Id}\">{markedUser.FirstName}</a> еще не зарегестрировался\U0001F614",
                         Telegram.Bot.Types.Enums.ParseMode.Html,
                         replyToMessageId: message.MessageId);
                     return;
                 }
-
-                if (transferTo == transferFrom)
-                    return;
 
                 if (transferFrom.Balance >= transferSum)
                 {

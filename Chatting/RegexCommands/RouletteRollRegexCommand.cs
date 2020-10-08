@@ -9,12 +9,11 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class RouletteRollRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *(го|ролл|погнали|крути|roll)(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *(го|ролл|погнали|крути|roll|go)(@ChapubelichBot)?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
             var gameSession = RouletteGameStatic.GetGameSessionByChatId(message.Chat.Id);
-
 
             if (null != gameSession)
             {
@@ -27,8 +26,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 else
                     gameSession.Result(client, message);
             }
-
-            
         }
     }
 }

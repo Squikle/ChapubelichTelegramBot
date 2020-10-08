@@ -12,7 +12,7 @@ namespace ChapubelichBot.Chatting.Commands
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
-            await client.TrySendTextMessageAsync(message.From.Id,
+            await client.TrySendTextMessageAsync(message.Chat.Id,
             "Пожалуйста, укажите ваш гендер:",
             replyMarkup: InlineKeyboardsStatic.genderChooseMarkup);
         }

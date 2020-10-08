@@ -18,9 +18,11 @@ namespace ChapubelichBot.Chatting.Commands
                 RouletteGameStatic.GameSessions.Add(new RouletteGameSession(client, message));
                 return;
             }
-                await client.TrySendTextMessageAsync(message.Chat.Id,
-                "Игра уже запущена!",
-                replyToMessageId: session.GameMessage.MessageId);
+
+            int replyMessageId = session.GameMessage == null ? 0 : session.GameMessage.MessageId;
+            await client.TrySendTextMessageAsync(message.Chat.Id,
+            "Игра уже запущена!",
+            replyToMessageId: replyMessageId);
         }
     }
 }
