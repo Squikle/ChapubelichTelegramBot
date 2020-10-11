@@ -8,7 +8,7 @@ namespace ChapubelichBot.Chatting.Commands
 {
     class GenderChangeCommand : Command
     {
-        public override string Name => "\U000026A5 Сменить пол";
+        public override string Name => "\U000026A5  Сменить пол";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {

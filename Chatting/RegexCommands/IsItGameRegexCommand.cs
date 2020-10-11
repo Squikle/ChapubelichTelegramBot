@@ -8,7 +8,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class IsItGameRegexCommand : RegexCommand
     {
-        //public override string Pattern => @"^\/?([^\r\n\t\f\v=]*) *= *(([^\r\n\t\f\v= ]+ *)+)\?$";
         public override string Pattern => @"^\/?(([^\r\n\t\f\v=]*) *= *(([^\r\n\t\f\v= ]+ *)+)| *@ChapubelichBot  *(([^\r\n\t\f\v= ]+ *)+))\?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)

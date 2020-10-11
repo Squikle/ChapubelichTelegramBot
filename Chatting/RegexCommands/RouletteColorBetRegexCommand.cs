@@ -38,7 +38,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             char betColor = matchString.Groups[2].Value.ToLower().ElementAtOrDefault(0);
 
             // Определение ставки игрока
-            RouletteColorEnum? playerChoose = null;
+            RouletteColorEnum playerChoose = RouletteColorEnum.Red;
 
             if (betColor == 'к' || betColor == 'r')
                 playerChoose = RouletteColorEnum.Red;
@@ -62,20 +62,21 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     return;
                 }
 
-                RouletteBetToken currentBetToken = gameSession.BetTokens.FirstOrDefault(x => x.ChoosenColor == playerChoose && x.UserId == user.UserId);
+                var colorBetTokens = gameSession.BetTokens.OfType<RouletteColorBetToken>();
+                RouletteColorBetToken currentBetToken = colorBetTokens.FirstOrDefault(x => x.ChoosenColor == playerChoose && x.UserId == user.UserId);
 
                 if (null != currentBetToken)
                     currentBetToken.BetSum += playerBet;
                 else
                 {
-                    currentBetToken = new RouletteBetToken(user, playerBet, playerChoose);
+                    currentBetToken = new RouletteColorBetToken(user, playerBet, playerChoose);
                     gameSession.BetTokens.Add(currentBetToken);
                 }
 
                 user.Balance -= playerBet;
                 await db.SaveChangesAsync();
 
-                string transactionResult = $"Ставка принята. Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
+                string transactionResult = $"Ставка принята. Суммарная ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
                     + gameSession.UserBetsToString(user);
                                 
                 await client.TrySendTextMessageAsync(
@@ -84,7 +85,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     replyToMessageId: message.MessageId,
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
-                if (!string.IsNullOrEmpty(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[5].Value))
+                if (!string.IsNullOrEmpty(matchString.Groups[9].Value))
                     gameSession.Result(client, message);
             }
         }

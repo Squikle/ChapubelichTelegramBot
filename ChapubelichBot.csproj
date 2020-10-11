@@ -7,8 +7,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6C869A08-ACE4-4337-8899-FB426AC83101}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Chapubelich</RootNamespace>
-    <AssemblyName>Chapubelich</AssemblyName>
+    <RootNamespace>ChapubelichBot</RootNamespace>
+    <AssemblyName>ChapubelichBot</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -95,10 +95,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chatting\CallbackMessages\DefaultBetCallbackMessage.cs" />
+    <Compile Include="Chatting\CallbackMessages\RouletteBetColorCallbackMessage.cs" />
+    <Compile Include="Chatting\CallbackMessages\RouletteBetNumberCallbackMessage.cs" />
+    <Compile Include="Chatting\CallbackMessages\RouletteRollCallbackMessage.cs" />
+    <Compile Include="Chatting\Commands\DefaultBetChangeCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteNumberBetRegexCommand.cs" />
+    <Compile Include="Migrations\202010091442221_Added default bet.cs" />
+    <Compile Include="Migrations\202010091442221_Added default bet.designer.cs">
+      <DependentUpon>202010091442221_Added default bet.cs</DependentUpon>
+    </Compile>
     <Compile Include="Types\Abstractions\CallbackMessage.cs" />
     <Compile Include="Types\Abstractions\RegexCommand.cs" />
-    <Compile Include="Types\Games\RouletteGame\RouletteBetToken.cs" />
+    <Compile Include="Types\Abstractions\RouletteBetToken.cs" />
+    <Compile Include="Types\Games\RouletteGame\RouletteColorBetToken.cs" />
+    <Compile Include="Types\Games\RouletteGame\RouletteNumbersBetToken.cs" />
     <Compile Include="Types\Statics\InlineKeyboardsStatic.cs" />
     <Compile Include="Types\Statics\ReplyKeyboardsStatic.cs" />
     <Compile Include="Chatting\CallbackMessages\GenderCallbackMessage.cs" />
@@ -185,6 +196,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010050038206_addedFirstName.resx">
       <DependentUpon>202010050038206_addedFirstName.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010051421433_IsAvailableAdded.resx">
       <DependentUpon>202010051421433_IsAvailableAdded.cs</DependentUpon>
@@ -200,6 +212,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010072310518_Balance of users has been converted to long.resx">
       <DependentUpon>202010072310518_Balance of users has been converted to long.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010091442221_Added default bet.resx">
+      <DependentUpon>202010091442221_Added default bet.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

@@ -27,8 +27,9 @@ namespace ChapubelichBot.Chatting.Commands
                 $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, Ваш профиль:\n" +
                 $"Имя: {user.FirstName}\n" +
                 $"Пол: {gender}\n" +
-                $"Баланс: {user.Balance}\n" +
-                $"Id: {user.UserId}";
+                $"Баланс: {user.Balance.ToMoneyFormat()}\n" +
+                $"Id: {user.UserId}\n" +
+                $"Ставка по умолчанию: {user.DefaultBet}";
 
                 await client.TrySendTextMessageAsync(message.From.Id, answerMessage, 
                     replyToMessageId: message.MessageId, 

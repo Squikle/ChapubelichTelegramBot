@@ -6,7 +6,6 @@ using ChapubelichBot.Chatting.RegexCommands;
 using System;
 using System.Collections.Generic;
 using Telegram.Bot;
-using Chapubelich.Chatting.RegexCommands;
 
 namespace ChapubelichBot.Init
 {
@@ -37,6 +36,7 @@ namespace ChapubelichBot.Init
                     new HelpCommand(),
                     new SettingsCommand(),
                     new GenderChangeCommand(),
+                    new DefaultBetChangeCommand(),
                     new MyProfileCommand(),
 
                     new GamesCommand(),
@@ -48,7 +48,11 @@ namespace ChapubelichBot.Init
                 };
                 BotCallbackMessages = new List<CallBackMessage>()
                 {
+                    new DefaultBetChangeCallbackMessage(),
                     new RouletteStartCallbackMessage(),
+                    new RouletteBetColorCallbackMessage(),
+                    new RouletteBetNumbersCallbackMessage(),
+                    new RouletteRollCallbackMessage()
                 };
                 BotRegexCommands = new List<RegexCommand>()
                 {

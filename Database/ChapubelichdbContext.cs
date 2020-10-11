@@ -1,5 +1,6 @@
 ﻿using ChapubelichBot.Database.Models;
 using System.Data.Entity;
+using System.Data.Entity.Migrations.History;
 
 namespace ChapubelichBot.Database
 {

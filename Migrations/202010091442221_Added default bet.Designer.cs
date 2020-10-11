@@ -7,13 +7,13 @@ namespace ChapubelichBot.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.4.4")]
-    public sealed partial class addedFirstName : IMigrationMetadata
+    public sealed partial class Addeddefaultbet : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(addedFirstName));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Addeddefaultbet));
         
         string IMigrationMetadata.Id
         {
-            get { return "202010050038206_addedFirstName"; }
+            get { return "202010091442221_Added default bet"; }
         }
         
         string IMigrationMetadata.Source

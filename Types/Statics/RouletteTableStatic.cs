@@ -4,6 +4,7 @@ using System.Linq;
 using ChapubelichBot.Types.Enums;
 using ChapubelichBot.Database.Models;
 using System;
+using ChapubelichBot.Types.Abstractions;
 
 namespace ChapubelichBot.Types.Statics
 {
@@ -12,17 +13,17 @@ namespace ChapubelichBot.Types.Statics
         public static string Name => "\U0001F525Рулетка\U0001F525";
 
         public const int tableSize = 37;
+        public static List<RouletteGameSession> GameSessions { get; set; } = new List<RouletteGameSession>();
         public static int GetRandomResultNumber()
         {
             Random rand = new Random();
-            return rand.Next(0, tableSize);
+            return rand.Next(0, tableSize - 1);
         }
-        public static List<RouletteGameSession> GameSessions { get; set; } = new List<RouletteGameSession>();
         public static RouletteGameSession GetGameSessionByChatId(long chatId)
         {
             return GameSessions.FirstOrDefault(x => x.ChatId == chatId);
         }
-        public static string ToEmoji(this RouletteColorEnum? color)
+        public static string ToEmoji(this RouletteColorEnum color)
         {
             switch (color)
             {
@@ -36,7 +37,7 @@ namespace ChapubelichBot.Types.Statics
                     return "";
             }
         }
-        public static RouletteColorEnum? ToRouletteColor(this int number)
+        public static RouletteColorEnum ToRouletteColor(this int number)
         {
             RouletteColorEnum[] rouletteTable = new RouletteColorEnum[tableSize]
             {
@@ -80,46 +81,6 @@ namespace ChapubelichBot.Types.Statics
             };
             return rouletteTable[number];
         }
-        public static string UserBetsToString(this RouletteGameSession gameSession, User user)
-        {
-            string resultList = string.Empty;
-            var userTokens = gameSession.BetTokens.Where(x => x.UserId == user.UserId);
-            var colorUserTokens = userTokens.Where(x => x.ChoosenColor != null);
-
-            var numberUserTokens = userTokens.Where(x => x.ChoosenNumbers != null);
-            var oneNumberUserTokens = numberUserTokens.Where(x => x.ChoosenNumbers.Length == 1);
-            var twoNumberUserTokens = numberUserTokens.Except(oneNumberUserTokens);
-
-            foreach (var token in colorUserTokens)
-            {
-                switch (token.ChoosenColor)
-                {
-                    case RouletteColorEnum.Red:
-                        resultList += $"\n<b>{token.BetSum} \U0001F534 </b>";
-                        break;
-                    case RouletteColorEnum.Black:
-                        resultList += $"\n<b>{token.BetSum} \U000026AB </b>";
-                        break;
-                    case RouletteColorEnum.Green:
-                        resultList += $"\n<b>{token.BetSum} \U0001F7E2 </b>";
-                        break;
-                }
-            }
-
-            foreach (var token in twoNumberUserTokens)
-            {
-                int firstnumber = token.ChoosenNumbers[0];
-                int secondNumber = token.ChoosenNumbers[token.ChoosenNumbers.Length - 1];
-                resultList += $"\n<b>{token.BetSum}</b> ({firstnumber} - {secondNumber})";
-            }
-            foreach (var token in oneNumberUserTokens)
-            {
-                int firstnumber = token.ChoosenNumbers[0];
-                resultList += $"\n<b>{token.BetSum}</b> ({firstnumber})";
-            }
-
-            return resultList;
-        }
         public static int[] GetBetsByNumbers(int firstNumber)
         {
             return new int[]
@@ -129,7 +90,110 @@ namespace ChapubelichBot.Types.Statics
         }
         public static int[] GetBetsByNumbers(int firstNumber, int secondNumber)
         {
-            return Enumerable.Range(firstNumber, secondNumber+1).ToArray();
+            int betSize = secondNumber - firstNumber + 1;
+            int[] bets = new int[betSize];
+            for (int i = 0; i < betSize; i++)
+            {
+                bets[i] = firstNumber + i;
+            }
+            return bets;
         }
+        public static int[] GetBetsByCallbackQuery(string queryData)
+        {
+            int[] userBet;
+            switch (queryData)
+            {
+                case "rouletteBetEven":
+                    userBet = new int[(tableSize - 1) / 2];
+                    for (int i = 0, j = 1; i < userBet.Length; j++)
+                    {
+                        if (j % 2 == 0)
+                        {
+                            userBet[i] = j;
+                            i++;
+                        }
+                    }
+                    return userBet;
+                case "rouletteBetOdd":
+                    userBet = new int[(tableSize - 1) / 2];
+                    for (int i = 0, j = 1; i < userBet.Length; j++)
+                    {
+                        if (j % 2 != 0)
+                        {
+                            userBet[i] = j;
+                            i++;
+                        }
+                    }
+                    return userBet;
+
+                case "rouletteBetFirstHalf":
+                    return GetBetsByNumbers(1, (tableSize - 1) / 2);
+                case "rouletteBetSecondHalf":
+                    return GetBetsByNumbers(((tableSize - 1) / 2) + 1, tableSize - 1);
+
+                case "rouletteBetFirstTwelve":
+                    int dividedByThree = (tableSize - 1) / 3;
+                    return GetBetsByNumbers(1, (tableSize - 1) / 3);
+                case "rouletteBetSecondTwelve":
+                    dividedByThree = (tableSize - 1) / 3; 
+                    return GetBetsByNumbers(dividedByThree+1, dividedByThree * 2);
+                case "rouletteBetThirdTwelve":
+                    dividedByThree = (tableSize - 1) / 3;
+                    return GetBetsByNumbers((dividedByThree * 2) + 1, dividedByThree * 3);
+
+                case "rouletteBetFirstRow":
+                    userBet = new int[(tableSize - 1) / 3];
+                    for (int i = 0, j = 1; i < userBet.Length; i++)
+                    {
+                        userBet[i] = j;
+                        j += 3;
+                    }
+                    return userBet;
+                case "rouletteBetSecondRow":
+                    userBet = new int[(tableSize - 1) / 3];
+                    for (int i = 0, j = 2; i < userBet.Length; i++)
+                    {
+                        userBet[i] = j;
+                        j += 3;
+                    }
+                    return userBet;
+                case "rouletteBetThirdRow":
+                    userBet = new int[(tableSize - 1) / 3];
+                    for (int i = 0, j = 3; i < userBet.Length; i++)
+                    {
+                        userBet[i] = j;
+                        j += 3;
+                    }
+                    return userBet;
+            }
+
+            return null;
+        }
+        public static IEnumerable<RouletteBetToken> GroupByUsers(this IEnumerable<RouletteBetToken> listOfTokens)
+        {
+            List<RouletteBetToken> groupedList = new List<RouletteBetToken>();
+
+            foreach (var el in listOfTokens)
+            {
+                var token = groupedList.FirstOrDefault(x => x.UserId == el.UserId);
+                if (token != null)
+                    token.BetSum += el.BetSum;
+                else groupedList.Add(el);
+            }
+
+            return groupedList;
+        }
+        public static bool IsSequenceBy(this int[] array, int increaseNumber)
+        {
+            if (array == null || array.Length <= 2) 
+                return false;
+            for (int i=0; i<array.Length-1; i++)
+            {
+                if (array[i + 1] - array[i] != increaseNumber)
+                    return false;
+            }
+            return true;
+        }
+
     }
 }

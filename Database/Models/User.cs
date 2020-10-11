@@ -12,6 +12,7 @@ namespace ChapubelichBot.Database.Models
             Balance = 300;
             IsAvailable = true;
             Gender = true;
+            DefaultBet = 50;
         }
         [Key]
         public int Id { get; set; }
@@ -20,6 +21,7 @@ namespace ChapubelichBot.Database.Models
         public string FirstName { get; set; }
         public long Balance { get; set; }
         public bool IsAvailable { get; set; }
+        public int DefaultBet { get; set; }
 
         [Index(IsUnique = true)]
         public int UserId { get; set; }

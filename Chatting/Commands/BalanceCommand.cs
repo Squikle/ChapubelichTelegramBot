@@ -16,7 +16,7 @@ namespace ChapubelichBot.Chatting.Commands
             using (var db = new ChapubelichdbContext())
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"Ваш баланс: {db.Users.First(x => x.UserId == message.From.Id).Balance} \U0001F4B0",
+                    $"Ваш баланс: {db.Users.First(x => x.UserId == message.From.Id).Balance.ToMoneyFormat()} \U0001F4B0",
                     replyToMessageId: message.MessageId);
         }
     }

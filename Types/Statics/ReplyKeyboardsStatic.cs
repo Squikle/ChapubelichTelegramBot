@@ -22,7 +22,6 @@ namespace ChapubelichBot.Types.Statics
                     }
                 }, resizeKeyboard: true, oneTimeKeyboard: false);
 
-
         public static ReplyKeyboardMarkup GameMarkup = new ReplyKeyboardMarkup(
             new KeyboardButton[][]
                 {
@@ -52,7 +51,11 @@ namespace ChapubelichBot.Types.Statics
                     },
                     new KeyboardButton[]
                     {
-                        new KeyboardButton("\U000026A5 Сменить пол")
+                        new KeyboardButton("\U000026A5  Сменить пол")
+                    },
+                    new KeyboardButton[]
+                    {
+                        new KeyboardButton("\U0001F4B8 Ставка по умолчанию")
                     },
                     new KeyboardButton[]
                     {

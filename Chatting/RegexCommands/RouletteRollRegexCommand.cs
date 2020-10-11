@@ -15,17 +15,17 @@ namespace ChapubelichBot.Chatting.RegexCommands
         {
             var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
 
-            if (null != gameSession)
-            {
-                if (!gameSession.BetTokens.Any())
-                    await client.TrySendTextMessageAsync(
-                    message.Chat.Id,
-                    "Ждем ставки и начинаем",
-                    replyToMessageId: message.MessageId,
-                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
-                else
-                    gameSession.Result(client, message);
-            }
+            if (gameSession == null)
+                return;
+
+            if (!gameSession.BetTokens.Any(x => x.UserId == message.From.Id))
+                await client.TrySendTextMessageAsync(
+                message.Chat.Id,
+                "Чтобы крутить барабан сделайте ставку",
+                replyToMessageId: message.MessageId,
+                parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+            else
+                gameSession.Result(client, message);
         }
     }
 }

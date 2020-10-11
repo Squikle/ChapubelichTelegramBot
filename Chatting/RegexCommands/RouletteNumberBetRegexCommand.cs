@@ -10,11 +10,11 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ChapubelichBot.Database.Models.User;
 
-namespace Chapubelich.Chatting.RegexCommands
+namespace ChapubelichBot.Chatting.RegexCommands
 {
     class RouletteNumberBetRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *(\d{1,4}) +([0-9]|[1-3][0-9])( *- *([1-9]|[1-3][0-9]))? *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *(\d{1,4}) +([0-9]|[1-3][0-9])( *- *([0-9]|[1-3][0-9]))? *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
 
         public override async void Execute(Message message, ITelegramBotClient client)
         {
@@ -42,8 +42,34 @@ namespace Chapubelich.Chatting.RegexCommands
                 userBets = RouletteTableStatic.GetBetsByNumbers(firstNumber);
             else
             {
-                if (firstNumber >= secondNumber || secondNumber > RouletteTableStatic.tableSize)
+                int rangeSize = secondNumber - firstNumber + 1;
+
+                if (firstNumber >= secondNumber || secondNumber > RouletteTableStatic.tableSize || secondNumber == 0)
                     return;
+                
+                // Валидация ставки
+                if (!(rangeSize >= 2 && rangeSize <= 4) && (rangeSize != 4 && rangeSize != 6 && rangeSize != 12 && rangeSize != 18))
+                {
+                    await client.TrySendTextMessageAsync(message.Chat.Id,
+                       "Можно ставить только на последовательности из 2,3,4,6,12,18 чисел",
+                       replyToMessageId: message.MessageId);
+                    return;
+                }
+                if (rangeSize == 12 && firstNumber != 1 && firstNumber != 13 && firstNumber != 25)
+                {
+                    await client.TrySendTextMessageAsync(message.Chat.Id,
+                       "На дюжину можно ставить только 1-12, 13-24, 25-36",
+                       replyToMessageId: message.MessageId);
+                    return;
+                }
+                if (rangeSize == 18 && firstNumber != 1 && firstNumber != 19)
+                {
+                    await client.TrySendTextMessageAsync(message.Chat.Id,
+                       "На выше/ниже можно ставить только 1-18, 19-36",
+                       replyToMessageId: message.MessageId);
+                    return;
+                }
+
                 userBets = RouletteTableStatic.GetBetsByNumbers(firstNumber, secondNumber);
             }
 
@@ -61,20 +87,21 @@ namespace Chapubelich.Chatting.RegexCommands
                     return;
                 }
 
-                RouletteBetToken currentBetToken = gameSession.BetTokens.FirstOrDefault(x => x.ChoosenNumbers.SequenceEqual(userBets) && x.UserId == user.UserId);
+                var numberBetTokens = gameSession.BetTokens.OfType<RouletteNumbersBetToken>();
+                RouletteNumbersBetToken currentBetToken = numberBetTokens.FirstOrDefault(x => x.ChoosenNumbers.SequenceEqual(userBets) && x.UserId == user.UserId);
 
-                if (null != currentBetToken)
+                if (currentBetToken != null)
                     currentBetToken.BetSum += playerBet;
                 else
                 {
-                    currentBetToken = new RouletteBetToken(user, playerBet, choosenNumbers: userBets);
+                    currentBetToken = new RouletteNumbersBetToken(user, playerBet, userBets);
                     gameSession.BetTokens.Add(currentBetToken);
                 }
 
                 user.Balance -= playerBet;
-                await db.SaveChangesAsync();
+                db.SaveChanges();
 
-                string transactionResult = $"Ставка принята. Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
+                string transactionResult = $"Ставка принята. Суммарная ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
                     + gameSession.UserBetsToString(user);
 
                 await client.TrySendTextMessageAsync(
@@ -86,7 +113,6 @@ namespace Chapubelich.Chatting.RegexCommands
                 if (!string.IsNullOrEmpty(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[5].Value))
                     gameSession.Result(client, message);
             }
-
         }
     }
 }

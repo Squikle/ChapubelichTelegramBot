@@ -10,6 +10,9 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
 using User = ChapubelichBot.Database.Models.User;
 using ChapubelichBot.Types.Enums;
+using ChapubelichBot.Types.Abstractions;
+using System.Threading.Tasks;
+using System.Text;
 
 namespace ChapubelichBot.Types.Games.RouletteGame
 {
@@ -34,10 +37,18 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             ResultNumber = RouletteTableStatic.GetRandomResultNumber();
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
-            GameMessage = await client.TrySendTextMessageAsync(
+            /*GameMessage = await client.TrySendTextMessageAsync(
                 message.Chat.Id,
-                "Игра запущена. Ждем ваши ставки: ",
-                replyToMessageId: replyId);
+                "Игра запущена. Ждем ваши ставки...\n" +
+                "Вы можете поставить ставку по умолчанию на предложенные ниже варианты:",
+                replyToMessageId: replyId,
+                replyMarkup: InlineKeyboardsStatic.rouletteBetsMarkup);*/
+            GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
+                "https://i.imgur.com/SN8DRoa.png",
+                caption: "Игра запущена. Ждем ваши ставки...\n" +
+                "Вы можете поставить ставку по умолчанию на предложенные ниже варианты:",
+                replyToMessageId: replyId,
+                replyMarkup: InlineKeyboardsStatic.rouletteBetsMarkup);
         }
         public async void Result(ITelegramBotClient client, Message startMessage = null)
         {
@@ -47,111 +58,79 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Resulting = true;
             Message animationMessage = await client.TrySendAnimationAsync(ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 
+            Task task = Task.Delay(3000);
             // Удаление сообщений и отправка результатов
-            string result = GetResultMessage();
+            string result = GetResultMessage().ToString();
+            await task;
+            
+            if (animationMessage != null)
+                await client.TryDeleteMessageAsync(animationMessage.Chat.Id, animationMessage.MessageId);
 
-            Thread.Sleep(3000);
-            await client.TryDeleteMessageAsync(animationMessage.Chat.Id, animationMessage.MessageId);
-            await client.TryDeleteMessageAsync(GameMessage.Chat.Id, GameMessage.MessageId);
+            if (GameMessage != null)
+                await client.TryDeleteMessageAsync(GameMessage.Chat.Id, GameMessage.MessageId);
 
+            int replyId = startMessage == null ? 0 : startMessage.MessageId;
             await client.TrySendTextMessageAsync(
                 ChatId,
                 result,
                 Telegram.Bot.Types.Enums.ParseMode.Html,
                 replyMarkup: InlineKeyboardsStatic.roulettePlayAgainMarkup,
-                replyToMessageId: startMessage.MessageId);
+                replyToMessageId: replyId);
 
             RouletteTableStatic.GameSessions.Remove(this);
         }
-
-        private string GetResultMessage()
+        private StringBuilder GetResultMessage()
         {
-            RouletteColorEnum? resultColor = ResultNumber.ToRouletteColor();
+            RouletteColorEnum resultColor = ResultNumber.ToRouletteColor();
 
-            string result = "Игра окончена.\nРезультат: ";
-            result += $"{ResultNumber} {resultColor.ToEmoji()}";
+            StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
+            result.Append($"{ResultNumber} {resultColor.ToEmoji()}");
 
             // Токены с цветом
-            var winTokensColor = BetTokens.Where(x => x.ChoosenColor == resultColor)?.ToArray();
-            var looseTokensColor = new List<RouletteBetToken>();
-            foreach (var el in BetTokens.Where(x => x.ChoosenColor != resultColor && x.ChoosenColor != null))
-            {
-                var token = looseTokensColor.FirstOrDefault(x => x.UserId == el.UserId);
-                if (token != null)
-                    token.BetSum += el.BetSum;
-                else looseTokensColor.Add(el);
-            }
+            var winTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == resultColor).ToList();
+            var looseTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != resultColor).ToList();
 
             // Токены с числами
-            /*var winTokensNumbers = BetTokens.Where(x => x.ChoosenNumbers.Contains(ResultNumber))?.ToArray();
-            var looseTokensNumbers = new List<RouletteBetToken>();
-            foreach (var el in BetTokens.Where(x => !x.ChoosenNumbers.Contains(ResultNumber)))
-            {
-                var token = looseTokensNumbers.FirstOrDefault(x => x.UserId == el.UserId);
-                if (token != null)
-                    token.BetSum += el.BetSum;
-                else looseTokensNumbers.Add(el);
-            }*/
+            var winTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers != null && x.ChoosenNumbers.Contains(ResultNumber)).ToList();
+            var looseTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers != null && !x.ChoosenNumbers.Contains(ResultNumber)).ToList();
+
+            var winTokens = new List<RouletteBetToken>(winTokensColor.Count + winTokensColor.Count);
+            winTokens.AddRange(winTokensColor);
+            winTokens.AddRange(winTokensNumbers);
+
+            var looseTokens = new List<RouletteBetToken>(looseTokensColor.Count + looseTokensNumbers.Count);
+            looseTokens.AddRange(looseTokensColor);
+            looseTokens.AddRange(looseTokensNumbers);
 
             using (var db = new ChapubelichdbContext())
             {
                 // Определение победителей
-                if (winTokensColor.Any()) // || winTokensNumbers.Any())
+                if (winTokens.Any())
                 {
-                    result += "\n🏆<b>Выиграли:</b>";
-                    foreach (var token in winTokensColor)
+                    result.Append("\n🏆<b>Выиграли:</b>");
+                    foreach (var token in winTokens.GroupByUsers())
                     {
-                        int gainSum = GetGainSum(token.ChoosenColor, token.BetSum);
+                        int gainSum = token.GetGainSum();
                         User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
-                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum - token.BetSum}</b>💵";
-                        user.Balance += gainSum;
+                        result.Append($"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
+                        user.Balance += gainSum + token.BetSum;
                     }
-                    /*foreach (var token in winTokensNumbers)
-                    {
-                        int gainSum = GetGainSum(token.ChoosenNumbers, token.BetSum);
-                        User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
-                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum - token.BetSum}</b>💵";
-                        user.Balance += gainSum;
-                    }*/
                 }
                 // Определение проигравших
-                if (looseTokensColor.Any()) // || looseTokensNumbers.Any())
+                if (looseTokens.Any())
                 {
-                    result += "\n\U0001F614<b>Проиграли:</b>";
-                    foreach (var player in looseTokensColor)
+                    result.Append("\n\U0001F614<b>Проиграли:</b>");
+                    foreach (var player in looseTokens.GroupByUsers())
                     {
                         User user = db.Users.FirstOrDefault(x => x.UserId == player.UserId);
-                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum}</b>💵";
+                        result.Append($"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum.ToMoneyFormat()}</b>💵");
                     }
-                    /*foreach (var player in looseTokensNumbers)
-                    {
-                        User user = db.Users.FirstOrDefault(x => x.UserId == player.UserId);
-                        result += $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum}</b>💵";
-                    }*/
                 }
 
                 db.SaveChanges();
             }
 
             return result;
-        }
-        private static int GetGainSum(RouletteColorEnum? color, int betSum)
-        {
-            switch (color)
-            {
-                case RouletteColorEnum.Red:
-                    return betSum * 2;
-                case RouletteColorEnum.Black:
-                    return betSum * 2;
-                case RouletteColorEnum.Green:
-                    return betSum * 35;
-                default:
-                    return betSum;
-            }
-        }
-        private static int GetGainSum(int[] choosenNumbers, int betSum)
-        {
-            return (int)(betSum * RouletteTableStatic.tableSize * ((RouletteTableStatic.tableSize - choosenNumbers.Length) / (double)RouletteTableStatic.tableSize));
         }
         private static InputOnlineFile GetRandomAnimationLink()
         {
@@ -169,6 +148,62 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Random random = new Random();
             return new InputOnlineFile(animationsLinks[random.Next(0, animationsLinks.Length)]);
+        }
+        public StringBuilder UserBetsToString(User user)
+        {
+            StringBuilder resultList = new StringBuilder();
+            var userTokens = BetTokens.Where(x => x.UserId == user.UserId);
+
+            var colorUserTokens = userTokens.OfType<RouletteColorBetToken>();
+
+            var numberUserTokens = userTokens.OfType<RouletteNumbersBetToken>();
+            var oneNumberUserTokens = numberUserTokens.Where(x => x.ChoosenNumbers?.Length == 1);
+            var rangeUserTokens = numberUserTokens.Except(oneNumberUserTokens);
+
+            foreach (var token in colorUserTokens)
+            {
+                switch (token.ChoosenColor)
+                {
+                    case RouletteColorEnum.Red:
+                        resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: \U0001F534");
+                        break;
+                    case RouletteColorEnum.Black:
+                        resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: \U000026AB");
+                        break;
+                    case RouletteColorEnum.Green:
+                        resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: \U0001F7E2");
+                        break;
+                }
+            }
+
+            foreach (var token in rangeUserTokens)
+            {
+                if (token.ChoosenNumbers.IsSequenceBy(1))
+                {
+                    int firstnumber = token.ChoosenNumbers[0];
+                    int secondNumber = token.ChoosenNumbers[token.ChoosenNumbers.Length - 1];
+                    resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: ({firstnumber} - {secondNumber})");
+                }
+                else
+                {
+                    if (token.ChoosenNumbers == null || token.ChoosenNumbers.Length <= 1)
+                        return resultList;
+
+                    resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: ({token.ChoosenNumbers[0]}");
+
+                    for (int i = 1; i < token.ChoosenNumbers.Length; i++)
+                    {
+                        resultList.Append($", {token.ChoosenNumbers[i]}");
+                    }
+                    resultList.Append(")");
+                }
+            }
+            foreach (var token in oneNumberUserTokens)
+            {
+                resultList.Append($"\n<b>{token.BetSum}</b> ({token.ChoosenNumbers[0]} {token.ChoosenNumbers[0].ToRouletteColor().ToEmoji()})");
+            }
+
+            return resultList;
         }
     }
 }

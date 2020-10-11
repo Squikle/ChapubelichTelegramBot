@@ -1,6 +1,3 @@
-C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\Chapubelich.exe.config
-C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\Chapubelich.exe
-C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\Chapubelich.pdb
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\EntityFramework.dll
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\EntityFramework.SqlServer.dll
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\EntityFramework6.Npgsql.dll
@@ -43,5 +40,9 @@ C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\Chapu
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.csproj.GenerateResource.cache
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.csproj.CoreCompileInputs.cache
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.csproj.CopyComplete
-C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\Chapubelich.exe
-C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\Chapubelich.pdb
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.Migrations.Addeddefaultbet.resources
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\ChapubelichBot.exe.config
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\ChapubelichBot.exe
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\ChapubelichBot.pdb
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.exe
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.pdb

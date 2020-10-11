@@ -98,6 +98,22 @@ namespace ChapubelichBot.Types.Extensions
 
             return message;
         }
+        public static async Task<Message> TrySendPhotoAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile photo, string caption = null, ParseMode parseMode = ParseMode.Default, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
+        {
+            Message message;
+            try
+            {
+                message = await client.SendPhotoAsync(chatId, photo, caption, parseMode, disableNotification, replyToMessageId, replyMarkup, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                if (e is ApiRequestException)
+                    Console.WriteLine($"Не удалось отправить фото ChatId: {chatId}\nОшибка: {e.Message}");
+                return null;
+            }
+
+            return message;
+        }
         public static async Task TryDeleteMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, CancellationToken cancellationToken = default)
         {
             try
@@ -122,6 +138,13 @@ namespace ChapubelichBot.Types.Extensions
                     Console.WriteLine($"Не удалось удалить сообщение. callbackQueryId: {callbackQueryId}\nОшибка: {e.Message}");
             }
         }
-
+        public static string ToMoneyFormat(this int moneySum)
+        {
+            return String.Format("{0:n0}", moneySum);
+        }
+        public static string ToMoneyFormat(this long moneySum)
+        {
+            return String.Format("{0:n0}", moneySum);
+        }
     }
 }

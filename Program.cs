@@ -60,12 +60,15 @@ namespace ChapubelichBot
             if (null == e.Message || null == e.Message.Text)
                 return;
 
-            var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
-            if (e.Message.Date.AddHours(offset.Hours).AddMinutes(AppSettings.MessagesPeriod) > DateTime.Now)
-                Console.WriteLine("{0}: {1} | {2} ({3} | {4}):\t {5}",
-                    e.Message.Date.ToString("HH:mm:ss"),
-                    e.Message.From.Id, e.Message.From.Username,
-                    e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.Text);
+            //var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+            //if (e.Message.Date.AddHours(offset.Hours).AddMinutes(AppSettings.MessagesPeriod) > DateTime.Now)
+            if (e.Message.Date.AddMinutes(AppSettings.MessagesPeriod) < DateTime.UtcNow)
+                return;
+
+            Console.WriteLine("{0}: {1} | {2} ({3} | {4}):\t {5}",
+                e.Message.Date.ToString("HH:mm:ss"),
+                e.Message.From.Id, e.Message.From.Username,
+                e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.Text);
 
             User member;
             bool userIsRegistered = false;
@@ -95,7 +98,6 @@ namespace ChapubelichBot
         private static async void PrivateMessageProcess(MessageEventArgs e, bool userIsRegistered)
         {
             bool repeatedRegisterRequest = false;
-
             if (userIsRegistered)
             {
                 foreach (var privateCommand in Bot.BotPrivateCommandsList)
