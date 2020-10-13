@@ -18,7 +18,7 @@ using ChapubelichBot.Init;
 
 namespace ChapubelichBot.Types.Games.RouletteGame
 {
-    class RouletteGameSession
+    class RouletteGameSession : IDisposable
     {
         public long ChatId { get; set; }
         private Message GameMessage { get; set; }
@@ -31,7 +31,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             BetTokens = new List<RouletteBetToken>();
             ChatId = message.Chat.Id;
-            Timer = new Timer(x => DisposeGameSession(client), null, AppSettings.StopGameDelay, AppSettings.StopGameDelay);
+            Timer = new Timer(x => DisposeAfterTime(client), null, AppSettings.StopGameDelay, AppSettings.StopGameDelay);
         }
 
         public async Task StartAsync(Message message, ITelegramBotClient client)
@@ -75,7 +75,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 replyMarkup: InlineKeyboardsStatic.roulettePlayAgainMarkup,
                 replyToMessageId: replyId);
 
-            RouletteTableStatic.GameSessions.Remove(this);
+            Dispose();
         }
         private StringBuilder SummarizeAsync()
         {
@@ -626,9 +626,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             return new InputOnlineFile(animationsLinks[random.Next(0, animationsLinks.Length)]);
         }
 
-        public async void DisposeGameSession(ITelegramBotClient client)
+        public async void DisposeAfterTime(ITelegramBotClient client)
         {
-            if (this == null || Resulting)
+            if (Resulting)
                 return;
 
             Resulting = true;
@@ -657,6 +657,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Telegram.Bot.Types.Enums.ParseMode.Html,
             replyMarkup: InlineKeyboardsStatic.roulettePlayAgainMarkup);
 
+            Dispose();
+        }
+        public void Dispose()
+        {
             RouletteTableStatic.GameSessions.Remove(this);
             Timer.Dispose();
         }

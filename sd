@@ -1,0 +1,110 @@
+[33mcommit 18671cdfbbe5973065b8729e07f9442d0b6140aa[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Test[m[33m, [m[1;32mTest[m[33m)[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Tue Oct 13 22:08:36 2020 +0300
+
+    Many changes
+    
+    autodisposing gamesession
+    code re-organization
+
+[33mcommit 00a9e234f8ac702a57e4b5268c2bf8f08844510b[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Tue Oct 13 18:10:36 2020 +0300
+
+    async naming upd
+
+[33mcommit 171d3eb0ba0e0c1aec8c84b04090daa30fae73fd[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Tue Oct 13 13:05:56 2020 +0300
+
+    Update RouletteCheckBetRegexCommand.cs
+
+[33mcommit 4fd9624d6f77cea7649ade38e2fe272db7e4298e[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Tue Oct 13 13:00:35 2020 +0300
+
+    test branch commit
+
+[33mcommit aca794b023129b4db31376735ba069866fab4a0c[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Tue Oct 13 12:55:46 2020 +0300
+
+    more user interaction
+
+[33mcommit 50f2f7d7871690e88bad53e8a6c5568b3726204a[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Sun Oct 11 04:09:56 2020 +0300
+
+    UPD
+
+[33mcommit ee6f25f4c5a3c7f43af4f1528872d789d0fc04bd[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Fri Oct 9 01:54:44 2020 +0300
+
+    upd
+    
+    added possibility to bet by numbers but it doesn't work :C
+
+[33mcommit 2736718e91c5f254fe01e684ad7d8cd2e55191a1[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Thu Oct 8 15:28:15 2020 +0300
+
+    Many updates
+    
+    Improved registration process
+    Added registration alerts
+    Changed few regex patterns
+    Now it's possible to place a bet and roll the game with one message
+    Fixed "0 bet"
+
+[33mcommit 2c1262306925b25dce68446639d8d5d33f612c3b[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Thu Oct 8 03:20:23 2020 +0300
+
+    Many changes
+    
+    Changed structure of project
+    Edited 50/50 game. Now it's roulette
+    Changed "is it" game
+    other changes
+
+[33mcommit 2dd66f1061dde812e013cb4ac4f5c898a3424775[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Wed Oct 7 17:07:16 2020 +0300
+
+    Many updates
+    
+    Changed class of keyboards
+    New game (""=""?) with emojis
+    Settings
+    About me
+    Gender change
+    Optimized program.cs
+
+[33mcommit 343a20778bda721225d777b7ce04f9189872072e[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Wed Oct 7 03:26:08 2020 +0300
+
+    Regex Fix
+
+[33mcommit 72c0316c6966aaee9bbe8ab55330b8d9e3b205b0[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Wed Oct 7 03:10:10 2020 +0300
+
+    few changes
+    
+    added static class
+    changed registration and start commands
+    improved registration process
+
+[33mcommit 12189b40666a8dcbd51380602f578cc5f07efcde[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Wed Oct 7 01:48:09 2020 +0300
+
+    UPD
+
+[33mcommit 49ad236d1e3c5d991b1bf0678b7085a9c384c3aa[m
+Author: Squikle <55331475+Squikle@users.noreply.github.com>
+Date:   Tue Oct 6 13:24:43 2020 +0300
+
+    Initial commit
