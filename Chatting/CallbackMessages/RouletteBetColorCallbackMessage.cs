@@ -5,6 +5,7 @@ using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Games.RouletteGame;
 using ChapubelichBot.Types.Statics;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -15,8 +16,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
     class RouletteBetColorCallbackMessage : CallBackMessage
     {
         public override List<string> IncludingData => new List<string> { "rouletteBetRed", "rouletteBetBlack", "rouletteBetGreen" };
-
-        public override async void Execute(CallbackQuery query, ITelegramBotClient client)
+        public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             var gameSession = RouletteTableStatic.GetGameSessionByChatId(query.Message.Chat.Id);
 

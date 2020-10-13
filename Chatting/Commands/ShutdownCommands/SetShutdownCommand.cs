@@ -3,14 +3,14 @@ using ChapubelichBot.Types.Extensions;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using System.Threading.Tasks;
 
 namespace ChapubelichBot.Chatting.Commands.ShutdownCommands
 {
     class SetShutdownCommand : Command
     {
         public override string Name => "/shutdown";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             if (message.Chat.Id == 243857110)
             {

@@ -10,14 +10,14 @@ using Telegram.Bot.Types;
 using User = ChapubelichBot.Database.Models.User;
 using ChapubelichBot.Types.Enums;
 using ChapubelichBot.Types.Games.RouletteGame;
+using System.Threading.Tasks;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
     class RouletteColorBetRegexCommand : RegexCommand
     {
         public override string Pattern => @"^\/?(\d{1,4}) ?(к(расный)?|ч(ерный)?|з(еленый)?|r(ed)?|b(lack)?|g(reen)?) *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
 
@@ -86,7 +86,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
                 if (!string.IsNullOrEmpty(matchString.Groups[9].Value))
-                    gameSession.ResultAsync(client, message);
+                    await gameSession.ResultAsync(client, message);
             }
         }
     }

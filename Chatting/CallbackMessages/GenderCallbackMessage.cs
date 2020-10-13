@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Database;
@@ -13,8 +14,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
     public class GenderCallbackMessage : CallBackMessage
     {
         public override List<string> IncludingData => new List<string> { "Male", "Female" };
-
-        public override async void Execute(CallbackQuery query, ITelegramBotClient client)
+        public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             using (var db = new ChapubelichdbContext())
             {

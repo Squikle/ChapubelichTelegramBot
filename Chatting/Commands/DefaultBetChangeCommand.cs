@@ -14,8 +14,7 @@ namespace ChapubelichBot.Chatting.Commands
     class DefaultBetChangeCommand : Command
     {
         public override string Name => "\U0001F4B8 Ставка по умолчанию";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             await client.TrySendTextMessageAsync(message.From.Id,
             "Пожалуйста, выберите ставку по умолчанию:",

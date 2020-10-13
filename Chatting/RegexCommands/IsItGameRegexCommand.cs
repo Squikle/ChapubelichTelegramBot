@@ -3,6 +3,7 @@ using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Types.Abstractions;
+using System.Threading.Tasks;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
@@ -10,7 +11,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
     {
         public override string Pattern => @"^\/?(([^\r\n\t\f\v=]*) *= *(([^\r\n\t\f\v= ]+ *)+)| *@ChapubelichBot  *(([^\r\n\t\f\v= ]+ *)+))\?$";
 
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             Random random = new Random();
 

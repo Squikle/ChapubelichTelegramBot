@@ -3,6 +3,7 @@ using ChapubelichBot.Database;
 using ChapubelichBot.Types.Extensions;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -12,8 +13,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
     class TransferRegexCommand : RegexCommand
     {
         public override string Pattern => @"^\/? *\+(\d{1,3}) ?(.*?)$";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var markedUser = message.ReplyToMessage?.From;
 

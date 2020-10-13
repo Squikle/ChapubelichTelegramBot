@@ -24,25 +24,22 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         public int ResultNumber { get; set; }
         public Message GameMessage { get; set; }
 
-        public RouletteGameSession(ITelegramBotClient client, Message message)
+        public async static Task<RouletteGameSession> Initialize(ITelegramBotClient client, Message message)
         {
-            BetTokens = new List<RouletteBetToken>();
-            ChatId = message.Chat.Id;
-            StartAsync(client, message);
+            RouletteGameSession gameSession = new RouletteGameSession();
+            gameSession.BetTokens = new List<RouletteBetToken>();
+            gameSession.ChatId = message.Chat.Id;
+            await gameSession.StartAsync(client, message);
+            return gameSession;
         }
 
-        private async void StartAsync(ITelegramBotClient client, Message message)
+        private async Task StartAsync(ITelegramBotClient client, Message message)
         {
             Resulting = false;
 
             ResultNumber = RouletteTableStatic.GetRandomResultNumber();
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
-            /*GameMessage = await client.TrySendTextMessageAsync(
-                message.Chat.Id,
-                "Игра запущена. Ждем ваши ставки...\n" +
-                "Вы можете поставить ставку по умолчанию на предложенные ниже варианты:",
-                replyToMessageId: replyId,
-                replyMarkup: InlineKeyboardsStatic.rouletteBetsMarkup);*/
+
             GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
                 "https://i.imgur.com/SN8DRoa.png",
                 caption: "Игра запущена. Ждем ваши ставки...\n" +
@@ -50,7 +47,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 replyToMessageId: replyId,
                 replyMarkup: InlineKeyboardsStatic.rouletteBetsMarkup);
         }
-        public async void ResultAsync(ITelegramBotClient client, Message startMessage = null)
+        public async Task ResultAsync(ITelegramBotClient client, Message startMessage = null)
         {
             if (Resulting)
                 return;

@@ -16,8 +16,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
     class DefaultBetChangeCallbackMessage : CallBackMessage
     {
         public override List<string> IncludingData => new List<string> { "DefaultBet25", "DefaultBet50", "DefaultBet100", "DefaultBet500" };
-
-        public override async void Execute(CallbackQuery query, ITelegramBotClient client)
+        public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             using (var db = new ChapubelichdbContext())
             {

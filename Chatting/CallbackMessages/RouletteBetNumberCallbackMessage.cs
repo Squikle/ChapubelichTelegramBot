@@ -1,6 +1,6 @@
 ﻿using ChapubelichBot.Database;
 using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Types.Enums;
+using System.Threading.Tasks;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Games.RouletteGame;
 using ChapubelichBot.Types.Statics;
@@ -20,8 +20,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
              "rouletteBetFirstTwelve", "rouletteBetSecondTwelve", "rouletteBetThirdTwelve",
              "rouletteBetFirstRow", "rouletteBetSecondRow", "rouletteBetThirdRow"
         };
-
-        public override async void Execute(CallbackQuery query, ITelegramBotClient client)
+        public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             var gameSession = RouletteTableStatic.GetGameSessionByChatId(query.Message.Chat.Id);
 

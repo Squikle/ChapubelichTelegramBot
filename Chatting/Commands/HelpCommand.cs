@@ -2,14 +2,14 @@
 using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using System.Threading.Tasks;
 
 namespace ChapubelichBot.Chatting.Commands
 {
     class HelpCommand : Command
     {
         public override string Name => "\U00002753 Помощь";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,

@@ -6,6 +6,7 @@ using ChapubelichBot.Types.Statics;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ChapubelichBot.Database.Models.User;
@@ -15,8 +16,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
     class RouletteNumberBetRegexCommand : RegexCommand
     {
         public override string Pattern => @"^\/? *(\d{1,4}) +([0-9]|[1-3][0-9])( *- *([0-9]|[1-3][0-9]))? *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
 
@@ -111,7 +111,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
                 if (!string.IsNullOrEmpty(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[5].Value))
-                    gameSession.ResultAsync(client, message);
+                    await gameSession.ResultAsync(client, message);
             }
         }
     }

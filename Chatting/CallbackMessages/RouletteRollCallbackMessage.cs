@@ -14,8 +14,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
     class RouletteRollCallbackMessage : CallBackMessage
     {
         public override List<string> IncludingData => new List<string> {"rouletteRoll"};
-
-        public override async void Execute(CallbackQuery query, ITelegramBotClient client)
+        public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             var gameSession = RouletteTableStatic.GetGameSessionByChatId(query.Message.Chat.Id);
             if (gameSession == null)
@@ -29,7 +28,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                 return;
             }
 
-            gameSession.ResultAsync(client);
+            await gameSession.ResultAsync(client);
             await client.TryAnswerCallbackQueryAsync(query.Id, "✅");
         }
     }

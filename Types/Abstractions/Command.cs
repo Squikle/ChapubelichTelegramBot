@@ -8,14 +8,7 @@ namespace ChapubelichBot.Types.Abstractions
     public abstract class Command
     {
         public abstract string Name { get; }
-        public abstract void Execute(Message message, ITelegramBotClient client);
-        /*public async Task ExecuteAsync(Message message, ITelegramBotClient client)
-        {
-            await Task.Run(() =>
-            {
-                Execute(message, client);
-            });
-        }*/
+        public abstract Task ExecuteAsync(Message message, ITelegramBotClient client);
         public bool Contains(string text, bool privateChat)
         {
             if (privateChat)

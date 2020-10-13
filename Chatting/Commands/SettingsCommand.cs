@@ -3,14 +3,14 @@ using ChapubelichBot.Types.Statics;
 using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using System.Threading.Tasks;
 
 namespace ChapubelichBot.Chatting.Commands
 {
     class SettingsCommand : Command
     {
         public override string Name => "\U00002699 Настройки";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             await client.TrySendTextMessageAsync(
             message.Chat.Id,

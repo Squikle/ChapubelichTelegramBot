@@ -2,6 +2,7 @@
 using ChapubelichBot.Types.Statics;
 using ChapubelichBot.Database;
 using ChapubelichBot.Types.Extensions;
+using System.Threading.Tasks;
 using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -11,8 +12,7 @@ namespace ChapubelichBot.Chatting.Commands
     class MyProfileCommand : Command
     {
         public override string Name => "\U0001F464 Мой профиль";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             using (var db = new ChapubelichdbContext())
             {

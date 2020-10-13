@@ -2,6 +2,7 @@
 using ChapubelichBot.Types.Statics;
 using ChapubelichBot.Database;
 using ChapubelichBot.Types.Extensions;
+using System.Threading.Tasks;
 using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -12,8 +13,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
     class RouletteCancelRegexCommand : RegexCommand
     {
         public override string Pattern => @"^\/? *(отмена|cancel)(@ChapubelichBot)?$";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
             if (gameSession == null || gameSession.Resulting)

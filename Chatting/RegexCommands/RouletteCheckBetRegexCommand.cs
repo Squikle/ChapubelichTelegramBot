@@ -2,6 +2,7 @@
 using ChapubelichBot.Types.Statics;
 using ChapubelichBot.Database;
 using ChapubelichBot.Types.Extensions;
+using System.Threading.Tasks;
 using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -12,8 +13,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
     class RouletteCheckBetRegexCommand : RegexCommand
     {
         public override string Pattern => @"^\/? *((мо(и|я))|(my))?\s*((ставк(и|а))|(bets?))(@ChapubelichBot)?$";
-
-        public override async void Execute(Message message, ITelegramBotClient client)
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
             if (null == gameSession)
@@ -30,7 +30,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 else
                     transactionResult += $"Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:" 
                         + gameSession.UserBetsToStringAsync(user);
-                    
+
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
                     transactionResult,
