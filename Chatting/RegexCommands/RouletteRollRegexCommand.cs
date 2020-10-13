@@ -25,7 +25,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 replyToMessageId: message.MessageId,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
             else
-                gameSession.Result(client, message);
+                gameSession.ResultAsync(client, message);
         }
     }
 }

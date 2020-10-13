@@ -9,6 +9,8 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using ChapubelichBot.Init;
 using User = ChapubelichBot.Database.Models.User;
+using System.Configuration;
+using System.Threading.Tasks;
 
 namespace ChapubelichBot
 {
@@ -18,7 +20,7 @@ namespace ChapubelichBot
         static void Main()
         {
             var me = client.GetMeAsync().Result;
-            Console.Title = me.Username;
+            //Console.Title = me.Username;
 
             Console.WriteLine($"StartReceiving...");
             client.StartReceiving();
@@ -41,7 +43,7 @@ namespace ChapubelichBot
 
                 db.Users.Add(user1);
 
-                db.SaveChanges();*//*
+                db.SaveChangesAsync();*//*
                 var li1 = db.Set<UserGroup>().Where(x => x.User.Username == "Squikle").Select(x => x.Group.Name);
                 var li2 = db.Set<UserGroup>().Where(x => x.Group.Name == "Only me").Select(x => x.User.Username);
 
@@ -49,12 +51,48 @@ namespace ChapubelichBot
                     Console.WriteLine(el);
             }*/
             client.OnMessage += MessageProcess;
-            client.OnCallbackQuery += OnCallBack;
+            client.OnCallbackQuery += CallbackProcess;
 
             Thread.Sleep(int.MaxValue);
         }
 
 
+        private static void CallbackProcess(object sender, CallbackQueryEventArgs e)
+        {
+            if (e.CallbackQuery.Data == null)
+                return;
+
+            User member;
+            bool userIsRegistered = false;
+            using (var db = new ChapubelichdbContext())
+            {
+                member = db.Users.FirstOrDefault(x => x.UserId == e.CallbackQuery.From.Id);
+                if (member != null)
+                {
+                    UpdateMemberInfo(e.CallbackQuery.From, member, db);
+                    userIsRegistered = true;
+                }
+            }
+
+            var callbackMessages = Bot.CallBackMessagesList;
+            foreach (var command in callbackMessages)
+            {
+                if (command.Contains(e.CallbackQuery))
+                    if (userIsRegistered)
+                    {
+                        command.Execute(e.CallbackQuery, client);
+                        return;
+                    }
+                    else
+                    {
+                        SendRegistrationAlertAsync(e.CallbackQuery);
+                        return;
+                    }
+            }
+
+            if (Bot.GenderCallbackMessage.Contains(e.CallbackQuery))
+                Bot.GenderCallbackMessage.Execute(e.CallbackQuery, client);
+        }
         static void MessageProcess(object sender, MessageEventArgs e)
         {
             if (null == e.Message || null == e.Message.Text)
@@ -85,17 +123,17 @@ namespace ChapubelichBot
             switch (e.Message.Chat.Type)
             {
                 case Telegram.Bot.Types.Enums.ChatType.Private:
-                    PrivateMessageProcess(e, userIsRegistered);
+                    PrivateMessageProcessAsync(e, userIsRegistered);
                     break;
                 case Telegram.Bot.Types.Enums.ChatType.Group:
-                    GroupMessageProcess(e, userIsRegistered);
+                    GroupMessageProcessAsync(e, userIsRegistered);
                     break;
                 case Telegram.Bot.Types.Enums.ChatType.Supergroup:
-                    GroupMessageProcess(e, userIsRegistered);
+                    GroupMessageProcessAsync(e, userIsRegistered);
                     break;
             }
         }
-        private static async void PrivateMessageProcess(MessageEventArgs e, bool userIsRegistered)
+        private static async void PrivateMessageProcessAsync(MessageEventArgs e, bool userIsRegistered)
         {
             bool repeatedRegisterRequest = false;
             if (userIsRegistered)
@@ -145,15 +183,15 @@ namespace ChapubelichBot
             }
 
             if (!userIsRegistered)
-                SendRegistrationAlert(e.Message);
+                await SendRegistrationAlertAsync(e.Message);
 
             else await client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
-                $"Воспользуйтесь меню. (Если его нет - нажмите на соответствующую кнопку на поле ввода)",
+                $"Я вас не понял :С Воспользуйтесь меню. (Если его нет - нажмите на соответствующую кнопку на поле ввода)",
                 replyMarkup: ReplyKeyboardsStatic.MainMarkup,
                 replyToMessageId: e.Message.MessageId);
         }
-        private static void GroupMessageProcess(MessageEventArgs e, bool userIsRegistered)
+        private static async void GroupMessageProcessAsync(MessageEventArgs e, bool userIsRegistered)
         {
             foreach (var groupCommand in Bot.BotGroupCommandsList)
             {
@@ -162,7 +200,7 @@ namespace ChapubelichBot
                     if (userIsRegistered)
                         groupCommand.Execute(e.Message, client);
                     else
-                        SendRegistrationAlert(e.Message);
+                        await SendRegistrationAlertAsync(e.Message);
                 }
             }
 
@@ -172,69 +210,38 @@ namespace ChapubelichBot
                     if (userIsRegistered)
                         regexCommand.Execute(e.Message, client);
                     else
-                        SendRegistrationAlert(e.Message);
+                        await SendRegistrationAlertAsync(e.Message);
             }
         }
-
-        private static void OnCallBack(object sender, CallbackQueryEventArgs e)
-        {
-            if (e.CallbackQuery.Data == null)
-                return;
-
-            User member;
-            bool userIsRegistered = false;
-            using (var db = new ChapubelichdbContext())
-            {
-                member = db.Users.FirstOrDefault(x => x.UserId == e.CallbackQuery.From.Id);
-                if (member != null)
-                {
-                    UpdateMemberInfo(e.CallbackQuery.From, member, db);
-                    userIsRegistered = true;
-                }
-            }
-
-            var callbackMessages = Bot.CallBackMessagesList;
-            foreach (var command in callbackMessages)
-            {
-                if (command.Contains(e.CallbackQuery))
-                    if (userIsRegistered)
-                        command.Execute(e.CallbackQuery, client);
-                    else
-                        SendRegistrationAlert(e.CallbackQuery);
-
-                if (Bot.GenderCallbackMessage.Contains(e.CallbackQuery))
-                    Bot.GenderCallbackMessage.Execute(e.CallbackQuery, client);
-            }
-        }
-        private static async void SendRegistrationAlert(Message message)
+        private static async Task<Message> SendRegistrationAlertAsync(Message message)
         {
             if (message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Private)
             {
-                await client.TrySendTextMessageAsync(
+                Message registrationMessage = await client.TrySendTextMessageAsync(
                         message.Chat.Id,
                         $"Упс, кажется вас нет в базе данных. Пожалуйста, пройдите процесс регистрации: ",
                         replyToMessageId: message.MessageId);
                 Bot.RegistrationCommand.Execute(message, client);
-                return;
+                return registrationMessage;
             }
             else if (message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Group ||
                 message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Supergroup)
             {
-                await client.TrySendTextMessageAsync(
+                return await client.TrySendTextMessageAsync(
                         message.Chat.Id,
                         $"Кажется, вы не зарегистрированы. Для регистрации обратитесь к боту в личные сообщения \U0001F48C",
                         replyToMessageId: message.MessageId
                         );
             }
+            return null;
         }
-        private static async void SendRegistrationAlert(CallbackQuery callbackQuery)
+        private static async void SendRegistrationAlertAsync(CallbackQuery callbackQuery)
         {
             await client.TryAnswerCallbackQueryAsync(
                         callbackQuery.Id,
                         $"Пожалуйста, пройдите процесс регистрации.",
                         showAlert: true);
         }
-
         private static void UpdateMemberInfo(Telegram.Bot.Types.User sender, User member, ChapubelichdbContext db)
         {
             if (member.FirstName != sender.FirstName)

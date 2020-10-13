@@ -29,8 +29,8 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                 return;
             }
 
-            gameSession.Result(client);
-            await client.TryAnswerCallbackQueryAsync(query.Id);
+            gameSession.ResultAsync(client);
+            await client.TryAnswerCallbackQueryAsync(query.Id, "✅");
         }
     }
 }

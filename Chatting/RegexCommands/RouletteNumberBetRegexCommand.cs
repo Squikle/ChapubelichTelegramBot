@@ -102,7 +102,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 db.SaveChanges();
 
                 string transactionResult = $"Ставка принята. Суммарная ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
-                    + gameSession.UserBetsToString(user);
+                    + gameSession.UserBetsToStringAsync(user);
 
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
@@ -111,7 +111,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
                 if (!string.IsNullOrEmpty(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[5].Value))
-                    gameSession.Result(client, message);
+                    gameSession.ResultAsync(client, message);
             }
         }
     }

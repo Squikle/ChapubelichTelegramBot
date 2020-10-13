@@ -35,6 +35,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
@@ -96,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Chatting\CallbackMessages\DefaultBetCallbackMessage.cs" />
+    <Compile Include="Chatting\CallbackMessages\RouletteBetCancelCallbackMessage.cs" />
     <Compile Include="Chatting\CallbackMessages\RouletteBetColorCallbackMessage.cs" />
     <Compile Include="Chatting\CallbackMessages\RouletteBetNumberCallbackMessage.cs" />
     <Compile Include="Chatting\CallbackMessages\RouletteRollCallbackMessage.cs" />
@@ -104,6 +108,10 @@
     <Compile Include="Migrations\202010091442221_Added default bet.cs" />
     <Compile Include="Migrations\202010091442221_Added default bet.designer.cs">
       <DependentUpon>202010091442221_Added default bet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202010111819292_changed sizes of User columns.cs" />
+    <Compile Include="Migrations\202010111819292_changed sizes of User columns.designer.cs">
+      <DependentUpon>202010111819292_changed sizes of User columns.cs</DependentUpon>
     </Compile>
     <Compile Include="Types\Abstractions\CallbackMessage.cs" />
     <Compile Include="Types\Abstractions\RegexCommand.cs" />
@@ -215,6 +223,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010091442221_Added default bet.resx">
       <DependentUpon>202010091442221_Added default bet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010111819292_changed sizes of User columns.resx">
+      <DependentUpon>202010111819292_changed sizes of User columns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

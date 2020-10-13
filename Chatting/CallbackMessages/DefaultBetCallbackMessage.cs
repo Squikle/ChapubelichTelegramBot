@@ -21,7 +21,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
         {
             using (var db = new ChapubelichdbContext())
             {
-                int defaultBet = 50;
+                short defaultBet = 50;
 
                 switch (query.Data)
                 {

@@ -26,10 +26,10 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
                 string transactionResult = string.Empty;
                 if (!userTokens.Any())
-                    transactionResult += "\nУ вас нет текущих ставок";
+                    transactionResult += $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, у Вас нет активных ставок";
                 else
                     transactionResult += $"Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:" 
-                        + gameSession.UserBetsToString(user);
+                        + gameSession.UserBetsToStringAsync(user);
                     
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,

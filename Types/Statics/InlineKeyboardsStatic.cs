@@ -55,7 +55,11 @@ namespace ChapubelichBot.Types.Statics
                     },
             new InlineKeyboardButton[]
                     {
-                        InlineKeyboardButton.WithCallbackData("\U00002714Roll\U00002714", "rouletteRoll"),
+                        InlineKeyboardButton.WithCallbackData("✅Крутить✅", "rouletteRoll"),
+                    },
+            new InlineKeyboardButton[]
+                    {
+                        InlineKeyboardButton.WithCallbackData("❌Отмена ставок❌", "rouletteBetsCancel"),
                     }
         });
     }

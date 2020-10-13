@@ -28,10 +28,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             BetTokens = new List<RouletteBetToken>();
             ChatId = message.Chat.Id;
-            Start(client, message);
+            StartAsync(client, message);
         }
 
-        private async void Start(ITelegramBotClient client, Message message)
+        private async void StartAsync(ITelegramBotClient client, Message message)
         {
             Resulting = false;
 
@@ -50,7 +50,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 replyToMessageId: replyId,
                 replyMarkup: InlineKeyboardsStatic.rouletteBetsMarkup);
         }
-        public async void Result(ITelegramBotClient client, Message startMessage = null)
+        public async void ResultAsync(ITelegramBotClient client, Message startMessage = null)
         {
             if (Resulting)
                 return;
@@ -60,7 +60,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Task task = Task.Delay(3000);
             // Удаление сообщений и отправка результатов
-            string result = GetResultMessage().ToString();
+            string result = SummarizeAsync().ToString();
             await task;
             
             if (animationMessage != null)
@@ -79,7 +79,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             RouletteTableStatic.GameSessions.Remove(this);
         }
-        private StringBuilder GetResultMessage()
+        private StringBuilder SummarizeAsync()
         {
             RouletteColorEnum resultColor = ResultNumber.ToRouletteColor();
 
@@ -149,7 +149,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Random random = new Random();
             return new InputOnlineFile(animationsLinks[random.Next(0, animationsLinks.Length)]);
         }
-        public StringBuilder UserBetsToString(User user)
+        public StringBuilder UserBetsToStringAsync(User user)
         {
             StringBuilder resultList = new StringBuilder();
             var userTokens = BetTokens.Where(x => x.UserId == user.UserId);

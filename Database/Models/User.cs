@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,11 +18,13 @@ namespace ChapubelichBot.Database.Models
         [Key]
         public int Id { get; set; }
         public bool Gender { get; set; }
+        [StringLength(32)]
         public string Username { get; set; }
+        [StringLength(64)]
         public string FirstName { get; set; }
         public long Balance { get; set; }
         public bool IsAvailable { get; set; }
-        public int DefaultBet { get; set; }
+        public short DefaultBet { get; set; }
 
         [Index(IsUnique = true)]
         public int UserId { get; set; }

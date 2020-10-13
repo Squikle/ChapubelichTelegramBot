@@ -14,10 +14,16 @@ namespace ChapubelichBot.Chatting.Commands
         public override async void Execute(Message message, ITelegramBotClient client)
         {
             using (var db = new ChapubelichdbContext())
-                await client.TrySendTextMessageAsync(
+            {
+                var user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+
+                if (user != null)
+                    await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"Ваш баланс: {db.Users.First(x => x.UserId == message.From.Id).Balance.ToMoneyFormat()} \U0001F4B0",
-                    replyToMessageId: message.MessageId);
+                    $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, Ваш баланс: {user.Balance.ToMoneyFormat()} \U0001F4B0",
+                    replyToMessageId: message.MessageId,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+            }
         }
     }
 }

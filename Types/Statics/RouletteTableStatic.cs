@@ -132,10 +132,9 @@ namespace ChapubelichBot.Types.Statics
                     return GetBetsByNumbers(((tableSize - 1) / 2) + 1, tableSize - 1);
 
                 case "rouletteBetFirstTwelve":
-                    int dividedByThree = (tableSize - 1) / 3;
                     return GetBetsByNumbers(1, (tableSize - 1) / 3);
                 case "rouletteBetSecondTwelve":
-                    dividedByThree = (tableSize - 1) / 3; 
+                    int dividedByThree = (tableSize - 1) / 3; 
                     return GetBetsByNumbers(dividedByThree+1, dividedByThree * 2);
                 case "rouletteBetThirdTwelve":
                     dividedByThree = (tableSize - 1) / 3;

@@ -10,7 +10,11 @@ namespace ChapubelichBot.Init
     {
         public static string Url => "";
 
+#if (DEBUG)
+        public static string Key => "1365901559:AAFHWZlzG6SBHz9NLaOlEvx-Robel1d6V1Q";
+#else
         public static string Key => "1144819840:AAGyGnkSkzQrovOQTaeLTm4Jrt5cbsUEdFM";
+#endif
 
         public static string Name => "Chapubelich";
 

@@ -74,7 +74,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                 db.SaveChanges();
 
                 string transactionResult = $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Ваша суммарная ставка:"
-                    + gameSession.UserBetsToString(user);
+                    + gameSession.UserBetsToStringAsync(user);
 
                 await client.TrySendTextMessageAsync(
                     query.Message.Chat.Id,

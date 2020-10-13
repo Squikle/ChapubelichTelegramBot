@@ -28,7 +28,6 @@ C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\Syste
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\System.Threading.Tasks.Extensions.xml
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\System.ValueTuple.xml
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\Telegram.Bot.xml
-C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.csprojAssemblyReference.cache
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.Migrations.init.resources
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.Migrations.addedBalance.resources
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.Migrations.addedFirstName.resources
@@ -46,3 +45,5 @@ C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\Chapu
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Debug\ChapubelichBot.pdb
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.exe
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.pdb
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.csprojAssemblyReference.cache
+C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\ChapubelichBot.Migrations.changedsizesofUsercolumns.resources

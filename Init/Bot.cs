@@ -52,7 +52,8 @@ namespace ChapubelichBot.Init
                     new RouletteStartCallbackMessage(),
                     new RouletteBetColorCallbackMessage(),
                     new RouletteBetNumbersCallbackMessage(),
-                    new RouletteRollCallbackMessage()
+                    new RouletteRollCallbackMessage(),
+                    new RouletteBetCancelCallbackMessage(),
                 };
                 BotRegexCommands = new List<RegexCommand>()
                 {

@@ -74,10 +74,10 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 }
 
                 user.Balance -= playerBet;
-                await db.SaveChangesAsync();
+                db.SaveChanges();
 
                 string transactionResult = $"Ставка принята. Суммарная ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
-                    + gameSession.UserBetsToString(user);
+                    + gameSession.UserBetsToStringAsync(user);
                                 
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
@@ -86,7 +86,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
                 if (!string.IsNullOrEmpty(matchString.Groups[9].Value))
-                    gameSession.Result(client, message);
+                    gameSession.ResultAsync(client, message);
             }
         }
     }
