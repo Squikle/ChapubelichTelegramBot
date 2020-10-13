@@ -130,7 +130,7 @@
     <Compile Include="Chatting\Commands\MyProfileCommand.cs" />
     <Compile Include="Chatting\Commands\SettingsCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteColorBetRegexCommand.cs" />
-    <Compile Include="Chatting\RegexCommands\RouletteCancelRegexCommand.cs" />
+    <Compile Include="Chatting\RegexCommands\RouletteBetCancelRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteCheckBetRegexCommand.cs" />
     <Compile Include="Chatting\Commands\RouletteStartCommand.cs" />
     <Compile Include="Chatting\Commands\GamesCommand.cs" />

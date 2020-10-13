@@ -14,18 +14,10 @@ namespace ChapubelichBot.Chatting.CallbackMessages
         public override List<string> IncludingData => new List<string> { "roulettePlayAgain" };
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
-            var session = RouletteTableStatic.GetGameSessionByChatId(query.Message.Chat.Id);
-            if (null == session)
-            {
-                await client.TryEditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
-                RouletteTableStatic.GameSessions.Add(await RouletteGameSession.Initialize(client, query.Message));
-                return;
-            }
-
-            if (session.GameMessage != null)
-                await client.TrySendTextMessageAsync(query.Message.Chat.Id,
-                "Игра уже запущена!",
-                replyToMessageId: session.GameMessage.MessageId);
+            await client.TryEditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
+            var gameMessage = await RouletteGameSession.InitializeNew(query.Message, client);
+            if (gameMessage != null)
+                await client.TryAnswerCallbackQueryAsync(query.Id, "Игра уже запущена!");
         }
     }
 } 

@@ -13,19 +13,9 @@ namespace ChapubelichBot.Chatting.RegexCommands
         public override string Pattern => @"^\/? *(го|ролл|погнали|крути|roll|go)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            var gameSession = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
-
-            if (gameSession == null)
-                return;
-
-            if (!gameSession.BetTokens.Any(x => x.UserId == message.From.Id))
-                await client.TrySendTextMessageAsync(
-                message.Chat.Id,
-                "Чтобы крутить барабан сделайте ставку",
-                replyToMessageId: message.MessageId,
-                parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
-            else
-                await gameSession.ResultAsync(client, message);
+            var gameSession = RouletteTableStatic.GetGameSessionOrNull(message.Chat.Id);
+            if (gameSession != null)
+                await gameSession.Roll(message, client);
         }
     }
 }

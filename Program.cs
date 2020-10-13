@@ -64,7 +64,7 @@ namespace ChapubelichBot
 
             //var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
             //if (e.Message.Date.AddHours(offset.Hours).AddMinutes(AppSettings.MessagesPeriod) > DateTime.Now)
-            if (e.Message.Date.AddMinutes(AppSettings.MessagesPeriod) < DateTime.UtcNow)
+            if (e.Message.Date.AddMinutes(AppSettings.MessagesCheckPeriod) < DateTime.UtcNow)
                 return;
 
             Console.WriteLine("{0}: {1} | {2} ({3} | {4}):\t {5}",
@@ -218,7 +218,6 @@ namespace ChapubelichBot
                 await Bot.GenderCallbackMessage.ExecuteAsync(e.CallbackQuery, client);
         }
         
-
 
         private static async Task<Message> SendRegistrationAlertAsync(Message message)
         {

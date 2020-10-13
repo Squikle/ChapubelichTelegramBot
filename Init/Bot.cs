@@ -40,7 +40,7 @@ namespace ChapubelichBot.Init
                     new MyProfileCommand(),
 
                     new GamesCommand(),
-                    new FiftyFiftyStartCommand(),
+                    new RouletteStartCommand(),
                 };
                 BotGroupCommands = new List<Command>()
                 {
@@ -60,7 +60,7 @@ namespace ChapubelichBot.Init
                     new RouletteColorBetRegexCommand(),
                     new RouletteStartRegexCommand(),
                     new RouletteRollRegexCommand(),
-                    new RouletteCancelRegexCommand(),
+                    new RouletteBetCancelRegexCommand(),
                     new RouletteCheckBetRegexCommand(),
                     new RouletteNumberBetRegexCommand(),
 

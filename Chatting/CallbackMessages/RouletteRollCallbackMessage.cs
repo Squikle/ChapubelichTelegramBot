@@ -16,20 +16,9 @@ namespace ChapubelichBot.Chatting.CallbackMessages
         public override List<string> IncludingData => new List<string> {"rouletteRoll"};
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
-            var gameSession = RouletteTableStatic.GetGameSessionByChatId(query.Message.Chat.Id);
-            if (gameSession == null)
-                return;
-
-            if (!gameSession.BetTokens.Any(x => x.UserId == query.From.Id))
-            {
-                await client.TryAnswerCallbackQueryAsync(
-                query.Id,
-                "Чтобы крутить барабан сделайте ставку");
-                return;
-            }
-
-            await gameSession.ResultAsync(client);
-            await client.TryAnswerCallbackQueryAsync(query.Id, "✅");
+            var gameSession = RouletteTableStatic.GetGameSessionOrNull(query.Message.Chat.Id);
+            if (gameSession != null)
+                await gameSession.Roll(query, client);
         }
     }
 }

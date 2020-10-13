@@ -5,12 +5,19 @@ using ChapubelichBot.Types.Enums;
 using ChapubelichBot.Database.Models;
 using System;
 using ChapubelichBot.Types.Abstractions;
+using System.Threading.Tasks;
+using System.Threading;
+using Telegram.Bot.Types;
+using Telegram.Bot;
+using ChapubelichBot.Types.Extensions;
 
 namespace ChapubelichBot.Types.Statics
 {
     static class RouletteTableStatic
     {
         public static string Name => "\U0001F525Рулетка\U0001F525";
+
+
 
         public const int tableSize = 37;
         public static List<RouletteGameSession> GameSessions { get; set; } = new List<RouletteGameSession>();
@@ -19,7 +26,7 @@ namespace ChapubelichBot.Types.Statics
             Random rand = new Random();
             return rand.Next(0, tableSize - 1);
         }
-        public static RouletteGameSession GetGameSessionByChatId(long chatId)
+        public static RouletteGameSession GetGameSessionOrNull(long chatId)
         {
             return GameSessions.FirstOrDefault(x => x.ChatId == chatId);
         }

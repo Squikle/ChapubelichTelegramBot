@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using ChapubelichBot.Types.Games.RouletteGame;
+using ChapubelichBot.Types.Extensions;
+using System;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
@@ -14,9 +17,15 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            var startCommand = Bot.BotPrivateCommandsList.First(x => x.Name == RouletteTableStatic.Name);
-            if (null != startCommand)
-                await startCommand.ExecuteAsync(message, client);
+            var gameMessage = await RouletteGameSession.InitializeNew(message, client);
+
+            if (gameMessage != null)
+            {
+                int replyId = gameMessage == null ? 0 : gameMessage.MessageId;
+                await client.TrySendTextMessageAsync(message.Chat.Id,
+                "Игра уже запущена!",
+                replyToMessageId: gameMessage.MessageId);
+            }
         }
     }
 }

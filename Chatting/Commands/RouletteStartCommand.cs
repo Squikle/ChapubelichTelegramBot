@@ -8,22 +8,17 @@ using Telegram.Bot.Types;
 
 namespace ChapubelichBot.Chatting.Commands
 {
-    class FiftyFiftyStartCommand : Command
+    class RouletteStartCommand : Command
     {
         public override string Name => RouletteTableStatic.Name;
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            var session = RouletteTableStatic.GetGameSessionByChatId(message.Chat.Id);
-            if (session == null)
-            {
-                RouletteTableStatic.GameSessions.Add(await RouletteGameSession.Initialize(client, message));
-                return;
-            }
+            var gameMessage = await RouletteGameSession.InitializeNew(message, client);
 
-            int replyMessageId = session.GameMessage == null ? 0 : session.GameMessage.MessageId;
-            await client.TrySendTextMessageAsync(message.Chat.Id,
-            "Игра уже запущена!",
-            replyToMessageId: replyMessageId);
+            if (gameMessage != null)
+                await client.TrySendTextMessageAsync(message.Chat.Id,
+                "Игра уже запущена!",
+                replyToMessageId: gameMessage.MessageId);
         }
     }
 }
