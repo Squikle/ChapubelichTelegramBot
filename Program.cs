@@ -51,14 +51,14 @@ namespace ChapubelichBot
                 foreach (var el in li2)
                     Console.WriteLine(el);
             }*/
-            client.OnMessage += MessageProcess;
+            client.OnMessage += MessageProcessAsync;
             client.OnCallbackQuery += CallbackProcess;
 
             Thread.Sleep(int.MaxValue);
         }
 
 
-        static void MessageProcess(object sender, MessageEventArgs e)
+        static async void MessageProcessAsync(object sender, MessageEventArgs e)
         {
             if (null == e.Message || null == e.Message.Text)
                 return;
@@ -80,7 +80,7 @@ namespace ChapubelichBot
                 member = db.Users.FirstOrDefault(x => x.UserId == e.Message.From.Id);
                 if (member != null)
                 {
-                    UpdateMemberInfo(e.Message.From, member, db);
+                    await UpdateMemberInfoAsync(e.Message.From, member, db);
                     userIsRegistered = true;
                 }
             }
@@ -194,7 +194,7 @@ namespace ChapubelichBot
                 member = db.Users.FirstOrDefault(x => x.UserId == e.CallbackQuery.From.Id);
                 if (member != null)
                 {
-                    UpdateMemberInfo(e.CallbackQuery.From, member, db);
+                    await UpdateMemberInfoAsync(e.CallbackQuery.From, member, db);
                     userIsRegistered = true;
                 }
             }
@@ -249,12 +249,12 @@ namespace ChapubelichBot
                         $"Пожалуйста, пройдите процесс регистрации.",
                         showAlert: true);
         }
-        private static void UpdateMemberInfo(Telegram.Bot.Types.User sender, User member, ChapubelichdbContext db)
+        private static async Task UpdateMemberInfoAsync(Telegram.Bot.Types.User sender, User member, ChapubelichdbContext db)
         {
             if (member.FirstName != sender.FirstName)
             {
                 member.FirstName = sender.FirstName;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
         }
     }

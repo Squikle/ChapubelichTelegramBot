@@ -43,7 +43,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                 return;
 
                 senderUser.DefaultBet = defaultBet;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 await client.TryDeleteMessageAsync(
                     query.Message.Chat.Id,
                     query.Message.MessageId);

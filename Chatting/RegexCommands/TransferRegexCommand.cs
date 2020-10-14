@@ -61,7 +61,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                         Telegram.Bot.Types.Enums.ParseMode.Html,
                         replyToMessageId: message.MessageId);
 
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                     return;
                 }
 
