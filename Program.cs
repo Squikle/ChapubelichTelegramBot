@@ -11,6 +11,7 @@ using ChapubelichBot.Init;
 using User = ChapubelichBot.Database.Models.User;
 using System.Configuration;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ChapubelichBot
 {
@@ -19,7 +20,7 @@ namespace ChapubelichBot
         private static readonly ITelegramBotClient client = Bot.Client;
         static void Main()
         {
-            var me = client.GetMeAsync().Result;
+            var me = client.GetMeAsync();
             //Console.Title = me.Username;
 
             Console.WriteLine($"StartReceiving...");
