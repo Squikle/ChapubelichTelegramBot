@@ -25,6 +25,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private List<RouletteBetToken> BetTokens { get; set; }
         private bool Resulting { get; set; }
         private int ResultNumber { get; set; }
+        private RouletteColorEnum ResultColor { get; set; }
         private Timer Timer;
 
         public RouletteGameSession(Message message, ITelegramBotClient client)
