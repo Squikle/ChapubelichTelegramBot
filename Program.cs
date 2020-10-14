@@ -252,7 +252,7 @@ namespace ChapubelichBot
         private static async Task UpdateMemberInfoAsync(Telegram.Bot.Types.User sender, User member, ChapubelichdbContext db)
         {
             if (member.FirstName != sender.FirstName)
-            {
+            { 
                 member.FirstName = sender.FirstName;
                 await db.SaveChangesAsync();
             }
