@@ -25,6 +25,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private List<RouletteBetToken> BetTokens { get; set; }
         private bool Resulting { get; set; }
         private int ResultNumber { get; set; }
+        private RouletteColorEnum ResultColor { get; set; }
         private Timer Timer;
 
         public RouletteGameSession(Message message, ITelegramBotClient client)
@@ -39,6 +40,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Resulting = false;
 
             ResultNumber = RouletteTableStatic.GetRandomResultNumber();
+            ResultColor = ResultNumber.ToRouletteColor();
+
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
 
             GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
@@ -57,8 +60,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Message animationMessage = await client.TrySendAnimationAsync(ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 
             Task task = Task.Delay(AppSettings.RouletteAnimationDuration);
+
             // Удаление сообщений и отправка результатов
-            string result = (await SummarizeAsync()).ToString();
+            var db = new ChapubelichdbContext();
+            string result = Summarize(db).ToString();
             await task;
 
             if (animationMessage != null)
@@ -75,61 +80,66 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 replyMarkup: InlineKeyboardsStatic.roulettePlayAgainMarkup,
                 replyToMessageId: replyId);
 
+            await db.SaveChangesAsync();
+            db.Dispose();
             Dispose();
         }
-        private async Task<StringBuilder> SummarizeAsync()
+        private StringBuilder Summarize(ChapubelichdbContext db)
         {
-            RouletteColorEnum resultColor = ResultNumber.ToRouletteColor();
-
             StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
-            result.Append($"{ResultNumber} {resultColor.ToEmoji()}");
+            result.Append($"{ResultNumber} {ResultColor.ToEmoji()}");
 
-            // Токены с цветом
-            var winTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == resultColor).ToList();
-            var looseTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != resultColor).ToList();
+            var winTokens = GetWinTokensGroupedByUsers();
+            var looseTokens = GetLooseTokensGroupedByUsers();
 
-            // Токены с числами
-            var winTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers != null && x.ChoosenNumbers.Contains(ResultNumber)).ToList();
-            var looseTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers != null && !x.ChoosenNumbers.Contains(ResultNumber)).ToList();
+            // Определение победителей
+            if (winTokens.Any())
+            {
+                result.Append("\n🏆<b>Выиграли:</b>");
+                foreach (var token in winTokens.GroupByUsers())
+                {
+                    int gainSum = token.GetGainSum();
+                    User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
+                    result.Append($"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
+                    user.Balance += gainSum + token.BetSum;
+                }
+            }
+            // Определение проигравших
+            if (looseTokens.Any())
+            {
+                result.Append("\n\U0001F614<b>Проиграли:</b>");
+                foreach (var player in looseTokens.GroupByUsers())
+                {
+                    User user = db.Users.FirstOrDefault(x => x.UserId == player.UserId);
+                    result.Append($"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum.ToMoneyFormat()}</b>💵");
+                }
+            }
+
+            return result;
+        }
+        private IEnumerable<RouletteBetToken> GetWinTokensGroupedByUsers()
+        {
+            var winTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == ResultColor).ToList();
+            var winTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers.Contains(ResultNumber)).ToList();
 
             var winTokens = new List<RouletteBetToken>(winTokensColor.Count + winTokensColor.Count);
             winTokens.AddRange(winTokensColor);
             winTokens.AddRange(winTokensNumbers);
 
+            return winTokens.GroupByUsers();
+        }
+        private IEnumerable<RouletteBetToken> GetLooseTokensGroupedByUsers()
+        {
+            var looseTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != ResultColor).ToList();
+            var looseTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => !x.ChoosenNumbers.Contains(ResultNumber)).ToList();
+
             var looseTokens = new List<RouletteBetToken>(looseTokensColor.Count + looseTokensNumbers.Count);
             looseTokens.AddRange(looseTokensColor);
             looseTokens.AddRange(looseTokensNumbers);
 
-            using (var db = new ChapubelichdbContext())
-            {
-                // Определение победителей
-                if (winTokens.Any())
-                {
-                    result.Append("\n🏆<b>Выиграли:</b>");
-                    foreach (var token in winTokens.GroupByUsers())
-                    {
-                        int gainSum = token.GetGainSum();
-                        User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
-                        result.Append($"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
-                        user.Balance += gainSum + token.BetSum;
-                    }
-                }
-                // Определение проигравших
-                if (looseTokens.Any())
-                {
-                    result.Append("\n\U0001F614<b>Проиграли:</b>");
-                    foreach (var player in looseTokens.GroupByUsers())
-                    {
-                        User user = db.Users.FirstOrDefault(x => x.UserId == player.UserId);
-                        result.Append($"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{player.BetSum.ToMoneyFormat()}</b>💵");
-                    }
-                }
-
-                await db.SaveChangesAsync();
-            }
-
-            return result;
+            return looseTokens.GroupByUsers();
         }
+
         public StringBuilder UserBetsToStringAsync(User user)
         {
             StringBuilder resultList = new StringBuilder();
@@ -186,7 +196,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             return resultList;
         }
-
         public async Task BetCancel(CallbackQuery callbackQuery, ITelegramBotClient client)
         {
             DelayTimer();
