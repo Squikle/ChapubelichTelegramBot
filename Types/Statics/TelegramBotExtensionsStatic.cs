@@ -35,7 +35,7 @@ namespace ChapubelichBot.Types.Extensions
                         if (null != receiverUser && receiverUser.IsAvailable)
                         {
                             receiverUser.IsAvailable = false;
-                            db.SaveChanges();
+                            await db.SaveChangesAsync();
                         }
                     }
                     Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
@@ -45,7 +45,7 @@ namespace ChapubelichBot.Types.Extensions
                 if (null != receiverUser && !receiverUser.IsAvailable)
                 {
                     receiverUser.IsAvailable = true;
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                 }
                 return message;
             }

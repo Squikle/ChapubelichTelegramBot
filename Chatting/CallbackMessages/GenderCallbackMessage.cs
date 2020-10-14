@@ -34,7 +34,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                 if (senderUser != null)
                 {
                     senderUser.Gender = choosenGender;
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                     await client.TryDeleteMessageAsync(
                         query.Message.Chat.Id,
                         query.Message.MessageId);
@@ -56,7 +56,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                     };
 
                     db.Users.Add(senderUser);
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
                     await client.TrySendTextMessageAsync(
                         query.Message.Chat.Id,
                         "Вы были успешно зарегестрированы!",

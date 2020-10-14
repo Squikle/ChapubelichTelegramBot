@@ -58,7 +58,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Task task = Task.Delay(AppSettings.RouletteAnimationDuration);
             // Удаление сообщений и отправка результатов
-            string result = SummarizeAsync().ToString();
+            string result = (await SummarizeAsync()).ToString();
             await task;
 
             if (animationMessage != null)
@@ -77,7 +77,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Dispose();
         }
-        private StringBuilder SummarizeAsync()
+        private async Task<StringBuilder> SummarizeAsync()
         {
             RouletteColorEnum resultColor = ResultNumber.ToRouletteColor();
 
@@ -125,7 +125,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     }
                 }
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
 
             return result;
@@ -209,7 +209,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     }
                     BetTokens = BetTokens.Except(userTokens).ToList();
 
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
 
                     await client.TrySendTextMessageAsync(
                             ChatId,
@@ -243,7 +243,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     }
                     BetTokens = BetTokens.Except(userTokens).ToList();
 
-                    db.SaveChanges();
+                    await db.SaveChangesAsync();
 
                     await client.TrySendTextMessageAsync(
                             ChatId,
@@ -312,7 +312,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 }
 
                 user.Balance -= user.DefaultBet;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
 
                 string transactionResult = $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Ваша суммарная ставка:"
                     + UserBetsToStringAsync(user);
@@ -379,7 +379,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 }
 
                 user.Balance -= playerBet;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
 
                 string transactionResult = $"Ставка принята. Суммарная ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
                     + UserBetsToStringAsync(user);
@@ -432,7 +432,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 }
 
                 user.Balance -= user.DefaultBet;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
 
                 string transactionResult = $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Ваша суммарная ставка:"
                     + UserBetsToStringAsync(user);
@@ -525,7 +525,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 }
 
                 user.Balance -= playerBet;
-                db.SaveChanges();
+                await db.SaveChangesAsync();
 
                 string transactionResult = $"Ставка принята. Суммарная ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
                     + UserBetsToStringAsync(user);
@@ -644,7 +644,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     }
                     returnedBets += "\nСтавки были возвращены👍";
                 }
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
 
             if (GameMessage != null)
