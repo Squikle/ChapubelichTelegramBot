@@ -25,7 +25,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private List<RouletteBetToken> BetTokens { get; set; }
         private bool Resulting { get; set; }
         private int ResultNumber { get; set; }
-        private RouletteColorEnum ResultColor { get; set; }
         private Timer Timer;
 
         public RouletteGameSession(Message message, ITelegramBotClient client)
@@ -40,7 +39,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Resulting = false;
 
             ResultNumber = RouletteTableStatic.GetRandomResultNumber();
-            ResultColor = ResultNumber.ToRouletteColor();
 
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
 
@@ -87,7 +85,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private StringBuilder Summarize(ChapubelichdbContext db)
         {
             StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
-            result.Append($"{ResultNumber} {ResultColor.ToEmoji()}");
+            result.Append($"{ResultNumber} {ResultNumber.ToRouletteColor().ToEmoji()}");
 
             var winTokens = GetWinTokensGroupedByUsers();
             var looseTokens = GetLooseTokensGroupedByUsers();
@@ -119,7 +117,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private IEnumerable<RouletteBetToken> GetWinTokensGroupedByUsers()
         {
-            var winTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == ResultColor).ToList();
+            var winTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == ResultNumber.ToRouletteColor()).ToList();
             var winTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers.Contains(ResultNumber)).ToList();
 
             var winTokens = new List<RouletteBetToken>(winTokensColor.Count + winTokensColor.Count);
@@ -130,7 +128,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private IEnumerable<RouletteBetToken> GetLooseTokensGroupedByUsers()
         {
-            var looseTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != ResultColor).ToList();
+            var looseTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != ResultNumber.ToRouletteColor()).ToList();
             var looseTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => !x.ChoosenNumbers.Contains(ResultNumber)).ToList();
 
             var looseTokens = new List<RouletteBetToken>(looseTokensColor.Count + looseTokensNumbers.Count);
