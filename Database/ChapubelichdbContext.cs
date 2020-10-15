@@ -1,4 +1,5 @@
 ﻿using ChapubelichBot.Database.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.Migrations.History;
 
@@ -24,6 +25,14 @@ namespace ChapubelichBot.Database
             .HasRequired<Group>(sc => sc.Group)
             .WithMany(s => s.UserGroup)
             .HasForeignKey(sc => sc.GroupId);
+
+            modelBuilder.Entity<User>()
+            .Property(p => p.UserId)
+            .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+
+            modelBuilder.Entity<Group>()
+            .Property(p => p.GroupId)
+            .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
         }
 
         public DbSet<User> Users { get; set; }

@@ -6,11 +6,8 @@ namespace ChapubelichBot.Database.Models
 {
     public class Group
     {
-        [Key]
-        public int Id { get; set; }
         public string Name { get; set; }
-
-        [Index(IsUnique = true)]
+        [Key]
         public long GroupId { get; set; }
         public bool IsAvailable { get; set; }
         

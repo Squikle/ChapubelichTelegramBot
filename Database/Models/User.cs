@@ -15,8 +15,6 @@ namespace ChapubelichBot.Database.Models
             Gender = true;
             DefaultBet = 50;
         }
-        [Key]
-        public int Id { get; set; }
         public bool Gender { get; set; }
         [StringLength(32)]
         public string Username { get; set; }
@@ -26,7 +24,7 @@ namespace ChapubelichBot.Database.Models
         public bool IsAvailable { get; set; }
         public short DefaultBet { get; set; }
 
-        [Index(IsUnique = true)]
+        [Key]
         public int UserId { get; set; }
 
         public ICollection<UserGroup> UserGroup { get; set; }

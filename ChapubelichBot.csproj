@@ -113,6 +113,10 @@
     <Compile Include="Migrations\202010111819292_changed sizes of User columns.designer.cs">
       <DependentUpon>202010111819292_changed sizes of User columns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202010151309442_delete internal id.cs" />
+    <Compile Include="Migrations\202010151309442_delete internal id.designer.cs">
+      <DependentUpon>202010151309442_delete internal id.cs</DependentUpon>
+    </Compile>
     <Compile Include="Types\Abstractions\CallbackMessage.cs" />
     <Compile Include="Types\Abstractions\RegexCommand.cs" />
     <Compile Include="Types\Abstractions\RouletteBetToken.cs" />
@@ -226,6 +230,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010111819292_changed sizes of User columns.resx">
       <DependentUpon>202010111819292_changed sizes of User columns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010151309442_delete internal id.resx">
+      <DependentUpon>202010151309442_delete internal id.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
