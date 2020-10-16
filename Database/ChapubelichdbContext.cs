@@ -7,8 +7,13 @@ namespace ChapubelichBot.Database
 {
     class ChapubelichdbContext : DbContext
     {
+#if (DEBUG)
+        public ChapubelichdbContext() : base("Server=localhost;Port=5432;Username=postgres;Password=1234;Database=ChapubelichTestdb;")
+        { }
+#else
         public ChapubelichdbContext() : base("ChapubelichConnectionString")
         { }
+#endif
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
