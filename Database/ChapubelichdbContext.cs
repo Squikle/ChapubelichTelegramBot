@@ -19,7 +19,7 @@ namespace ChapubelichBot.Database
         {
             modelBuilder.HasDefaultSchema("Botdb");
 
-            modelBuilder.Entity<UserGroup>().HasKey(x => new { x.UserId, x.GroupId });
+            /*modelBuilder.Entity<UserGroup>().HasKey(x => new { x.UserId, x.GroupId });
 
             modelBuilder.Entity<UserGroup>()
             .HasRequired<User>(sc => sc.User)
@@ -29,7 +29,7 @@ namespace ChapubelichBot.Database
             modelBuilder.Entity<UserGroup>()
             .HasRequired<Group>(sc => sc.Group)
             .WithMany(s => s.UserGroup)
-            .HasForeignKey(sc => sc.GroupId);
+            .HasForeignKey(sc => sc.GroupId);*/
 
             modelBuilder.Entity<User>()
             .Property(p => p.UserId)

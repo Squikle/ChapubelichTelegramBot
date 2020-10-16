@@ -8,13 +8,8 @@ namespace ChapubelichBot.Database.Models
 {
     public class User
     {
-        public User()
-        {
-            Balance = 300;
-            IsAvailable = true;
-            Gender = true;
-            DefaultBet = 50;
-        }
+        [Key]
+        public int UserId { get; set; }
         public bool Gender { get; set; }
         [StringLength(32)]
         public string Username { get; set; }
@@ -24,9 +19,15 @@ namespace ChapubelichBot.Database.Models
         public bool IsAvailable { get; set; }
         public short DefaultBet { get; set; }
 
-        [Key]
-        public int UserId { get; set; }
+        public ICollection<Group> Groups { get; set; }
 
-        public ICollection<UserGroup> UserGroup { get; set; }
+        public User()
+        {
+            Groups = new List<Group>();
+            Balance = 300;
+            IsAvailable = true;
+            Gender = true;
+            DefaultBet = 50;
+        }
     }
 }

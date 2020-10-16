@@ -117,6 +117,10 @@
     <Compile Include="Migrations\202010151309442_delete internal id.designer.cs">
       <DependentUpon>202010151309442_delete internal id.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202010161551305_many-to-many changed, removed usergroup.cs" />
+    <Compile Include="Migrations\202010161551305_many-to-many changed, removed usergroup.designer.cs">
+      <DependentUpon>202010161551305_many-to-many changed, removed usergroup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Types\Abstractions\CallbackMessage.cs" />
     <Compile Include="Types\Abstractions\RegexCommand.cs" />
     <Compile Include="Types\Abstractions\RouletteBetToken.cs" />
@@ -148,7 +152,6 @@
     <Compile Include="Database\ChapubelichdbContext.cs" />
     <Compile Include="Database\Models\Group.cs" />
     <Compile Include="Database\Models\User.cs" />
-    <Compile Include="Database\Models\UserGroup.cs" />
     <Compile Include="Types\Games\RouletteGame\RouletteGameSession.cs" />
     <Compile Include="Types\Statics\RouletteTableStatic.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteRollRegexCommand.cs" />
@@ -233,6 +236,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010151309442_delete internal id.resx">
       <DependentUpon>202010151309442_delete internal id.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010161551305_many-to-many changed, removed usergroup.resx">
+      <DependentUpon>202010161551305_many-to-many changed, removed usergroup.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
