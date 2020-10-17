@@ -18,6 +18,8 @@ namespace ChapubelichBot.Database.Models
         public long Balance { get; set; }
         public bool IsAvailable { get; set; }
         public short DefaultBet { get; set; }
+        public bool Complimented { get; set; }
+        public bool DailyRewarded { get; set; }
 
         public ICollection<Group> Groups { get; set; }
 
@@ -28,6 +30,8 @@ namespace ChapubelichBot.Database.Models
             IsAvailable = true;
             Gender = true;
             DefaultBet = 50;
+            Complimented = false;
+            DailyRewarded = false;
         }
     }
 }

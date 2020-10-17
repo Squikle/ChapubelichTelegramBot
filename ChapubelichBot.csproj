@@ -121,6 +121,10 @@
     <Compile Include="Migrations\202010161551305_many-to-many changed, removed usergroup.designer.cs">
       <DependentUpon>202010161551305_many-to-many changed, removed usergroup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202010171305043_complimented and dailyRewarded.cs" />
+    <Compile Include="Migrations\202010171305043_complimented and dailyRewarded.designer.cs">
+      <DependentUpon>202010171305043_complimented and dailyRewarded.cs</DependentUpon>
+    </Compile>
     <Compile Include="Types\Abstractions\CallbackMessage.cs" />
     <Compile Include="Types\Abstractions\RegexCommand.cs" />
     <Compile Include="Types\Abstractions\RouletteBetToken.cs" />
@@ -239,6 +243,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010161551305_many-to-many changed, removed usergroup.resx">
       <DependentUpon>202010161551305_many-to-many changed, removed usergroup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010171305043_complimented and dailyRewarded.resx">
+      <DependentUpon>202010171305043_complimented and dailyRewarded.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
