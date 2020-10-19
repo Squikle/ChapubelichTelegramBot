@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.Migrations.History;
+using System.Linq;
 
 namespace ChapubelichBot.Database
 {
@@ -44,5 +45,6 @@ namespace ChapubelichBot.Database
         public DbSet<Group> Groups { get; set; }
         public DbSet<BoyCompliment> BoyCompliments {get; set;}
         public DbSet<GirlCompliment> GirlCompliments { get; set; }
+        public DbSet<Configuration> Configurations { get; set; }
     }
 }

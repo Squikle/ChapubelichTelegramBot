@@ -115,6 +115,7 @@
     <Compile Include="Chatting\CallbackMessages\RouletteRollCallbackMessage.cs" />
     <Compile Include="Chatting\Commands\DefaultBetChangeCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteNumberBetRegexCommand.cs" />
+    <Compile Include="Database\Models\Configuration.cs" />
     <Compile Include="Database\Models\BoyCompliment.cs" />
     <Compile Include="Database\Models\GirlCompliment.cs" />
     <Compile Include="Migrations\202010091442221_Added default bet.cs" />
@@ -141,12 +142,22 @@
     <Compile Include="Migrations\202010191059044_Compliment tables.designer.cs">
       <DependentUpon>202010191059044_Compliment tables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202010191540272_Config table.cs" />
+    <Compile Include="Migrations\202010191540272_Config table.designer.cs">
+      <DependentUpon>202010191540272_Config table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202010191604597_DailyReset changed to datetime.cs" />
+    <Compile Include="Migrations\202010191604597_DailyReset changed to datetime.designer.cs">
+      <DependentUpon>202010191604597_DailyReset changed to datetime.cs</DependentUpon>
+    </Compile>
     <Compile Include="Types\Abstractions\CallbackMessage.cs" />
     <Compile Include="Types\Abstractions\Compliment.cs" />
     <Compile Include="Types\Abstractions\RegexCommand.cs" />
     <Compile Include="Types\Abstractions\RouletteBetToken.cs" />
     <Compile Include="Types\Games\RouletteGame\RouletteColorBetToken.cs" />
     <Compile Include="Types\Games\RouletteGame\RouletteNumbersBetToken.cs" />
+    <Compile Include="Types\Jobs\DailyComplimentJob.cs" />
+    <Compile Include="Types\Jobs\DailyResetJob.cs" />
     <Compile Include="Types\Statics\InlineKeyboardsStatic.cs" />
     <Compile Include="Types\Statics\ReplyKeyboardsStatic.cs" />
     <Compile Include="Chatting\CallbackMessages\GenderCallbackMessage.cs" />
@@ -266,6 +277,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010191059044_Compliment tables.resx">
       <DependentUpon>202010191059044_Compliment tables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010191540272_Config table.resx">
+      <DependentUpon>202010191540272_Config table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010191604597_DailyReset changed to datetime.resx">
+      <DependentUpon>202010191604597_DailyReset changed to datetime.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />

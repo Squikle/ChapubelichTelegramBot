@@ -15,13 +15,16 @@ using ChapubelichBot.Types.Abstractions;
 using System.Collections.Generic;
 using System.Data.Entity;
 using Quartz;
+using ChapubelichBot.Types.Jobs;
+using Quartz.Impl;
+using System.IO;
+using System.Data.Entity.Validation;
 
 namespace ChapubelichBot
 {
     class Program
     {
         private static readonly ITelegramBotClient client = Bot.Client;
-        private static Timer ComplimentsSender;
         static void Main()
         {
             var me = client.GetMeAsync();
@@ -32,128 +35,51 @@ namespace ChapubelichBot
 
             client.OnMessage += MessageProcessAsync;
             client.OnCallbackQuery += CallbackProcess;
-
-            ITrigger trigger = TriggerBuilder.Create()
-            .WithDailyTimeIntervalSchedule
-                (s =>
-                    s.OnEveryDay()
-                    StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
-                )
-            .Build();
-
-            Task dailyResetTask = Task.Run(async () =>
-            {
-                Func<Task> action = async () =>
-                {
-                    using (var db = new ChapubelichdbContext())
-                    {
-                        foreach (var user in db.Users)
-                        {
-                            user.Complimented = false;
-                            user.DailyRewarded = false;
-                        }
-                        await db.SaveChangesAsync();
-                    }
-                };
-            
-                var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00);
-                TimeSpan ts;
-                if (date > DateTime.Now)
-                    ts = date - DateTime.Now;
-                else
-                {
-                    date = date.AddDays(1);
-                    ts = date - DateTime.Now;
-                    await action();
-                }
-                await Task.Delay(ts).ContinueWith(async (task) => await action());
-            });
-
-            Task dailyComplimentsTask = Task.Run(async () => 
-            {
-                Func<Task> action = async () =>
-                {
-                    string[] boyCompliments = null;
-                    string[] girlCompliments = null;
-                    User[] complimentingUsers;
-
-                    using (var db = new ChapubelichdbContext())
-                    {
-                        var complimentingUsersDatabase = db.Users.Where(x => x.Username == "Squikle" && x.IsAvailable && !x.Complimented);
-
-                        complimentingUsers = complimentingUsersDatabase.ToArray();
-                        if (complimentingUsers.Length <= 0)
-                            return;
-
-                        foreach (var user in complimentingUsersDatabase)
-                        {
-                            user.Complimented = true;
-                        }
-                        await db.SaveChangesAsync();
-
-                        if (complimentingUsers.Any(x => x.Gender == true))
-                            boyCompliments = db.BoyCompliments.Select(x => x.ComplimentText).ToArray();
-                        if (complimentingUsers.Any(x => x.Gender == false))
-                            girlCompliments = db.GirlCompliments.Select(x => x.ComplimentText).ToArray();
-                    }
-
-                    Random rand = new Random();
-                    Dictionary<User, string> userCompliments = new Dictionary<User, string>();
-                    foreach (var user in complimentingUsers)
-                    {
-                        string compliment;
-                        switch (user.Gender)
-                        {
-                            case true:
-                                compliment = boyCompliments[rand.Next(0, boyCompliments.Length)];
-                                break;
-                            case false:
-                                compliment = girlCompliments[rand.Next(0, girlCompliments.Length)];
-                                break;
-                            default:
-                                compliment = "Твои глаза прекрасны";
-                                break;
-                        }
-                        userCompliments.Add(user, compliment);
-                    }
-
-                    foreach (var userCompliment in userCompliments)
-                    {
-                        Console.WriteLine($"{DateTime.Now} отправляю комплимент");
-                        await client.TrySendTextMessageAsync(userCompliment.Key.UserId, $"Твой комплимент дня:\n{userCompliment.Value}");
-                    }
-                };
-
-                var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 00, 00);
-                TimeSpan ts;
-                if (date > DateTime.Now)
-                    ts = date - DateTime.Now;
-                else
-                {
-                    date = date.AddDays(1);
-                    ts = date - DateTime.Now;
-                    await action();
-                }
-
-                await Task.Delay(ts).ContinueWith((task) =>
-                {
-                    ComplimentsSender = new Timer(async (obj) => await action(), null, 0, TimeSpan.FromHours(24).TotalMilliseconds);
-                });
-            });
-            
-            try
-            {
-                dailyResetTask.Wait();
-                dailyComplimentsTask.Wait();
-            }
-            catch
-            {
-                throw;
-            }
+            DailyProcess();
 
             Console.Read();
-
             Thread.Sleep(int.MaxValue);
+        }
+
+        static async void DailyProcess()
+        {
+            IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
+            await scheduler.Start();
+
+            IJobDetail dailyResetJob = JobBuilder.Create<DailyResetJob>().Build();
+            ITrigger dailyResetTrigger = TriggerBuilder.Create().WithIdentity("DailyResetJob", "ChapubelichBot").StartNow().
+                WithDailyTimeIntervalSchedule(x => x.StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0)).WithIntervalInHours(24)).Build();
+            //WithSimpleSchedule(x => x.RepeatForever().WithIntervalInSeconds(30)).Build();
+            IJobDetail dailyComplimentJob = JobBuilder.Create<DailyComplimentJob>().Build();
+            dailyComplimentJob.JobDataMap["TelegramBotClient"] = client;
+            ITrigger dailyComplimentTrigger = TriggerBuilder.Create().WithIdentity("DailyComplimentJob", "ChapubelichBot").StartNow().
+                WithDailyTimeIntervalSchedule(x => x.StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(12, 0)).WithIntervalInHours(24)).Build();
+            //WithSimpleSchedule(x => x.RepeatForever().WithIntervalInSeconds(10)).Build(); 
+
+            await scheduler.ScheduleJob(dailyResetJob, dailyResetTrigger);
+            await scheduler.ScheduleJob(dailyComplimentJob, dailyComplimentTrigger);
+
+            //reset data if not
+            await Task.Run(async () =>
+            {
+                bool alreadyRestarted = false;
+                using (var db = new ChapubelichdbContext())
+                {
+                    if (db.Configurations.First().LastResetTime> new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00))
+                        alreadyRestarted = true;
+
+                    if (!alreadyRestarted)
+                        await scheduler.TriggerJob(dailyResetJob.Key);
+                }
+            });
+
+            await Task.Run(async () =>
+            {
+                //send compliments if not
+                var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 00, 00);
+                if (DateTime.Now > date)
+                    await scheduler.TriggerJob(dailyComplimentJob.Key);
+            });
         }
 
 
@@ -178,7 +104,7 @@ namespace ChapubelichBot
             {
                 member = db.Users.FirstOrDefault(x => x.UserId == e.Message.From.Id);
                 if (member != null)
-                {
+                { 
                     await UpdateMemberInfoAsync(e.Message.From, member, db);
                     userIsRegistered = true;
                 }

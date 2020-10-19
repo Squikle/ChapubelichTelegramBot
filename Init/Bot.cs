@@ -73,6 +73,8 @@ namespace ChapubelichBot.Init
                 _client = new TelegramBotClient(AppSettings.Key) { Timeout = TimeSpan.FromSeconds(10) };
                 return _client;
             }
+            private set 
+            { }
         }
 
         public static StartCommand                      StartCommand;
