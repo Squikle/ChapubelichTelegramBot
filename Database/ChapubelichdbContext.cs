@@ -42,5 +42,7 @@ namespace ChapubelichBot.Database
 
         public DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<BoyCompliment> BoyCompliments {get; set;}
+        public DbSet<GirlCompliment> GirlCompliments { get; set; }
     }
 }

@@ -9,15 +9,19 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using ChapubelichBot.Init;
 using User = ChapubelichBot.Database.Models.User;
-using System.Configuration;
 using System.Threading.Tasks;
+using ChapubelichBot.Database.Models;
+using ChapubelichBot.Types.Abstractions;
 using System.Collections.Generic;
+using System.Data.Entity;
+using Quartz;
 
 namespace ChapubelichBot
 {
     class Program
     {
         private static readonly ITelegramBotClient client = Bot.Client;
+        private static Timer ComplimentsSender;
         static void Main()
         {
             var me = client.GetMeAsync();
@@ -26,33 +30,128 @@ namespace ChapubelichBot
             Console.WriteLine($"StartReceiving...");
             client.StartReceiving();
 
-            /*using (var db = new ChapubelichdbContext())
-            {
-                *//*var user1 = new User() { Gender = true, Username = "Squikle", UserId = 243857110, UserGroup = new List<UserGroup>() };
-
-                var group1 = new Group() { Name = "only me", GroupId = -1001364770969 };
-                var group2 = new Group() { Name = "test", GroupId = -1001364770965 };
-
-                var userGroup1 = new UserGroup() { Group = group1, User = user1 };
-                var userGroup2 = new UserGroup() { Group = group2, User = user1 };
-
-                user1.UserGroup.Add(userGroup1);
-                user1.UserGroup.Add(userGroup2);
-
-                db.Groups.Add(group1);
-                db.Groups.Add(group2);
-
-                db.Users.Add(user1);
-
-                db.SaveChangesAsync();*//*
-                var li1 = db.Set<UserGroup>().Where(x => x.User.Username == "Squikle").Select(x => x.Group.Name);
-                var li2 = db.Set<UserGroup>().Where(x => x.Group.Name == "Only me").Select(x => x.User.Username);
-
-                foreach (var el in li2)
-                    Console.WriteLine(el);
-            }*/
             client.OnMessage += MessageProcessAsync;
             client.OnCallbackQuery += CallbackProcess;
+
+            ITrigger trigger = TriggerBuilder.Create()
+            .WithDailyTimeIntervalSchedule
+                (s =>
+                    s.OnEveryDay()
+                    StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
+                )
+            .Build();
+
+            Task dailyResetTask = Task.Run(async () =>
+            {
+                Func<Task> action = async () =>
+                {
+                    using (var db = new ChapubelichdbContext())
+                    {
+                        foreach (var user in db.Users)
+                        {
+                            user.Complimented = false;
+                            user.DailyRewarded = false;
+                        }
+                        await db.SaveChangesAsync();
+                    }
+                };
+            
+                var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00);
+                TimeSpan ts;
+                if (date > DateTime.Now)
+                    ts = date - DateTime.Now;
+                else
+                {
+                    date = date.AddDays(1);
+                    ts = date - DateTime.Now;
+                    await action();
+                }
+                await Task.Delay(ts).ContinueWith(async (task) => await action());
+            });
+
+            Task dailyComplimentsTask = Task.Run(async () => 
+            {
+                Func<Task> action = async () =>
+                {
+                    string[] boyCompliments = null;
+                    string[] girlCompliments = null;
+                    User[] complimentingUsers;
+
+                    using (var db = new ChapubelichdbContext())
+                    {
+                        var complimentingUsersDatabase = db.Users.Where(x => x.Username == "Squikle" && x.IsAvailable && !x.Complimented);
+
+                        complimentingUsers = complimentingUsersDatabase.ToArray();
+                        if (complimentingUsers.Length <= 0)
+                            return;
+
+                        foreach (var user in complimentingUsersDatabase)
+                        {
+                            user.Complimented = true;
+                        }
+                        await db.SaveChangesAsync();
+
+                        if (complimentingUsers.Any(x => x.Gender == true))
+                            boyCompliments = db.BoyCompliments.Select(x => x.ComplimentText).ToArray();
+                        if (complimentingUsers.Any(x => x.Gender == false))
+                            girlCompliments = db.GirlCompliments.Select(x => x.ComplimentText).ToArray();
+                    }
+
+                    Random rand = new Random();
+                    Dictionary<User, string> userCompliments = new Dictionary<User, string>();
+                    foreach (var user in complimentingUsers)
+                    {
+                        string compliment;
+                        switch (user.Gender)
+                        {
+                            case true:
+                                compliment = boyCompliments[rand.Next(0, boyCompliments.Length)];
+                                break;
+                            case false:
+                                compliment = girlCompliments[rand.Next(0, girlCompliments.Length)];
+                                break;
+                            default:
+                                compliment = "Твои глаза прекрасны";
+                                break;
+                        }
+                        userCompliments.Add(user, compliment);
+                    }
+
+                    foreach (var userCompliment in userCompliments)
+                    {
+                        Console.WriteLine($"{DateTime.Now} отправляю комплимент");
+                        await client.TrySendTextMessageAsync(userCompliment.Key.UserId, $"Твой комплимент дня:\n{userCompliment.Value}");
+                    }
+                };
+
+                var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 00, 00);
+                TimeSpan ts;
+                if (date > DateTime.Now)
+                    ts = date - DateTime.Now;
+                else
+                {
+                    date = date.AddDays(1);
+                    ts = date - DateTime.Now;
+                    await action();
+                }
+
+                await Task.Delay(ts).ContinueWith((task) =>
+                {
+                    ComplimentsSender = new Timer(async (obj) => await action(), null, 0, TimeSpan.FromHours(24).TotalMilliseconds);
+                });
+            });
+            
+            try
+            {
+                dailyResetTask.Wait();
+                dailyComplimentsTask.Wait();
+            }
+            catch
+            {
+                throw;
+            }
+
+            Console.Read();
 
             Thread.Sleep(int.MaxValue);
         }
