@@ -9,7 +9,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class IsItGameRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/?(([^\r\n\t\f\v=]*) *= *(([^\r\n\t\f\v= ]+ *)+)| *@ChapubelichBot  *(([^\r\n\t\f\v= ]+ *)+))\?$";
+        public override string Pattern => @"^\/? *@ChapubelichBot .+\?$";
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {

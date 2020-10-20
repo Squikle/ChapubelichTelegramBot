@@ -13,14 +13,13 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class LeetTranslateRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/ *((в )?лит(спик)?|(to )?leet(speak)?)( -(n|l))? +(([^\r\n\t\f\v= ]+ *)+)$";
+        public override string Pattern => @"^\/ *((в )?лит(спик)?|(to )?leet(speak)?)( -(n|l))? (.+)$";
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             Match match = Regex.Match(message.Text, Pattern);
             string textToTranslate = match.Groups[8].Value.ToLower();
             string modifier = match.Groups[7].Value;
-
             string answer = String.Empty;
 
             if (!string.IsNullOrEmpty(modifier))
