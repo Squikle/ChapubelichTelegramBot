@@ -69,6 +69,8 @@ namespace ChapubelichBot.Init
                     new TransferRegexCommand(),
 
                     new IsItGameRegexCommand(),
+                    
+                    new LeetTranslateRegexCommand(),
                 };
 
                 _client = new TelegramBotClient(AppSettings.Key) { Timeout = TimeSpan.FromSeconds(10) };

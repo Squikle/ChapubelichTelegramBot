@@ -50,7 +50,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     transferFrom.Balance -= transferSum;
                     transferTo.Balance += transferSum;
 
-                    string resultMessage = $"Ты передал {transferSum.ToMoneyFormat()} 💵 пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
+                    string resultMessage = $"{transferSum.ToMoneyFormat()} 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
                         $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0\n";
                     if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 20)
                         resultMessage += $"Подпись: {attachedMessage}";

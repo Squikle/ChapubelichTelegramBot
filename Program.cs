@@ -169,7 +169,7 @@ namespace ChapubelichBot
             {
                 await client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
-                $"Вы уже зарегестрированы",
+                $"Ты уже зарегестрирован👍",
                 replyMarkup: ReplyKeyboardsStatic.MainMarkup);
 
                 return;
@@ -180,7 +180,7 @@ namespace ChapubelichBot
 
             else await client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
-                $"Я вас не понял :С Воспользуйтесь меню. (Если его нет - нажмите на соответствующую кнопку на поле ввода)",
+                $"Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода👇)",
                 replyMarkup: ReplyKeyboardsStatic.MainMarkup,
                 replyToMessageId: e.Message.MessageId);
         }
@@ -250,7 +250,7 @@ namespace ChapubelichBot
             {
                 Message registrationMessage = await client.TrySendTextMessageAsync(
                         message.Chat.Id,
-                        $"Упс, кажется вас нет в базе данных. Пожалуйста, пройдите процесс регистрации: ",
+                        $"Упс, кажется тебя нет в базе данных. Пожалуйста, пройди процесс регистрации: ",
                         replyToMessageId: message.MessageId);
                 await Bot.RegistrationCommand.ExecuteAsync(message, client);
                 return registrationMessage;

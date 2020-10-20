@@ -116,6 +116,7 @@
     <Compile Include="Chatting\Commands\DailyRewardCommand.cs" />
     <Compile Include="Chatting\Commands\DefaultBetChangeCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteNumberBetRegexCommand.cs" />
+    <Compile Include="Chatting\RegexCommands\LeetTranslateRegexCommand.cs" />
     <Compile Include="Database\Models\Configuration.cs" />
     <Compile Include="Database\Models\BoyCompliment.cs" />
     <Compile Include="Database\Models\GirlCompliment.cs" />
