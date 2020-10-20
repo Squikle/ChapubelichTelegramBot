@@ -19,6 +19,7 @@ namespace ChapubelichBot.Database.Models
         public bool IsAvailable { get; set; }
         public short DefaultBet { get; set; }
         public bool Complimented { get; set; }
+        public bool ComplimentSubscription { get; set; }
         public bool DailyRewarded { get; set; }
 
         public ICollection<Group> Groups { get; set; }

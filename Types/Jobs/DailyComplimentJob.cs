@@ -29,7 +29,7 @@ namespace ChapubelichBot.Types.Jobs
 
             using (var db = new ChapubelichdbContext())
             {
-                var complimentingUsersDatabase = db.Users.Where(x => x.Username == "Squikle" && x.IsAvailable && !x.Complimented);
+                var complimentingUsersDatabase = db.Users.Where(x => x.ComplimentSubscription == true && x.IsAvailable && !x.Complimented);
 
                 complimentingUsers = complimentingUsersDatabase.ToArray();
                 if (complimentingUsers.Length <= 0)

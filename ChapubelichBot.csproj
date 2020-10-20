@@ -152,6 +152,10 @@
     <Compile Include="Migrations\202010191604597_DailyReset changed to datetime.designer.cs">
       <DependentUpon>202010191604597_DailyReset changed to datetime.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202010202106416_compliment subscription.cs" />
+    <Compile Include="Migrations\202010202106416_compliment subscription.designer.cs">
+      <DependentUpon>202010202106416_compliment subscription.cs</DependentUpon>
+    </Compile>
     <Compile Include="Types\Abstractions\CallbackMessage.cs" />
     <Compile Include="Types\Abstractions\Compliment.cs" />
     <Compile Include="Types\Abstractions\RegexCommand.cs" />
@@ -285,6 +289,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202010191604597_DailyReset changed to datetime.resx">
       <DependentUpon>202010191604597_DailyReset changed to datetime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202010202106416_compliment subscription.resx">
+      <DependentUpon>202010202106416_compliment subscription.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
