@@ -65,12 +65,11 @@ namespace ChapubelichBot
                 bool alreadyRestarted = false;
                 using (var db = new ChapubelichdbContext())
                 {
-                    if (db.Configurations.First().LastResetTime> new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00))
+                    if (db.Configurations.First().LastResetTime > new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00))
                         alreadyRestarted = true;
-
-                    if (!alreadyRestarted)
-                        await scheduler.TriggerJob(dailyResetJob.Key);
                 }
+                if (!alreadyRestarted)
+                    await DailyResetJob.ExecuteManually();
             });
 
             await Task.Run(async () =>
@@ -78,7 +77,7 @@ namespace ChapubelichBot
                 //send compliments if not
                 var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 00, 00);
                 if (DateTime.Now > date)
-                    await scheduler.TriggerJob(dailyComplimentJob.Key);
+                    await DailyComplimentJob.ExecuteManually(client);
             });
         }
 

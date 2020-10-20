@@ -24,5 +24,19 @@ namespace ChapubelichBot.Types.Jobs
                 await db.SaveChangesAsync();
             }
         }
+        public static async Task ExecuteManually()
+        {
+            Console.WriteLine($"{DateTime.Now} дневной сброс...");
+            using (ChapubelichdbContext db = new ChapubelichdbContext())
+            {
+                foreach (var user in db.Users)
+                {
+                    user.Complimented = false;
+                    user.DailyRewarded = false;
+                }
+                db.Configurations.First().LastResetTime = DateTime.Now;
+                await db.SaveChangesAsync();
+            }
+        }
     }
 }

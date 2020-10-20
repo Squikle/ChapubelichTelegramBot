@@ -64,6 +64,63 @@ namespace ChapubelichBot.Types.Jobs
 
             foreach (var userCompliment in userCompliments)
             {
+                if (userCompliment.Key.UserId == 583067838)
+                    Console.WriteLine($"комплиментик: userCompliment.Value");
+                await client.TrySendTextMessageAsync(userCompliment.Key.UserId, $"❤️Твой комплимент дня❤️\n{userCompliment.Value}");
+            }
+        }
+        public static async Task ExecuteManually(ITelegramBotClient client)
+        {
+            Console.WriteLine($"{DateTime.Now} рассылаю комплименты...");
+
+            string[] boyCompliments = null;
+            string[] girlCompliments = null;
+            User[] complimentingUsers;
+
+            using (var db = new ChapubelichdbContext())
+            {
+                var complimentingUsersDatabase = db.Users.Where(x => x.Username == "Squikle" && x.IsAvailable && !x.Complimented);
+
+                complimentingUsers = complimentingUsersDatabase.ToArray();
+                if (complimentingUsers.Length <= 0)
+                    return;
+
+                foreach (var user in complimentingUsersDatabase)
+                {
+                    user.Complimented = true;
+                }
+                await db.SaveChangesAsync();
+
+                if (complimentingUsers.Any(x => x.Gender == true))
+                    boyCompliments = db.BoyCompliments.Select(x => x.ComplimentText).ToArray();
+                if (complimentingUsers.Any(x => x.Gender == false))
+                    girlCompliments = db.GirlCompliments.Select(x => x.ComplimentText).ToArray();
+            }
+
+            Random rand = new Random();
+            Dictionary<User, string> userCompliments = new Dictionary<User, string>();
+            foreach (var user in complimentingUsers)
+            {
+                string compliment;
+                switch (user.Gender)
+                {
+                    case true:
+                        compliment = boyCompliments[rand.Next(0, boyCompliments.Length)];
+                        break;
+                    case false:
+                        compliment = girlCompliments[rand.Next(0, girlCompliments.Length)];
+                        break;
+                    default:
+                        compliment = "Твои глаза прекрасны";
+                        break;
+                }
+                userCompliments.Add(user, compliment);
+            }
+
+            foreach (var userCompliment in userCompliments)
+            {
+                if (userCompliment.Key.UserId == 583067838)
+                    Console.WriteLine($"комплиментик: userCompliment.Value");
                 await client.TrySendTextMessageAsync(userCompliment.Key.UserId, $"❤️Твой комплимент дня❤️\n{userCompliment.Value}");
             }
         }
