@@ -1,0 +1,47 @@
+﻿using ChapubelichBot.Database;
+using ChapubelichBot.Init;
+using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Extensions;
+using System.Linq;
+using System.Threading.Tasks;
+using Telegram.Bot;
+using Telegram.Bot.Types;
+
+namespace ChapubelichBot.Chatting.Commands
+{
+    class DailyRewardCommand : Command
+    {
+        public override string Name => "💵 Ежедневная награда";
+
+        public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
+        {
+            ChapubelichBot.Database.Models.User user;
+            using (var db = new ChapubelichdbContext())
+            {
+                user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+                if (user == null)
+                    return;
+                if (user.DailyRewarded)
+                {
+                    await client.TrySendTextMessageAsync(
+                            message.Chat.Id,
+                            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ты уже получил награду. Забери новую награду завтра😉",
+                            replyToMessageId: message.MessageId,
+                            parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+                    return;
+                }
+
+                user.Balance += AppSettings.DailyReward;
+                user.DailyRewarded = true;
+
+                db.SaveChanges();
+            }
+
+            await client.TrySendTextMessageAsync(
+            message.Chat.Id,
+            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ты получил +100 💵",
+            replyToMessageId: message.MessageId,
+            parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+        }
+    }
+}

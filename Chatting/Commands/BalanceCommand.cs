@@ -10,20 +10,21 @@ namespace ChapubelichBot.Chatting.Commands
 {
     class BalanceCommand : Command
     {
-        public override string Name => "\U0001F4B0 Баланс";
+        public override string Name => "💰 Баланс";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
+            ChapubelichBot.Database.Models.User user;
             using (var db = new ChapubelichdbContext())
             {
-                var user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
-
-                if (user != null)
-                    await client.TrySendTextMessageAsync(
-                    message.Chat.Id,
-                    $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, Ваш баланс: {user.Balance.ToMoneyFormat()} \U0001F4B0",
-                    replyToMessageId: message.MessageId,
-                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+                user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
             }
+
+            if (user != null)
+                await client.TrySendTextMessageAsync(
+                message.Chat.Id,
+                $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, твой баланс: {user.Balance.ToMoneyFormat()} \U0001F4B0",
+                replyToMessageId: message.MessageId,
+                parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
         }
     }
 }

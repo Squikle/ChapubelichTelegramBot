@@ -12,7 +12,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
         public override string Pattern => @"^\/? *(б|баланс|счет|balance)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            var balanceCommand = Bot.BotPrivateCommandsList.First(x => x.Name == "\U0001F4B0 Баланс");
+            var balanceCommand = Bot.BotPrivateCommandsList.First(x => x.Name == "💰 Баланс");
             if (null != balanceCommand)
                 await balanceCommand.ExecuteAsync(message, client);
         }

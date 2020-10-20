@@ -21,5 +21,6 @@ namespace ChapubelichBot.Init
         public static int MessagesCheckPeriod => 1; // how old message to check (in minutes)
         public static int StopGameDelay => 300000; // default: 300000 = 5min
         public static int RouletteAnimationDuration => 3000; // default: 3000 = 3sec
+        public static int DailyReward => 100;
     }
 }

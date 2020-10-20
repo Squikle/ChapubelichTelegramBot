@@ -12,7 +12,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class TransferRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *\+(\d{1,3}) ?(.*?)$";
+        public override string Pattern => @"^\/? *\+(\d{1,3})( .*?)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var markedUser = message.ReplyToMessage?.From;
@@ -50,7 +50,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     transferFrom.Balance -= transferSum;
                     transferTo.Balance += transferSum;
 
-                    string resultMessage = $"Вы передали {transferSum.ToMoneyFormat()} 💵 пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
+                    string resultMessage = $"Ты передал {transferSum.ToMoneyFormat()} 💵 пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
                         $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0\n";
                     if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 20)
                         resultMessage += $"Подпись: {attachedMessage}";
@@ -67,7 +67,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"У вас недостаточно средств\U0001F614",
+                    $"У тебя недостаточно средств для перевода средств\U0001F614",
                     replyToMessageId: message.MessageId);
             }
         }

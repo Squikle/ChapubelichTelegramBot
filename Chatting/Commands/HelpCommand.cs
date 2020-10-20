@@ -8,7 +8,7 @@ namespace ChapubelichBot.Chatting.Commands
 {
     class HelpCommand : Command
     {
-        public override string Name => "\U00002753 Помощь";
+        public override string Name => "❓ Помощь";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             await client.TrySendTextMessageAsync(

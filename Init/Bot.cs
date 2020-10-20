@@ -38,6 +38,7 @@ namespace ChapubelichBot.Init
                     new GenderChangeCommand(),
                     new DefaultBetChangeCommand(),
                     new MyProfileCommand(),
+                    new DailyRewardCommand(),
 
                     new GamesCommand(),
                     new RouletteStartCommand(),
@@ -73,8 +74,6 @@ namespace ChapubelichBot.Init
                 _client = new TelegramBotClient(AppSettings.Key) { Timeout = TimeSpan.FromSeconds(10) };
                 return _client;
             }
-            private set 
-            { }
         }
 
         public static StartCommand                      StartCommand;

@@ -200,6 +200,5 @@ namespace ChapubelichBot.Types.Statics
             }
             return true;
         }
-
     }
 }

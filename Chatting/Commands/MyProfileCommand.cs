@@ -11,7 +11,7 @@ namespace ChapubelichBot.Chatting.Commands
 {
     class MyProfileCommand : Command
     {
-        public override string Name => "\U0001F464 Мой профиль";
+        public override string Name => "👤 Мой профиль";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             using (var db = new ChapubelichdbContext())
@@ -24,7 +24,7 @@ namespace ChapubelichBot.Chatting.Commands
                 string gender = user.Gender ? "мужской" : "женский";
 
                 string answerMessage = 
-                $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, Ваш профиль:\n" +
+                $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, твой профиль:\n" +
                 $"Имя: {user.FirstName}\n" +
                 $"Пол: {gender}\n" +
                 $"Баланс: {user.Balance.ToMoneyFormat()}\n" +

@@ -12,17 +12,7 @@ namespace ChapubelichBot.Types.Jobs
     {
         public async Task Execute(IJobExecutionContext context)
         {
-            Console.WriteLine($"{DateTime.Now} дневной сброс...");
-            using (ChapubelichdbContext db = new ChapubelichdbContext())
-            {
-                foreach (var user in db.Users)
-                {
-                    user.Complimented = false;
-                    user.DailyRewarded = false;
-                }
-                db.Configurations.First().LastResetTime = DateTime.Now;
-                await db.SaveChangesAsync();
-            }
+            await ExecuteManually();
         }
         public static async Task ExecuteManually()
         {

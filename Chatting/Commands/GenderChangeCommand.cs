@@ -9,11 +9,11 @@ namespace ChapubelichBot.Chatting.Commands
 {
     class GenderChangeCommand : Command
     {
-        public override string Name => "\U000026A5  Сменить пол";
+        public override string Name => "⚥  Сменить пол";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             await client.TrySendTextMessageAsync(message.From.Id,
-                "Пожалуйста, укажите ваш гендер:",
+                "Укажи свой новый пол:",
                 replyMarkup: InlineKeyboardsStatic.genderChooseMarkup,
                 replyToMessageId: message.MessageId);
         }

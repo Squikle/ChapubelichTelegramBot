@@ -59,7 +59,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                     await db.SaveChangesAsync();
                     await client.TrySendTextMessageAsync(
                         query.Message.Chat.Id,
-                        "Вы были успешно зарегестрированы!",
+                        "Ты был успешно зарегестрирован!",
                         replyMarkup: ReplyKeyboardsStatic.MainMarkup
                         );
                 }

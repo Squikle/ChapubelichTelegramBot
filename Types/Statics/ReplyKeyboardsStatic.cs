@@ -9,16 +9,20 @@ namespace ChapubelichBot.Types.Statics
                 {
                     new KeyboardButton[] 
                     { 
-                        new KeyboardButton("\U0001F4B0 Баланс"),
-                        new KeyboardButton("\U0001F579 Игры")
+                        new KeyboardButton("💰 Баланс"),
+                        new KeyboardButton("🕹 Игры")
                     },
                     new KeyboardButton[]
                     {
-                        new KeyboardButton("\U00002699 Настройки")
+                        new KeyboardButton("⚙️ Настройки")
+                    },
+                    new KeyboardButton[]
+                    {
+                        new KeyboardButton("💵 Ежедневная награда")
                     },
                     new KeyboardButton[] 
                     { 
-                        new KeyboardButton("\U00002753 Помощь") 
+                        new KeyboardButton("❓ Помощь") 
                     }
                 }, resizeKeyboard: true, oneTimeKeyboard: false);
 
@@ -31,14 +35,14 @@ namespace ChapubelichBot.Types.Statics
                     },
                     new KeyboardButton[]
                     {
-                        new KeyboardButton("\U0001F3E0 Главная")
+                        new KeyboardButton("🏠 Главная")
                     }
                 }, resizeKeyboard: true, oneTimeKeyboard: false);
 
         public static ReplyKeyboardMarkup RegistrationMarkup =
                new ReplyKeyboardMarkup(new[]
                { 
-                   new KeyboardButton("\U0001F511 Регистрация") 
+                   new KeyboardButton("🔑 Регистрация") 
                },
                resizeKeyboard: true, oneTimeKeyboard: true);
 
@@ -47,19 +51,19 @@ namespace ChapubelichBot.Types.Statics
                 {
                     new KeyboardButton[]
                     {
-                        new KeyboardButton("\U0001F464 Мой профиль")
+                        new KeyboardButton("👤 Мой профиль")
                     },
                     new KeyboardButton[]
                     {
-                        new KeyboardButton("\U000026A5  Сменить пол")
+                        new KeyboardButton("⚥  Сменить пол")
                     },
                     new KeyboardButton[]
                     {
-                        new KeyboardButton("\U0001F4B8 Ставка по умолчанию")
+                        new KeyboardButton("💸 Ставка по умолчанию")
                     },
                     new KeyboardButton[]
                     {
-                        new KeyboardButton("\U0001F3E0 Главная")
+                        new KeyboardButton("🏠 Главная")
                     }
                 }, resizeKeyboard: true, oneTimeKeyboard: false);
     }

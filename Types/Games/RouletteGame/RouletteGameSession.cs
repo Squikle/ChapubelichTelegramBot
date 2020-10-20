@@ -45,7 +45,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
                 "https://i.imgur.com/SN8DRoa.png",
                 caption: "Игра запущена. Ждем ваши ставки...\n" +
-                "Вы можете поставить ставку по умолчанию на предложенные ниже варианты:",
+                "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
                 replyToMessageId: replyId,
                 replyMarkup: InlineKeyboardsStatic.rouletteBetsMarkup);
         }
@@ -220,13 +220,13 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
                     await client.TrySendTextMessageAsync(
                             ChatId,
-                            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, Ваша ставка отменена \U0001F44D",
+                            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, твоя ставка отменена \U0001F44D",
                             parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
                     await client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "✅");
                 }
                 else
-                    await client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "у Вас нет активных ставок");
+                    await client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "у тебя нет активных ставок");
             }
         }
         public async Task BetCancel(Message message, ITelegramBotClient client)
@@ -254,14 +254,14 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
                     await client.TrySendTextMessageAsync(
                             ChatId,
-                            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, Ваша ставка отменена \U0001F44D",
+                            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, твоя ставка отменена \U0001F44D",
                             replyToMessageId: message.MessageId,
                             parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
                 }
 
                 else await client.TrySendTextMessageAsync(
                             ChatId,
-                            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, у Вас нет активных ставок",
+                            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, у тебя нет активных ставок",
                             replyToMessageId: message.MessageId,
                             parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
             }
@@ -286,7 +286,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 if (user.DefaultBet > user.Balance)
                 {
                     await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
-                        "У вас недостаточно средств на счету");
+                        "У тебя недостаточно средств на счету");
                     return;
                 }
 
@@ -321,7 +321,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 user.Balance -= user.DefaultBet;
                 await db.SaveChangesAsync();
 
-                string transactionResult = $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Ваша суммарная ставка:"
+                string transactionResult = $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Твоя суммарная ставка:"
                     + UserBetsToStringAsync(user);
 
                 await client.TrySendTextMessageAsync(
@@ -369,7 +369,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 if (playerBet > user.Balance)
                 {
                     await client.TrySendTextMessageAsync(message.Chat.Id,
-                        "У вас недостаточно средств на счету\U0001F614",
+                        "У тебя недостаточно средств на счету\U0001F614",
                         replyToMessageId: message.MessageId);
                     return;
                 }
@@ -421,7 +421,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 if (user.DefaultBet > user.Balance)
                 {
                     await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
-                        "У вас недостаточно средств на счету");
+                        "У тебя недостаточно средств на счету");
                     return;
                 }
 
@@ -441,7 +441,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 user.Balance -= user.DefaultBet;
                 await db.SaveChangesAsync();
 
-                string transactionResult = $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Ваша суммарная ставка:"
+                string transactionResult = $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. твоя суммарная ставка:"
                     + UserBetsToStringAsync(user);
 
                 await client.TrySendTextMessageAsync(
@@ -515,7 +515,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 if (playerBet > user.Balance)
                 {
                     await client.TrySendTextMessageAsync(message.Chat.Id,
-                        "У вас недостаточно средств на счету\U0001F614",
+                        "У тебя недостаточно средств на счету\U0001F614",
                         replyToMessageId: message.MessageId);
                     return;
                 }
@@ -555,7 +555,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             {
                 await client.TryAnswerCallbackQueryAsync(
                 callbackQuery.Id,
-                "Чтобы крутить барабан сделайте ставку");
+                "Сделай ставку, чтобы крутить барабан");
                 return;
             }
 
@@ -569,7 +569,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (!BetTokens.Any(x => x.UserId == message.From.Id))
                 await client.TrySendTextMessageAsync(
                 message.Chat.Id,
-                "Чтобы крутить барабан сделайте ставку",
+                "Сделай ставку, чтобы крутить барабан",
                 replyToMessageId: message.MessageId,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
             else
@@ -586,7 +586,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
                 string transactionResult = string.Empty;
                 if (!userTokens.Any())
-                    transactionResult += $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, у Вас нет активных ставок";
+                    transactionResult += $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, у тебя нет активных ставок";
                 else
                     transactionResult += $"Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
                         + UserBetsToStringAsync(user);

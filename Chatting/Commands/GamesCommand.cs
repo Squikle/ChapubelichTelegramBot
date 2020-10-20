@@ -9,7 +9,7 @@ namespace ChapubelichBot.Chatting.Commands
 {
     class GamesCommand : Command
     {
-        public override string Name => "\U0001F579 Игры";
+        public override string Name => "🕹 Игры";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {          
             await client.TrySendTextMessageAsync(

@@ -113,6 +113,7 @@
     <Compile Include="Chatting\CallbackMessages\RouletteBetColorCallbackMessage.cs" />
     <Compile Include="Chatting\CallbackMessages\RouletteBetNumberCallbackMessage.cs" />
     <Compile Include="Chatting\CallbackMessages\RouletteRollCallbackMessage.cs" />
+    <Compile Include="Chatting\Commands\DailyRewardCommand.cs" />
     <Compile Include="Chatting\Commands\DefaultBetChangeCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteNumberBetRegexCommand.cs" />
     <Compile Include="Database\Models\Configuration.cs" />

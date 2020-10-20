@@ -9,12 +9,12 @@ namespace ChapubelichBot.Chatting.Commands
 {
     public class RegistrationCommand : Command
     {
-        public override string Name => "\U0001F511 Регистрация";
+        public override string Name => "🔑 Регистрация";
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             await client.TrySendTextMessageAsync(message.Chat.Id,
-            "Пожалуйста, укажите ваш гендер:",
+            "Укажи свой пол:",
             replyMarkup: InlineKeyboardsStatic.genderChooseMarkup);
         }
     }
