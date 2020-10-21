@@ -13,22 +13,87 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class LeetTranslateRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/ *((в )?лит(спик)?|(to )?leet(speak)?)( -(n|l))? (.+)$";
+        public override string Pattern => @"^\/? *(лит|литспик|leet|leetspeak|1337) *(-n|-l)? +([^ ][\s\S]*?)$";
+
+        private static string[] LeetTable = new string[26]
+        {
+                "4",
+                "8",
+                "(",
+                "[)",
+                "3",
+                "]=",
+                "6",
+                "|-|",
+                "!",
+                "_|",
+                "|<",
+                "1",
+                "|\\/|",
+                "|\\|",
+                "0",
+                "|*",
+                "0_",
+                "|2",
+                "5",
+                "7",
+                "(_)",
+                "\\/",
+                "\\^/",
+                "><",
+                "'/",
+                "2",
+        };
+        private static string[] CyrillicTable = new string[32]
+        {
+                "a",
+                "b",
+                "v",
+                "g",
+                "d",
+                "e",
+                "zh",
+                "z",
+                "i",
+                "y",
+                "k",
+                "l",
+                "m",
+                "n",
+                "o",
+                "p",
+                "r",
+                "s",
+                "t",
+                "u",
+                "f",
+                "h",
+                "ts",
+                "ch",
+                "sh",
+                "sh",
+                "",
+                "i",
+                "\'",
+                "e",
+                "yu",
+                "ya",
+        };
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             Match match = Regex.Match(message.Text, Pattern);
-            string textToTranslate = match.Groups[8].Value.ToLower();
-            string modifier = match.Groups[7].Value;
+            string textToTranslate = match.Groups[3].Value.ToLower();
+            string modifier = match.Groups[2].Value;
             string answer = String.Empty;
 
             if (!string.IsNullOrEmpty(modifier))
-                switch (modifier)
+                switch (modifier[1])
                 {
-                    case "l":
+                    case 'l':
                         answer = ToLeet(textToTranslate);
                         break;
-                    case "n":
+                    case 'n':
                         answer = FromLeet(textToTranslate);
                         break;
                 }
@@ -38,27 +103,35 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 int notLetters = 0;
                 foreach (char sym in textToTranslate)
                 {
-                    if (sym >= 97 && sym <= 122)
+                    if ((sym >= 97 && sym <= 122) || (sym >= 1072 && sym <= 1103))
                         letters++;
                     else notLetters++;
                 }
 
                 if (letters >= notLetters)
                     answer = ToLeet(textToTranslate);
-                else 
+                else
                     answer = FromLeet(textToTranslate);
             }
 
             if (String.IsNullOrEmpty(answer))
                 return;
 
+            if (answer.Length > 4000)
+            {
+                await client.TrySendTextMessageAsync(message.Chat.Id,
+                "Сообщение слишком длинное😔",
+                replyToMessageId: message.MessageId);
+                return;
+            }
             await client.TrySendTextMessageAsync(message.Chat.Id,
-                answer, 
+                answer,
                 replyToMessageId: message.MessageId);
         }
         static string FromLeet(string textToTranslate)
         {
             StringBuilder translatedString = new StringBuilder();
+            translatedString.Append("[Normalized]:\n\n");
             string translatedLetter;
             for (int pivot = 0; pivot < textToTranslate.Length;)
             {
@@ -268,17 +341,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
                         pivot++;
                         break;
 
-                    case '#':
-                        while (pivot < textToTranslate.Length &&
-                            textToTranslate[pivot + 1] >= 48 &&
-                            textToTranslate[pivot + 1] <= 57)
-                        {
-                            pivot++;
-                            translatedLetter += textToTranslate[pivot];
-                        }
-                        pivot++;
-                        break;
-
                     case '\"':
                         pivot++;
                         while (pivot < textToTranslate.Length && textToTranslate[pivot] != '\"')
@@ -300,66 +362,37 @@ namespace ChapubelichBot.Chatting.RegexCommands
         }
         static string ToLeet(string textToTranslate)
         {
-            string[] leetTable = new string[]
-            {
-                "4",
-                "8",
-                "(",
-                "[)",
-                "3",
-                "]=",
-                "6",
-                "|-|",
-                "!",
-                "_|",
-                "|<",
-                "1",
-                "|\\/|",
-                "|\\|",
-                "0",
-                "|*",
-                "0_",
-                "|2",
-                "5",
-                "7",
-                "(_)",
-                "\\/",
-                "\\^/",
-                "><",
-                "'/",
-                "2",
-            };
+            StringBuilder convertedToCyrillic = new StringBuilder(textToTranslate.Length);
 
-            textToTranslate = textToTranslate.ToLower();
+            for (int currentSymbol = 0; currentSymbol < textToTranslate.Length; currentSymbol++)
+            {
+                if (textToTranslate[currentSymbol] >= 1072 && textToTranslate[currentSymbol] <= 1103)
+                {
+                    convertedToCyrillic.Append(CyrillicTable[textToTranslate[currentSymbol] - 1072]);
+                }
+                else
+                {
+                    convertedToCyrillic.Append(textToTranslate[currentSymbol]);
+                }
+            }
+
+            textToTranslate = convertedToCyrillic.ToString().ToLower();
             StringBuilder translatedString = new StringBuilder();
-            bool isNumber = false;
+            translatedString.Append("[LeetSpeak]:\n\n");
             bool invalid = false;
             for (int currentSymbol = 0; currentSymbol < textToTranslate.Length; currentSymbol++)
             {
-                if (textToTranslate[currentSymbol] >= 97 && textToTranslate[currentSymbol] <= 122)
-                {
-                    if (invalid)
-                        translatedString.Append($"\" ");
-                    translatedString.Append(leetTable[textToTranslate[currentSymbol] - 97]);
-                }
-                else if (textToTranslate[currentSymbol] == ' ')
+                if (textToTranslate[currentSymbol] == ' ')
                 {
                     if (invalid)
                         translatedString.Append($"\" ");
                     translatedString.Append("  ");
                 }
-                else if (textToTranslate[currentSymbol] >= 48 && textToTranslate[currentSymbol] <= 57)
+                else if (textToTranslate[currentSymbol] >= 97 && textToTranslate[currentSymbol] <= 122)
                 {
                     if (invalid)
                         translatedString.Append($"\" ");
-                    if (!isNumber)
-                    {
-                        isNumber = true;
-                        translatedString.Append("#");
-                    }
-                    translatedString.Append(textToTranslate[currentSymbol]);
-
-                    continue;
+                    translatedString.Append(LeetTable[textToTranslate[currentSymbol] - 97]);
                 }
                 else
                 {
@@ -373,7 +406,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     continue;
                 }
 
-                isNumber = false;
                 invalid = false;
             }
             if (invalid)

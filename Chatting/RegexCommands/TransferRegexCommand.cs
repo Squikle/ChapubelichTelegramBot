@@ -12,7 +12,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class TransferRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *\+(\d{1,3})( .*?)?$";
+        public override string Pattern => @"^\/? *\+(\d{1,3}) +([^ ][\s\S]*?)$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var markedUser = message.ReplyToMessage?.From;
@@ -52,7 +52,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
                     string resultMessage = $"{transferSum.ToMoneyFormat()} 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
                         $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0\n";
-                    if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 20)
+                    if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
                         resultMessage += $"Подпись: {attachedMessage}";
 
                     await client.TrySendTextMessageAsync(
