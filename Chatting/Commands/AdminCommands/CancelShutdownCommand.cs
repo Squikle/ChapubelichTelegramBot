@@ -4,11 +4,11 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Threading.Tasks;
 
-namespace ChapubelichBot.Chatting.Commands.ShutdownCommands
+namespace ChapubelichBot.Chatting.Commands.AdminCommands
 {
     class CancelShutdownCommand : Command
     {
-        public override string Name => "/cancel";
+        public override string Name => "/cancelShutdown";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             if (message.Chat.Id == 243857110)

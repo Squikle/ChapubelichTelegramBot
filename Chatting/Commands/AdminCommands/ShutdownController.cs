@@ -1,4 +1,4 @@
-﻿namespace ChapubelichBot.Chatting.Commands.ShutdownCommands
+﻿namespace ChapubelichBot.Chatting.Commands.AdminCommands
 {
     public static class ShutdownController
     {

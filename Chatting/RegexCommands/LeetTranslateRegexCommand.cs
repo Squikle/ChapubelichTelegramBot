@@ -82,7 +82,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            Match match = Regex.Match(message.Text, Pattern);
+            Match match = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase);
             string textToTranslate = match.Groups[3].Value.ToLower();
             string modifier = match.Groups[2].Value;
             string answer = String.Empty;
@@ -131,7 +131,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
         static string FromLeet(string textToTranslate)
         {
             StringBuilder translatedString = new StringBuilder();
-            translatedString.Append("[Normalized]:\n\n");
             string translatedLetter;
             for (int pivot = 0; pivot < textToTranslate.Length;)
             {
@@ -378,7 +377,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
             textToTranslate = convertedToCyrillic.ToString().ToLower();
             StringBuilder translatedString = new StringBuilder();
-            translatedString.Append("[LeetSpeak]:\n\n");
             bool invalid = false;
             for (int currentSymbol = 0; currentSymbol < textToTranslate.Length; currentSymbol++)
             {

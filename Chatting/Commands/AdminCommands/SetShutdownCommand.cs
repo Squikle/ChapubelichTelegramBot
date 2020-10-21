@@ -5,7 +5,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Threading.Tasks;
 
-namespace ChapubelichBot.Chatting.Commands.ShutdownCommands
+namespace ChapubelichBot.Chatting.Commands.AdminCommands
 {
     class SetShutdownCommand : Command
     {

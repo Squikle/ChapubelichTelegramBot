@@ -1,11 +1,12 @@
 ﻿using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Chatting.Commands;
 using ChapubelichBot.Chatting.CallbackMessages;
-using ChapubelichBot.Chatting.Commands.ShutdownCommands;
 using ChapubelichBot.Chatting.RegexCommands;
 using System;
 using System.Collections.Generic;
 using Telegram.Bot;
+using ChapubelichBot.Chatting.Commands.AdminCommands;
+using ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands;
 
 namespace ChapubelichBot.Init
 {
@@ -72,6 +73,11 @@ namespace ChapubelichBot.Init
                     
                     new LeetTranslateRegexCommand(),
                 };
+                BotMediaRegexCommands = new List<RegexCommand>()
+                {
+                    new SendAllRegexCommand(),
+                    new SendTestRegexCommand(),
+                };
 
                 _client = new TelegramBotClient(AppSettings.Key) { Timeout = TimeSpan.FromSeconds(10) };
                 return _client;
@@ -85,10 +91,12 @@ namespace ChapubelichBot.Init
         private static List<Command>                    BotPrivateCommands;
         private static List<Command>                    BotGroupCommands;
         private static List<RegexCommand>               BotRegexCommands;
+        private static List<RegexCommand>               BotMediaRegexCommands;
         private static List<CallBackMessage>            BotCallbackMessages;
         public static IReadOnlyList<Command>            BotPrivateCommandsList { get => BotPrivateCommands.AsReadOnly(); }
         public static IReadOnlyList<Command>            BotGroupCommandsList { get => BotGroupCommands.AsReadOnly(); }
         public static IReadOnlyList<RegexCommand>       BotRegexCommandsList { get => BotRegexCommands.AsReadOnly(); }
+        public static IReadOnlyList<RegexCommand>       BotMediaRegexCommandsList { get => BotMediaRegexCommands.AsReadOnly(); }
         public static IReadOnlyList<CallBackMessage>    CallBackMessagesList { get => BotCallbackMessages.AsReadOnly(); }
     }
 }

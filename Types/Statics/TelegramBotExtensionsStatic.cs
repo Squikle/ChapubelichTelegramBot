@@ -1,5 +1,6 @@
 ﻿using ChapubelichBot.Database;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -109,6 +110,54 @@ namespace ChapubelichBot.Types.Extensions
             {
                 if (e is ApiRequestException)
                     Console.WriteLine($"Не удалось отправить фото ChatId: {chatId}\nОшибка: {e.Message}");
+                return null;
+            }
+
+            return message;
+        }
+        public static async Task<Message> TrySendVideoAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile video, int duration = 0, int width = 0, int height = 0, string caption = null, ParseMode parseMode = ParseMode.Default, bool supportsStreaming = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, InputMedia thumb = null)
+        {
+            Message message;
+            try
+            {
+                message = await client.SendVideoAsync(chatId, video, duration, width, height, caption, parseMode, supportsStreaming, disableNotification, replyToMessageId, replyMarkup, cancellationToken, thumb);
+            }
+            catch (Exception e)
+            {
+                if (e is ApiRequestException)
+                    Console.WriteLine($"Не удалось отправить видео ChatId: {chatId}\nОшибка: {e.Message}");
+                return null;
+            }
+
+            return message;
+        }
+        public static async Task<Message> TrySendAudioAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile audio, string caption = null, ParseMode parseMode = ParseMode.Default, int duration = 0, string performer = null, string title = null, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, InputMedia thumb = null)
+        {
+            Message message;
+            try
+            {
+                message = await client.SendAudioAsync(chatId, audio, caption, parseMode, duration, performer, title, disableNotification, replyToMessageId, replyMarkup, cancellationToken, thumb);
+            }
+            catch (Exception e)
+            {
+                if (e is ApiRequestException)
+                    Console.WriteLine($"Не удалось отправить аудио ChatId: {chatId}\nОшибка: {e.Message}");
+                return null;
+            }
+
+            return message;
+        }
+        public static async Task<Message> TrySendPollAsync(this ITelegramBotClient client, ChatId chatId, string question, IEnumerable<string> options, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, bool? isAnonymous = null, PollType? type = null, bool? allowsMultipleAnswers = null, int? correctOptionId = null, bool? isClosed = null, string explanation = null, ParseMode explanationParseMode = ParseMode.Default, int? openPeriod = null, DateTime? closeDate = null)
+        {
+            Message message;
+            try
+            {
+                message = await client.SendPollAsync(chatId, question, options, disableNotification, replyToMessageId, replyMarkup, cancellationToken, isAnonymous, type, allowsMultipleAnswers, correctOptionId, isClosed, explanation, explanationParseMode, openPeriod, closeDate);
+            }
+            catch (Exception e)
+            {
+                if (e is ApiRequestException)
+                    Console.WriteLine($"Не удалось отправить голосование ChatId: {chatId}\nОшибка: {e.Message}");
                 return null;
             }
 

@@ -48,7 +48,7 @@ namespace ChapubelichBot.Types.Jobs
             }
 
             Random rand = new Random();
-            Dictionary<User, string> userCompliments = new Dictionary<User, string>();
+            Dictionary<int, string> userCompliments = new Dictionary<int, string>();
             foreach (var user in complimentingUsers)
             {
                 string compliment;
@@ -64,18 +64,18 @@ namespace ChapubelichBot.Types.Jobs
                         compliment = "Твои глаза прекрасны";
                         break;
                 }
-                userCompliments.Add(user, compliment);
+                userCompliments.Add(user.UserId, compliment);
             }
 
             // M compliment to console -------------------
-            User mUser = userCompliments.Keys.FirstOrDefault(x => x.UserId == 583067838);
-            if (mUser!=null)
+            int mUser = userCompliments.Keys.FirstOrDefault(x => x == 583067838);
+            if (mUser != 0)
                 Console.WriteLine(userCompliments[mUser]);
             // -------------------------------------------
 
             foreach (var userCompliment in userCompliments)
             {
-                await client.TrySendTextMessageAsync(userCompliment.Key.UserId, $"❤️Твой комплимент дня❤️\n{userCompliment.Value}");
+                await client.TrySendTextMessageAsync(userCompliment.Key, $"❤️Твой комплимент дня❤️\n{userCompliment.Value}");
             }
         }
     }

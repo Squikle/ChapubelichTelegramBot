@@ -113,8 +113,10 @@
     <Compile Include="Chatting\CallbackMessages\RouletteBetColorCallbackMessage.cs" />
     <Compile Include="Chatting\CallbackMessages\RouletteBetNumberCallbackMessage.cs" />
     <Compile Include="Chatting\CallbackMessages\RouletteRollCallbackMessage.cs" />
+    <Compile Include="Chatting\RegexCommands\AdminRegexCommands\SendAllRegexCommand.cs" />
     <Compile Include="Chatting\Commands\DailyRewardCommand.cs" />
     <Compile Include="Chatting\Commands\DefaultBetChangeCommand.cs" />
+    <Compile Include="Chatting\RegexCommands\AdminRegexCommands\SendTestRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\RouletteNumberBetRegexCommand.cs" />
     <Compile Include="Chatting\RegexCommands\LeetTranslateRegexCommand.cs" />
     <Compile Include="Database\Models\Configuration.cs" />
@@ -183,9 +185,9 @@
     <Compile Include="Chatting\Commands\HelloCommand.cs" />
     <Compile Include="Chatting\Commands\MenuCommand.cs" />
     <Compile Include="Chatting\Commands\RegistrationCommand.cs" />
-    <Compile Include="Chatting\Commands\ShutdownCommands\CancelShutdownCommand.cs" />
-    <Compile Include="Chatting\Commands\ShutdownCommands\SetShutdownCommand.cs" />
-    <Compile Include="Chatting\Commands\ShutdownCommands\ShutdownController.cs" />
+    <Compile Include="Chatting\Commands\AdminCommands\CancelShutdownCommand.cs" />
+    <Compile Include="Chatting\Commands\AdminCommands\SetShutdownCommand.cs" />
+    <Compile Include="Chatting\Commands\AdminCommands\ShutdownController.cs" />
     <Compile Include="Chatting\Commands\StartCommand.cs" />
     <Compile Include="Database\ChapubelichdbContext.cs" />
     <Compile Include="Database\Models\Group.cs" />

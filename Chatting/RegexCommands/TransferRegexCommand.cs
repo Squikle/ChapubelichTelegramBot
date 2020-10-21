@@ -12,14 +12,14 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class TransferRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *\+(\d{1,3}) +([^ ][\s\S]*?)$";
+        public override string Pattern => @"^\/? *\+(\d{1,3})( +([\s\S]+))?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var markedUser = message.ReplyToMessage?.From;
 
             Match match = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase);
             string transferSumString = match.Groups[1].Value;
-            string attachedMessage = match.Groups[2].Value;
+            string attachedMessage = match.Groups[3].Value;
 
             if (!Int32.TryParse(transferSumString, out int transferSum) ||
                 markedUser == null ||

@@ -47,13 +47,27 @@ namespace ChapubelichBot
             await scheduler.Start();
 
             IJobDetail dailyResetJob = JobBuilder.Create<DailyResetJob>().Build();
-            ITrigger dailyResetTrigger = TriggerBuilder.Create().WithIdentity("DailyResetJob", "ChapubelichBot").StartNow().
-                WithDailyTimeIntervalSchedule(x => x.StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0)).WithIntervalInHours(24)).Build();
+            ITrigger dailyResetTrigger = TriggerBuilder.Create()
+                .WithIdentity("DailyResetJob", "ChapubelichBot")
+                .WithDailyTimeIntervalSchedule
+                (x => 
+                x.WithIntervalInHours(24)
+                .OnEveryDay()
+                .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
+                )
+                .Build();
             //WithSimpleSchedule(x => x.RepeatForever().WithIntervalInSeconds(30)).Build();
             IJobDetail dailyComplimentJob = JobBuilder.Create<DailyComplimentJob>().Build();
             dailyComplimentJob.JobDataMap["TelegramBotClient"] = client;
-            ITrigger dailyComplimentTrigger = TriggerBuilder.Create().WithIdentity("DailyComplimentJob", "ChapubelichBot").StartNow().
-                WithDailyTimeIntervalSchedule(x => x.StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(12, 0)).WithIntervalInHours(24)).Build();
+            ITrigger dailyComplimentTrigger = TriggerBuilder.Create()
+                .WithIdentity("DailyComplimentJob", "ChapubelichBot")
+                .WithDailyTimeIntervalSchedule
+                (x => 
+                x.WithIntervalInHours(24)
+                .OnEveryDay()
+                .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(12, 0))
+                )
+                .Build();
             //WithSimpleSchedule(x => x.RepeatForever().WithIntervalInSeconds(10)).Build(); 
 
             await scheduler.ScheduleJob(dailyResetJob, dailyResetTrigger);
@@ -84,7 +98,15 @@ namespace ChapubelichBot
 
         static async void MessageProcessAsync(object sender, MessageEventArgs e)
         {
-            if (null == e.Message || null == e.Message.Text)
+            foreach (var privateMediaCommand in Bot.BotMediaRegexCommandsList)
+                if (e.Message.From.Id == 243857110 && (e.Message.Text != null && privateMediaCommand.Contains(e.Message.Text)) 
+                    || (e.Message.Caption != null && privateMediaCommand.Contains(e.Message.Caption)))
+                {
+                    await privateMediaCommand.ExecuteAsync(e.Message, client);
+                    return;
+                }
+
+            if (e.Message == null || e.Message.Text == null)
                 return;
 
             //var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
