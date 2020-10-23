@@ -234,7 +234,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                                 else if (pivot + 3 < textToTranslate.Length && textToTranslate.Substring(pivot + 1, 3) == "\\/|")
                                 {
                                     translatedLetter = "m";
-                                    pivot += 3;
+                                    pivot += 4;
                                     break;
                                 }
                             }

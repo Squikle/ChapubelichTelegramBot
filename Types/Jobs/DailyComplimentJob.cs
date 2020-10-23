@@ -15,7 +15,6 @@ namespace ChapubelichBot.Types.Jobs
     {
         public async Task Execute(IJobExecutionContext context)
         {
-            Console.WriteLine($"{DateTime.Now} рассылаю комплименты...");
             ITelegramBotClient client = (ITelegramBotClient)context.JobDetail.JobDataMap["TelegramBotClient"];
             await ExecuteManually(client);
         }
@@ -61,7 +60,7 @@ namespace ChapubelichBot.Types.Jobs
                         compliment = girlCompliments[rand.Next(0, girlCompliments.Length)];
                         break;
                     default:
-                        compliment = "Твои глаза прекрасны";
+                        compliment = "Твои глаза прекрасны😍";
                         break;
                 }
                 userCompliments.Add(user.UserId, compliment);
