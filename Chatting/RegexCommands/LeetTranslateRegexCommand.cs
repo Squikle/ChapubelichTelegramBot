@@ -369,6 +369,8 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 {
                     convertedToCyrillic.Append(CyrillicTable[textToTranslate[currentSymbol] - 1072]);
                 }
+                else if (textToTranslate[currentSymbol] == 1105)
+                    convertedToCyrillic.Append('e');
                 else
                 {
                     convertedToCyrillic.Append(textToTranslate[currentSymbol]);
