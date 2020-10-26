@@ -10,10 +10,10 @@ using Telegram.Bot.Types.InputFiles;
 
 namespace ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands
 {
-    class SendTestRegexCommand : RegexCommand
+    class EchoRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/SendTest( +([\s\S]+))?$";
-
+        public override string Pattern => @"^\/echo( +([\s\S]+))?$";
+        
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             string messageText = message.Text == null ? message.Caption : message.Text;

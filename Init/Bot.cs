@@ -76,7 +76,7 @@ namespace ChapubelichBot.Init
                 BotMediaRegexCommands = new List<RegexCommand>()
                 {
                     new SendAllRegexCommand(),
-                    new SendTestRegexCommand(),
+                    new EchoRegexCommand(),
                 };
 
                 _client = new TelegramBotClient(AppSettings.Key) { Timeout = TimeSpan.FromSeconds(10) };
