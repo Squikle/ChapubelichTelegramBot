@@ -17,43 +17,34 @@ namespace ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             string messageText = message.Text == null ? message.Caption : message.Text;
-
             string sendMessage = Regex.Match(messageText, Pattern).Groups[2].Value;
-            ChapubelichBot.Database.Models.User userToSend;
-
-            using (var db = new ChapubelichdbContext())
-            {
-                userToSend = db.Users.FirstOrDefault(x => x.UserId == 243857110);
-                if (userToSend == null)
-                    return;
-            }
 
             if (message.Photo != null)
             {
                 InputOnlineFile inputFile = new InputOnlineFile(message.Photo[message.Photo.Length - 1].FileId);
-                await client.TrySendPhotoAsync(userToSend.UserId, inputFile, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, 0, null, default(System.Threading.CancellationToken));
+                await client.TrySendPhotoAsync(message.Chat.Id, inputFile, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, 0, null, default(System.Threading.CancellationToken));
             }
             else if (message.Audio != null)
             {
                 InputOnlineFile inputFile = new InputOnlineFile(message.Audio.FileId);
                 InputMedia inputFileThumb = new InputMedia(message.Audio.Thumb.FileId);
-                await client.TrySendAudioAsync(userToSend.UserId, inputFile, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, message.Audio.Duration, message.Audio.Performer, message.Audio.Title, false, 0, null, default(System.Threading.CancellationToken), inputFileThumb);
+                await client.TrySendAudioAsync(message.Chat.Id, inputFile, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, message.Audio.Duration, message.Audio.Performer, message.Audio.Title, false, 0, null, default(System.Threading.CancellationToken), inputFileThumb);
             }
             else if (message.Video != null)
             {
                 InputOnlineFile inputFile = new InputOnlineFile(message.Video.FileId);
                 InputMedia inputFileThumb = new InputMedia(message.Video.Thumb.FileId);
-                await client.TrySendVideoAsync(userToSend.UserId, inputFile, message.Video.Duration, message.Video.Width, message.Video.Height, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, false, 0, null, default(System.Threading.CancellationToken), inputFileThumb);
+                await client.TrySendVideoAsync(message.Chat.Id, inputFile, message.Video.Duration, message.Video.Width, message.Video.Height, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, false, 0, null, default(System.Threading.CancellationToken), inputFileThumb);
             }
             else if (message.Animation != null)
             {
                 InputOnlineFile inputFile = new InputOnlineFile(message.Animation.FileId);
                 InputMedia inputFileThumb = new InputMedia(message.Animation.Thumb.FileId);
-                await client.TrySendAnimationAsync(userToSend.UserId, inputFile, message.Animation.Duration, message.Animation.Width, message.Animation.Height, inputFileThumb, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, 0, null, default(System.Threading.CancellationToken));
+                await client.TrySendAnimationAsync(message.Chat.Id, inputFile, message.Animation.Duration, message.Animation.Width, message.Animation.Height, inputFileThumb, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, 0, null, default(System.Threading.CancellationToken));
             }
             else if (message.Text != null && !string.IsNullOrEmpty(sendMessage))
             {
-                await client.TrySendTextMessageAsync(userToSend.UserId, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, false, 0, null, default(System.Threading.CancellationToken));
+                await client.TrySendTextMessageAsync(message.Chat.Id, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, false, 0, null, default(System.Threading.CancellationToken));
             }
                 /*else if (message.Poll != null)
                 {

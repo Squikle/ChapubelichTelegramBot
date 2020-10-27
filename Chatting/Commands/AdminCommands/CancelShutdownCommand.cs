@@ -11,16 +11,16 @@ namespace ChapubelichBot.Chatting.Commands.AdminCommands
         public override string Name => "/cancelShutdown";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            if (message.Chat.Id == 243857110)
+            if (message.Chat.Id != 243857110)
+                return;
+
+            if (ShutdownController.shuttingDown)
             {
-                if (ShutdownController.shuttingDown)
-                {
-                    System.Diagnostics.Process.Start("CMD.exe", "/C shutdown -a");
-                    await client.TrySendTextMessageAsync(message.Chat.Id, $"Таймер отменен.");
-                    ShutdownController.shuttingDown = false;
-                }
-                else await client.TrySendTextMessageAsync(message.Chat.Id, $"Таймер не был инициализирован.");
+                System.Diagnostics.Process.Start("CMD.exe", "/C shutdown -a");
+                await client.TrySendTextMessageAsync(message.Chat.Id, $"Таймер отменен.");
+                ShutdownController.shuttingDown = false;
             }
+            else await client.TrySendTextMessageAsync(message.Chat.Id, $"Таймер не был инициализирован.");
         }
     }
 }

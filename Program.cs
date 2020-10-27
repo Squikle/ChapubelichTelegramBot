@@ -98,26 +98,27 @@ namespace ChapubelichBot
 
         static async void MessageProcessAsync(object sender, MessageEventArgs e)
         {
-            foreach (var privateMediaCommand in Bot.BotMediaRegexCommandsList)
-                if (e.Message.From.Id == 243857110 && (e.Message.Text != null && privateMediaCommand.Contains(e.Message.Text)) 
-                    || (e.Message.Caption != null && privateMediaCommand.Contains(e.Message.Caption)))
-                {
-                    await privateMediaCommand.ExecuteAsync(e.Message, client);
-                    return;
-                }
+            if (e.Message.From.Id == 243857110)
+            {
+                foreach (var privateMediaCommand in Bot.BotAdminRegexCommandsList)
+                    if (e.Message.Text != null && privateMediaCommand.Contains(e.Message.Text)
+                        || e.Message.Caption != null && privateMediaCommand.Contains(e.Message.Caption))
+                    {
+                        await privateMediaCommand.ExecuteAsync(e.Message, client);
+                        return;
+                    }
+            }
 
             if (e.Message == null || e.Message.Text == null)
-                return;
-
-            //var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
-            //if (e.Message.Date.AddHours(offset.Hours).AddMinutes(AppSettings.MessagesPeriod) > DateTime.Now)
-            if (e.Message.Date.AddMinutes(AppSettings.MessagesCheckPeriod) < DateTime.UtcNow)
                 return;
 
             Console.WriteLine("{0}: {1} | {2} ({3} | {4}):\t {5}",
                 e.Message.Date.ToString("HH:mm:ss"),
                 e.Message.From.Id, e.Message.From.Username,
                 e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.Text);
+
+            if (e.Message.Date.AddMinutes(AppSettings.MessagesCheckPeriod) < DateTime.UtcNow)
+                return;
 
             User member;
             bool userIsRegistered = false;

@@ -73,7 +73,7 @@ namespace ChapubelichBot.Init
                     
                     new LeetTranslateRegexCommand(),
                 };
-                BotMediaRegexCommands = new List<RegexCommand>()
+                BotAdminRegexCommands = new List<RegexCommand>()
                 {
                     new SendAllRegexCommand(),
                     new EchoRegexCommand(),
@@ -91,12 +91,12 @@ namespace ChapubelichBot.Init
         private static List<Command>                    BotPrivateCommands;
         private static List<Command>                    BotGroupCommands;
         private static List<RegexCommand>               BotRegexCommands;
-        private static List<RegexCommand>               BotMediaRegexCommands;
+        private static List<RegexCommand>               BotAdminRegexCommands;
         private static List<CallBackMessage>            BotCallbackMessages;
         public static IReadOnlyList<Command>            BotPrivateCommandsList { get => BotPrivateCommands.AsReadOnly(); }
         public static IReadOnlyList<Command>            BotGroupCommandsList { get => BotGroupCommands.AsReadOnly(); }
         public static IReadOnlyList<RegexCommand>       BotRegexCommandsList { get => BotRegexCommands.AsReadOnly(); }
-        public static IReadOnlyList<RegexCommand>       BotMediaRegexCommandsList { get => BotMediaRegexCommands.AsReadOnly(); }
+        public static IReadOnlyList<RegexCommand>       BotAdminRegexCommandsList { get => BotAdminRegexCommands.AsReadOnly(); }
         public static IReadOnlyList<CallBackMessage>    CallBackMessagesList { get => BotCallbackMessages.AsReadOnly(); }
     }
 }
