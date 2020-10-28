@@ -10,15 +10,9 @@ using Telegram.Bot.Types;
 using ChapubelichBot.Init;
 using User = ChapubelichBot.Database.Models.User;
 using System.Threading.Tasks;
-using ChapubelichBot.Database.Models;
-using ChapubelichBot.Types.Abstractions;
-using System.Collections.Generic;
-using System.Data.Entity;
 using Quartz;
 using ChapubelichBot.Types.Jobs;
 using Quartz.Impl;
-using System.IO;
-using System.Data.Entity.Validation;
 
 namespace ChapubelichBot
 {
