@@ -64,6 +64,7 @@ D:\Coding\Projects\Chapubelich\Chapubelich\bin\Release\netcoreapp3.1\runtimes\wi
 D:\Coding\Projects\Chapubelich\Chapubelich\bin\Release\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.0\System.Runtime.Caching.dll
 D:\Coding\Projects\Chapubelich\Chapubelich\bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Runtime.Caching.dll
 D:\Coding\Projects\Chapubelich\Chapubelich\obj\Release\netcoreapp3.1\Chapubelich.csproj.CoreCompileInputs.cache
+<<<<<<< HEAD
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Release\netcoreapp3.1\Chapubelich.csprojAssemblyReference.cache
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Release\netcoreapp3.1\Chapubelich.AssemblyInfoInputs.cache
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Release\netcoreapp3.1\Chapubelich.AssemblyInfo.cs
@@ -130,3 +131,5 @@ C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Release\net
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Release\netcoreapp3.1\Chapubelich.csproj.CopyComplete
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Release\netcoreapp3.1\Chapubelich.genruntimeconfig.cache
+=======
+>>>>>>> c303358e55319366176de6838588ae572858c02c

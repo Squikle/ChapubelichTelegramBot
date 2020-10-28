@@ -64,9 +64,12 @@ D:\Coding\Projects\Chapubelich\Chapubelich\bin\Debug\netcoreapp3.1\runtimes\win-
 D:\Coding\Projects\Chapubelich\Chapubelich\bin\Debug\netcoreapp3.1\runtimes\win-x86\native\sni.dll
 D:\Coding\Projects\Chapubelich\Chapubelich\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.0\System.Runtime.Caching.dll
 D:\Coding\Projects\Chapubelich\Chapubelich\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.0\System.Runtime.Caching.dll
+<<<<<<< HEAD
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\Chapubelich.csprojAssemblyReference.cache
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\Chapubelich.AssemblyInfoInputs.cache
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\Chapubelich.AssemblyInfo.cs
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\Chapubelich.csproj.CoreCompileInputs.cache
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\ChapubelichBot.dll
 C:\Users\mmish\Документы\GitHub\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\ChapubelichBot.pdb
+=======
+>>>>>>> c303358e55319366176de6838588ae572858c02c
