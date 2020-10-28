@@ -11,11 +11,11 @@ namespace ChapubelichBot.Database.Models
         public string Name { get; set; }
         public bool IsAvailable { get; set; }
 
-        public ICollection<User> Users { get; set; }
+        public List<UserGroup> UserGroups { get; set; }
 
         public Group()
         {
-            Users = new List<User>();
+            UserGroups = new List<UserGroup>();
             IsAvailable = true;
         }
     }

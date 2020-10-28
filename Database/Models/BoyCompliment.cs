@@ -9,11 +9,20 @@ using System.Threading.Tasks;
 
 namespace ChapubelichBot.Database.Models
 {
-    [Table("BoyCompliments")]
-    class BoyCompliment : Compliment
+    class BoyCompliment
     {
-        public BoyCompliment(string compliment) : base(compliment)
-        { }
+
+        [Key]
+        public int ComplimentId { get; set; }
+
+        [Column(TypeName = "VARCHAR")]
+        [Required]
+        public string ComplimentText { get; set; }
+
+        public BoyCompliment(string compliment)
+        {
+            ComplimentText = compliment;
+        }
         public BoyCompliment()
         { }
     }

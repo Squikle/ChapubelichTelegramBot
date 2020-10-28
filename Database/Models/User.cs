@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChapubelichBot.Database.Models
 {
@@ -21,12 +18,10 @@ namespace ChapubelichBot.Database.Models
         public bool Complimented { get; set; }
         public bool ComplimentSubscription { get; set; }
         public bool DailyRewarded { get; set; }
-
-        public ICollection<Group> Groups { get; set; }
-
+        public List<UserGroup> UserGroups { get; set; }
         public User()
         {
-            Groups = new List<Group>();
+            UserGroups = new List<UserGroup>();
             Balance = 300;
             IsAvailable = true;
             Gender = true;

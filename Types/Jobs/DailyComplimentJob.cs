@@ -59,9 +59,6 @@ namespace ChapubelichBot.Types.Jobs
                     case false:
                         compliment = girlCompliments[rand.Next(0, girlCompliments.Length)];
                         break;
-                    default:
-                        compliment = "Твои глаза прекрасны😍";
-                        break;
                 }
                 userCompliments.Add(user.UserId, compliment);
             }

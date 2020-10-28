@@ -1,44 +1,53 @@
 ﻿using ChapubelichBot.Database.Models;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity;
-using System.Data.Entity.Migrations.History;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChapubelichBot.Database
 {
     class ChapubelichdbContext : DbContext
     {
+        public ChapubelichdbContext()
+        {}
 #if (DEBUG)
-        public ChapubelichdbContext() : base("Server=localhost;Port=5432;Username=postgres;Password=1234;Database=ChapubelichTestdb;")
-        { }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseNpgsql("Server=localhost;Port=5432;Username=postgres;Password=1234;Database=ChapubelichTestdb;");
 #else
-        public ChapubelichdbContext() : base("ChapubelichConnectionString")
-        { }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseNpgsql("Server=localhost;Port=5432;Username=postgres;Password=1234;Database=Chapubelichdb;",
+                x => x.MigrationsHistoryTable("__MigrationsHistory", "Botdb"));
 #endif
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("Botdb");
 
-            /*modelBuilder.Entity<UserGroup>().HasKey(x => new { x.UserId, x.GroupId });
-
-            modelBuilder.Entity<UserGroup>()
-            .HasRequired<User>(sc => sc.User)
-            .WithMany(s => s.UserGroup)
-            .HasForeignKey(sc => sc.UserId);
-
-            modelBuilder.Entity<UserGroup>()
-            .HasRequired<Group>(sc => sc.Group)
-            .WithMany(s => s.UserGroup)
-            .HasForeignKey(sc => sc.GroupId);*/
-
             modelBuilder.Entity<User>()
             .Property(p => p.UserId)
-            .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Group>()
             .Property(p => p.GroupId)
-            .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
+            .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<BoyCompliment>()
+            .HasIndex(u => u.ComplimentText)
+            .IsUnique();
+
+            modelBuilder.Entity<GirlCompliment>()
+            .HasIndex(u => u.ComplimentText)
+            .IsUnique();
+
+            modelBuilder.Entity<UserGroup>()
+                .HasKey(k => new { k.UserId, k.GroupId });
+
+            modelBuilder.Entity<UserGroup>()
+                .HasOne(ug => ug.User)
+                .WithMany(u => u.UserGroups)
+                .HasForeignKey(ug => ug.UserId);
+
+            modelBuilder.Entity<UserGroup>()
+                .HasOne(ug => ug.Group)
+                .WithMany(u => u.UserGroups)
+                .HasForeignKey(ug => ug.GroupId);
         }
 
         public DbSet<User> Users { get; set; }

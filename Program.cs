@@ -19,7 +19,7 @@ namespace ChapubelichBot
     class Program
     {
         private static readonly ITelegramBotClient client = Bot.Client;
-        static void Main()
+        static void Main(string[] args)
         {
             var me = client.GetMeAsync();
             //Console.Title = me.Username;
@@ -31,7 +31,6 @@ namespace ChapubelichBot
             client.OnCallbackQuery += CallbackProcess;
             DailyProcess();
 
-            Console.Read();
             Thread.Sleep(int.MaxValue);
         }
 
@@ -44,7 +43,7 @@ namespace ChapubelichBot
             ITrigger dailyResetTrigger = TriggerBuilder.Create()
                 .WithIdentity("DailyResetJob", "ChapubelichBot")
                 .WithDailyTimeIntervalSchedule
-                (x => 
+                (x =>
                 x.WithIntervalInHours(24)
                 .OnEveryDay()
                 .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
@@ -56,7 +55,7 @@ namespace ChapubelichBot
             ITrigger dailyComplimentTrigger = TriggerBuilder.Create()
                 .WithIdentity("DailyComplimentJob", "ChapubelichBot")
                 .WithDailyTimeIntervalSchedule
-                (x => 
+                (x =>
                 x.WithIntervalInHours(24)
                 .OnEveryDay()
                 .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(12, 0))
@@ -120,7 +119,7 @@ namespace ChapubelichBot
             {
                 member = db.Users.FirstOrDefault(x => x.UserId == e.Message.From.Id);
                 if (member != null)
-                { 
+                {
                     await UpdateMemberInfoAsync(e.Message.From, member, db);
                     userIsRegistered = true;
                 }
@@ -259,7 +258,7 @@ namespace ChapubelichBot
             if (Bot.GenderCallbackMessage.Contains(e.CallbackQuery))
                 await Bot.GenderCallbackMessage.ExecuteAsync(e.CallbackQuery, client);
         }
-        
+
 
         private static async Task<Message> SendRegistrationAlertAsync(Message message)
         {
@@ -293,7 +292,7 @@ namespace ChapubelichBot
         private static async Task UpdateMemberInfoAsync(Telegram.Bot.Types.User sender, User member, ChapubelichdbContext db)
         {
             if (member.FirstName != sender.FirstName)
-            { 
+            {
                 member.FirstName = sender.FirstName;
                 await db.SaveChangesAsync();
             }
