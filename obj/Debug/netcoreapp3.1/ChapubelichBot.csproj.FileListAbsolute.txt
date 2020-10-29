@@ -1,4 +1,0 @@
-D:\Coding\Projects\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\ChapubelichBot.csprojAssemblyReference.cache
-D:\Coding\Projects\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\ChapubelichBot.AssemblyInfoInputs.cache
-D:\Coding\Projects\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\ChapubelichBot.AssemblyInfo.cs
-D:\Coding\Projects\Chapubelich\Chapubelich\obj\Debug\netcoreapp3.1\ChapubelichBot.csproj.CoreCompileInputs.cache
