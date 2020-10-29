@@ -7,6 +7,7 @@ namespace ChapubelichBot.Database.Models
     public class Group
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long GroupId { get; set; }
         public string Name { get; set; }
         public bool IsAvailable { get; set; }
