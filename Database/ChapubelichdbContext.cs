@@ -15,7 +15,7 @@ namespace ChapubelichBot.Database
             var config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
 
             string connectionString = config.GetConnectionString("DebugConnection");
-            string schema = config.GetValue<string>("DatabaseSchema");
+            string schema = config.GetValue<string>("AppSettings:DatabaseSchema");
 
             optionsBuilder.UseNpgsql(connectionString,
                 x => x.MigrationsHistoryTable("__MigrationsHistory", schema));
@@ -26,7 +26,7 @@ namespace ChapubelichBot.Database
             var config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
 
             string connectionString = config.GetConnectionString("ReleaseConnection");
-            string schema = config.GetValue<string>("DatabaseSchema");
+            string schema = config.GetValue<string>("AppSettings:DatabaseSchema");
 
             optionsBuilder.UseNpgsql(connectionString,
                 x => x.MigrationsHistoryTable("__MigrationsHistory", schema));

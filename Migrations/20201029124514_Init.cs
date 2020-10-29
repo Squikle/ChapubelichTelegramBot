@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace ChapubelichBot.Database.Migrations
+namespace ChapubelichBot.Migrations
 {
     public partial class Init : Migration
     {
@@ -18,8 +18,7 @@ namespace ChapubelichBot.Database.Migrations
                 {
                     ComplimentId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ComplimentText = table.Column<string>(type: "VARCHAR", nullable: false),
-                    Discriminator = table.Column<string>(nullable: true)
+                    ComplimentText = table.Column<string>(type: "VARCHAR", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,8 +45,7 @@ namespace ChapubelichBot.Database.Migrations
                 {
                     ComplimentId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ComplimentText = table.Column<string>(type: "VARCHAR", nullable: false),
-                    Discriminator = table.Column<string>(nullable: true)
+                    ComplimentText = table.Column<string>(type: "VARCHAR", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace ChapubelichBot.Database.Migrations
+namespace ChapubelichBot.Migrations
 {
     [DbContext(typeof(ChapubelichdbContext))]
-    [Migration("20201028232716_Init")]
+    [Migration("20201029124514_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,9 +32,6 @@ namespace ChapubelichBot.Database.Migrations
                     b.Property<string>("ComplimentText")
                         .IsRequired()
                         .HasColumnType("VARCHAR");
-
-                    b.Property<string>("Discriminator")
-                        .HasColumnType("text");
 
                     b.HasKey("ComplimentId");
 
@@ -67,9 +64,6 @@ namespace ChapubelichBot.Database.Migrations
                     b.Property<string>("ComplimentText")
                         .IsRequired()
                         .HasColumnType("VARCHAR");
-
-                    b.Property<string>("Discriminator")
-                        .HasColumnType("text");
 
                     b.HasKey("ComplimentId");
 

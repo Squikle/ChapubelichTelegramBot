@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace ChapubelichBot.Database.Migrations
+namespace ChapubelichBot.Migrations
 {
     [DbContext(typeof(ChapubelichdbContext))]
     partial class ChapubelichdbContextModelSnapshot : ModelSnapshot
@@ -30,9 +30,6 @@ namespace ChapubelichBot.Database.Migrations
                     b.Property<string>("ComplimentText")
                         .IsRequired()
                         .HasColumnType("VARCHAR");
-
-                    b.Property<string>("Discriminator")
-                        .HasColumnType("text");
 
                     b.HasKey("ComplimentId");
 
@@ -65,9 +62,6 @@ namespace ChapubelichBot.Database.Migrations
                     b.Property<string>("ComplimentText")
                         .IsRequired()
                         .HasColumnType("VARCHAR");
-
-                    b.Property<string>("Discriminator")
-                        .HasColumnType("text");
 
                     b.HasKey("ComplimentId");
 
