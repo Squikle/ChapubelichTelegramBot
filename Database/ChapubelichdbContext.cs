@@ -8,9 +8,7 @@ namespace ChapubelichBot.Database
     class ChapubelichdbContext : DbContext
     {
         public ChapubelichdbContext()
-        {
-            Database.EnsureCreated();
-        }
+        { }
 #if (DEBUG)
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
