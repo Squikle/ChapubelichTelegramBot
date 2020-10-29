@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
 using ChapubelichBot.Init;
+using Microsoft.Extensions.Configuration;
 
 namespace ChapubelichBot.Types.Games.RouletteGame
 {
@@ -26,12 +27,14 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private bool Resulting { get; set; }
         private int ResultNumber { get; set; }
         private Timer Timer;
+        private int StopGameDelay = Bot.Config.GetValue<int>("AppSettings:StopGameDelay");
 
         public RouletteGameSession(Message message, ITelegramBotClient client)
         {
             BetTokens = new List<RouletteBetToken>();
             ChatId = message.Chat.Id;
-            Timer = new Timer(x => DisposeAfterTime(client), null, AppSettings.StopGameDelay, AppSettings.StopGameDelay);
+
+            Timer = new Timer(x => DisposeAfterTime(client), null, StopGameDelay, StopGameDelay);
         }
 
         public async Task StartAsync(Message message, ITelegramBotClient client)
@@ -57,7 +60,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Resulting = true;
             Message animationMessage = await client.TrySendAnimationAsync(ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 
-            Task task = Task.Delay(AppSettings.RouletteAnimationDuration);
+            Task task = Task.Delay(Bot.Config.GetValue<int>("AppSettings:RouletteAnimationDuration"));
 
             // Удаление сообщений и отправка результатов
             var db = new ChapubelichdbContext();
@@ -601,7 +604,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
         public void DelayTimer()
         {
-            Timer.Change(AppSettings.StopGameDelay, AppSettings.StopGameDelay);
+            Timer.Change(StopGameDelay, StopGameDelay);
         }
         public async static Task<Message> InitializeNew(Message message, ITelegramBotClient client)
         {

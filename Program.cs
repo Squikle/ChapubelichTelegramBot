@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Quartz;
 using ChapubelichBot.Types.Jobs;
 using Quartz.Impl;
+using Microsoft.Extensions.Configuration;
 
 namespace ChapubelichBot
 {
@@ -110,7 +111,7 @@ namespace ChapubelichBot
                 e.Message.From.Id, e.Message.From.Username,
                 e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.Text);
 
-            if (e.Message.Date.AddMinutes(AppSettings.MessagesCheckPeriod) < DateTime.UtcNow)
+            if (e.Message.Date.AddMinutes(Bot.Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
 
             User member;

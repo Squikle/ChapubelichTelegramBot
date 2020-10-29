@@ -13,12 +13,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            if (message.From.Id == 443763853)
-            {
-                await client.TrySendTextMessageAsync(message.Chat.Id, "Иди нахуй😉", replyToMessageId: message.MessageId);
-                return;
-            }
-
             Random random = new Random();
 
             string[][] answerStrings =

@@ -1,4 +1,5 @@
 ﻿using ChapubelichBot.Init;
+using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -14,7 +15,7 @@ namespace ChapubelichBot.Types.Abstractions
             if (privateChat)
                 return text.Contains(Name);
 
-            return text.Contains(Name) && text.Contains(AppSettings.Name);
+            return text.Contains(Name) && text.Contains(Bot.Config.GetValue<string>("AppSettings:BotName"));
         }
     }
 }

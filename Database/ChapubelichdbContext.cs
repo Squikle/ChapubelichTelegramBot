@@ -1,19 +1,38 @@
 ﻿using ChapubelichBot.Database.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace ChapubelichBot.Database
 {
     class ChapubelichdbContext : DbContext
     {
         public ChapubelichdbContext()
-        {}
+        {
+            Database.EnsureCreated();
+        }
 #if (DEBUG)
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseNpgsql("Server=localhost;Port=5432;Username=postgres;Password=1234;Database=ChapubelichTestdb;");
+        {
+            var config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
+
+            string connectionString = config.GetConnectionString("DebugConnection");
+            string schema = config.GetValue<string>("DatabaseSchema");
+
+            optionsBuilder.UseNpgsql(connectionString,
+                x => x.MigrationsHistoryTable("__MigrationsHistory", schema));
+        }
 #else
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseNpgsql("Server=localhost;Port=5432;Username=postgres;Password=1234;Database=Chapubelichdb;",
-                x => x.MigrationsHistoryTable("__MigrationsHistory", "Botdb"));
+        {
+            var config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
+
+            string connectionString = config.GetConnectionString("ReleaseConnection");
+            string schema = config.GetValue<string>("DatabaseSchema");
+
+            optionsBuilder.UseNpgsql(connectionString,
+                x => x.MigrationsHistoryTable("__MigrationsHistory", schema));
+        }
 #endif
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

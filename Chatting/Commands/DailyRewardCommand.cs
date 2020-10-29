@@ -2,6 +2,7 @@
 using ChapubelichBot.Init;
 using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Extensions;
+using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -31,7 +32,7 @@ namespace ChapubelichBot.Chatting.Commands
                     return;
                 }
 
-                user.Balance += AppSettings.DailyReward;
+                user.Balance += Bot.Config.GetValue<int>("AppSettings:DailyReward");
                 user.DailyRewarded = true;
 
                 db.SaveChanges();

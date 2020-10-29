@@ -7,19 +7,21 @@ using System.Collections.Generic;
 using Telegram.Bot;
 using ChapubelichBot.Chatting.Commands.AdminCommands;
 using ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace ChapubelichBot.Init
 {
     public static class Bot
     {
         private static ITelegramBotClient _client;
+        public static IConfiguration _config;
         public static ITelegramBotClient Client
         {
             get
             {
                 if (_client != null)
                     return _client;
-
 
                 StartCommand = new StartCommand();
                 RegistrationCommand = new RegistrationCommand();
@@ -79,8 +81,22 @@ namespace ChapubelichBot.Init
                     new EchoRegexCommand(),
                 };
 
-                _client = new TelegramBotClient(AppSettings.Key) { Timeout = TimeSpan.FromSeconds(10) };
+                string ApiKey = "";
+#if (DEBUG)
+                ApiKey = Config.GetValue<string>("ApiKeys:DebugKey");
+#else
+                ApiKey = Config.GetValue<string>("ApiKeys:ReleaseKey");
+#endif
+                _client = new TelegramBotClient(ApiKey) { Timeout = TimeSpan.FromSeconds(10) };
                 return _client;
+            }
+        }
+        public static IConfiguration Config
+        {
+            get
+            {
+                _config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
+                return _config;
             }
         }
 
