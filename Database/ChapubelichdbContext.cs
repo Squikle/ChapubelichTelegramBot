@@ -1,4 +1,5 @@
 ﻿using ChapubelichBot.Database.Models;
+using ChapubelichBot.Init;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.IO;
@@ -12,7 +13,7 @@ namespace ChapubelichBot.Database
 #if (DEBUG)
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
+            var config = Bot.GetConfig();
 
             string connectionString = config.GetConnectionString("DebugConnection");
             string schema = config.GetValue<string>("AppSettings:DatabaseSchema");
@@ -23,7 +24,7 @@ namespace ChapubelichBot.Database
 #else
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
+            var config = Bot.GetConfig();
 
             string connectionString = config.GetConnectionString("ReleaseConnection");
             string schema = config.GetValue<string>("AppSettings:DatabaseSchema");

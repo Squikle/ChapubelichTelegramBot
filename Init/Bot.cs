@@ -93,7 +93,7 @@ namespace ChapubelichBot.Init
             if (_config != null)
                 return _config;
 
-            _config = new ConfigurationBuilder().AddJsonFile($"./Init/BotConfig.json").Build();
+            _config = new ConfigurationBuilder().AddJsonFile($"./Init/Config/BotConfig.json").Build();
             return _config;
         }
 
