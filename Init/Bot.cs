@@ -15,7 +15,7 @@ namespace ChapubelichBot.Init
     public static class Bot
     {
         private static ITelegramBotClient _client;
-        public static IConfiguration _config;
+        private static IConfiguration _config;
         public static ITelegramBotClient GetClient()
         {
             if (_client != null)
