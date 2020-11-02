@@ -32,7 +32,7 @@ namespace ChapubelichBot.Chatting.Commands
                     return;
                 }
 
-                user.Balance += Bot.Config.GetValue<int>("AppSettings:DailyReward");
+                user.Balance += Bot.GetConfig().GetValue<int>("AppSettings:DailyReward");
                 user.DailyRewarded = true;
 
                 db.SaveChanges();

@@ -1,0 +1,22 @@
+{
+  "ConnectionStrings": {
+    "ReleaseConnection": "Server=192.168.0.100;Port=5432;Username=postgres;Password=12qw34er;Database=Chapubelichdb;",
+    "DebugConnection": "Server=192.168.0.100;Port=5432;Username=postgres;Password=12qw34er;Database=ChapubelichTestdb;"
+  },
+  "ApiKeys": {
+    "ReleaseKey": "1144819840:AAFA0OhBbSAXjMazf80vEcUCbPF8FhHlZKk",
+    "DebugKey": "1365901559:AAHgUYYle9XmnbzhtSSZbICIiwgaeqewKEc"
+  },
+  "AppSettings": {
+    "DatabaseSchema": "Botdb",
+    "BotName": "Chapubelich",
+    "MessageCheckPeriod": 15, // how old message to check (in minutes)
+    "StopGameDelay": 300000, // default: 300000 = 5min
+    "RouletteAnimationDuration": 3000, // default: 3000 = 3sec
+    "DailyReward": 100
+  },
+  "Logger": {
+    "DirectoryPath": "ChapubelichLog",
+    "FileName":  "log.txt"
+  }
+}

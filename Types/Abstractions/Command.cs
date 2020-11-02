@@ -15,7 +15,7 @@ namespace ChapubelichBot.Types.Abstractions
             if (privateChat)
                 return text.Contains(Name);
 
-            return text.Contains(Name) && text.Contains(Bot.Config.GetValue<string>("AppSettings:BotName"));
+            return text.Contains(Name) && text.Contains(Bot.GetConfig().GetValue<string>("AppSettings:BotName"));
         }
     }
 }
