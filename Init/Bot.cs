@@ -16,88 +16,85 @@ namespace ChapubelichBot.Init
     {
         private static ITelegramBotClient _client;
         public static IConfiguration _config;
-        public static ITelegramBotClient Client
+        public static ITelegramBotClient GetClient()
         {
-            get
-            {
-                if (_client != null)
-                    return _client;
-
-                StartCommand = new StartCommand();
-                RegistrationCommand = new RegistrationCommand();
-                GenderCallbackMessage = new GenderCallbackMessage();
-
-                BotPrivateCommands = new List<Command>()
-                {
-                    new HelloCommand(),
-
-                    new SetShutdownCommand(),
-                    new CancelShutdownCommand(),
-
-                    new BalanceCommand(),
-                    new MenuCommand(),
-                    new HelpCommand(),
-                    new SettingsCommand(),
-                    new GenderChangeCommand(),
-                    new DefaultBetChangeCommand(),
-                    new MyProfileCommand(),
-                    new DailyRewardCommand(),
-
-                    new GamesCommand(),
-                    new RouletteStartCommand(),
-                };
-                BotGroupCommands = new List<Command>()
-                {
-
-                };
-                BotCallbackMessages = new List<CallBackMessage>()
-                {
-                    new DefaultBetChangeCallbackMessage(),
-                    new RouletteStartCallbackMessage(),
-                    new RouletteBetColorCallbackMessage(),
-                    new RouletteBetNumbersCallbackMessage(),
-                    new RouletteRollCallbackMessage(),
-                    new RouletteBetCancelCallbackMessage(),
-                };
-                BotRegexCommands = new List<RegexCommand>()
-                {
-                    new RouletteColorBetRegexCommand(),
-                    new RouletteStartRegexCommand(),
-                    new RouletteRollRegexCommand(),
-                    new RouletteBetCancelRegexCommand(),
-                    new RouletteCheckBetRegexCommand(),
-                    new RouletteNumberBetRegexCommand(),
-
-                    new BalanceRegexCommand(),
-                    new TransferRegexCommand(),
-
-                    new IsItGameRegexCommand(),
-                    
-                    new LeetTranslateRegexCommand(),
-                };
-                BotAdminRegexCommands = new List<RegexCommand>()
-                {
-                    new SendAllRegexCommand(),
-                    new EchoRegexCommand(),
-                };
-
-                string ApiKey = "";
-#if (DEBUG)
-                ApiKey = Config.GetValue<string>("ApiKeys:DebugKey");
-#else
-                ApiKey = Config.GetValue<string>("ApiKeys:ReleaseKey");
-#endif
-                _client = new TelegramBotClient(ApiKey) { Timeout = TimeSpan.FromSeconds(10) };
+            if (_client != null)
                 return _client;
-            }
-        }
-        public static IConfiguration Config
-        {
-            get
+
+            StartCommand = new StartCommand();
+            RegistrationCommand = new RegistrationCommand();
+            GenderCallbackMessage = new GenderCallbackMessage();
+
+            BotPrivateCommands = new List<Command>()
             {
-                _config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
+                new HelloCommand(),
+
+                new SetShutdownCommand(),
+                new CancelShutdownCommand(),
+
+                new BalanceCommand(),
+                new MenuCommand(),
+                new HelpCommand(),
+                new SettingsCommand(),
+                new GenderChangeCommand(),
+                new DefaultBetChangeCommand(),
+                new MyProfileCommand(),
+                new DailyRewardCommand(),
+
+                new GamesCommand(),
+                new RouletteStartCommand(),
+            };
+            BotGroupCommands = new List<Command>()
+            {
+
+            };
+            BotCallbackMessages = new List<CallBackMessage>()
+            {
+                new DefaultBetChangeCallbackMessage(),
+                new RouletteStartCallbackMessage(),
+                new RouletteBetColorCallbackMessage(),
+                new RouletteBetNumbersCallbackMessage(),
+                new RouletteRollCallbackMessage(),
+                new RouletteBetCancelCallbackMessage(),
+            };
+            BotRegexCommands = new List<RegexCommand>()
+            {
+                new RouletteColorBetRegexCommand(),
+                new RouletteStartRegexCommand(),
+                new RouletteRollRegexCommand(),
+                new RouletteBetCancelRegexCommand(),
+                new RouletteCheckBetRegexCommand(),
+                new RouletteNumberBetRegexCommand(),
+
+                new BalanceRegexCommand(),
+                new TransferRegexCommand(),
+
+                new IsItGameRegexCommand(),
+
+                new LeetTranslateRegexCommand(),
+            };
+            BotAdminRegexCommands = new List<RegexCommand>()
+            {
+                new SendAllRegexCommand(),
+                new EchoRegexCommand(),
+            };
+
+            string ApiKey = "";
+#if (DEBUG)
+            ApiKey = GetConfig().GetValue<string>("ApiKeys:DebugKey");
+#else
+            ApiKey = GetConfig().GetValue<string>("ApiKeys:ReleaseKey");
+#endif
+            _client = new TelegramBotClient(ApiKey) { Timeout = TimeSpan.FromSeconds(10) };
+            return _client;
+        }
+        public static IConfiguration GetConfig()
+        {
+            if (_config != null)
                 return _config;
-            }
+
+            _config = new ConfigurationBuilder().AddJsonFile($"./Init/AppSettings.json").Build();
+            return _config;
         }
 
         public static StartCommand                      StartCommand;

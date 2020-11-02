@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Chapubelich": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
