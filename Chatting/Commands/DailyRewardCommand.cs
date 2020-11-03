@@ -17,6 +17,9 @@ namespace ChapubelichBot.Chatting.Commands
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             ChapubelichBot.Database.Models.User user;
+            int configDailyReward = Bot.GetConfig().GetValue<int>("AppSettings:DailyReward");
+            int totalDailyReward = configDailyReward >= 1000 ? 1000 : configDailyReward;
+
             using (var db = new ChapubelichdbContext())
             {
                 user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
@@ -32,7 +35,7 @@ namespace ChapubelichBot.Chatting.Commands
                     return;
                 }
 
-                user.Balance += Bot.GetConfig().GetValue<int>("AppSettings:DailyReward");
+                user.Balance += totalDailyReward;
                 user.DailyRewarded = true;
 
                 db.SaveChanges();
