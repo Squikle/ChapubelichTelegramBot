@@ -15,7 +15,6 @@ namespace ChapubelichBot.Init
     public static class Bot
     {
         private static ITelegramBotClient _client;
-        private static IConfiguration _config;
         public static ITelegramBotClient GetClient()
         {
             if (_client != null)
@@ -79,20 +78,19 @@ namespace ChapubelichBot.Init
                 new EchoRegexCommand(),
             };
 
-            string ApiKey = "";
 #if (DEBUG)
-            ApiKey = GetConfig().GetValue<string>("ApiKeys:DebugKey");
+            string ApiKey = GetKeys().GetValue<string>("ApiKeys:DebugKey");
 #else
-            ApiKey = GetConfig().GetValue<string>("ApiKeys:ReleaseKey");
+            string ApiKey = GetKeys().GetValue<string>("ApiKeys:ReleaseKey");
 #endif
             _client = new TelegramBotClient(ApiKey) { Timeout = TimeSpan.FromSeconds(10) };
             return _client;
         }
         public static IConfiguration GetConfig()
-        {
-            _config = new ConfigurationBuilder().AddJsonFile($"./Init/Config/BotConfig.json").Build();
-            return _config;
-        }
+            => new ConfigurationBuilder().AddJsonFile($"./Init/Config/BotConfig.json").Build();
+        public static IConfiguration GetKeys()
+            => new ConfigurationBuilder().AddJsonFile($"./Init/Config/Keys.json").Build();
+            
 
         public static StartCommand                      StartCommand;
         public static RegistrationCommand               RegistrationCommand;

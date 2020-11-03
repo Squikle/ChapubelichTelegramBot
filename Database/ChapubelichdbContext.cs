@@ -13,10 +13,8 @@ namespace ChapubelichBot.Database
 #if (DEBUG)
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var config = Bot.GetConfig();
-
-            string connectionString = config.GetConnectionString("DebugConnection");
-            string schema = config.GetValue<string>("AppSettings:DatabaseSchema");
+            string connectionString = Bot.GetKeys().GetConnectionString("DebugConnection");
+            string schema = Bot.GetConfig().GetValue<string>("AppSettings:DatabaseSchema");
 
             optionsBuilder.UseNpgsql(connectionString,
                 x => x.MigrationsHistoryTable("__MigrationsHistory", schema));
@@ -24,10 +22,9 @@ namespace ChapubelichBot.Database
 #else
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var config = Bot.GetConfig();
 
-            string connectionString = config.GetConnectionString("ReleaseConnection");
-            string schema = config.GetValue<string>("AppSettings:DatabaseSchema");
+            string connectionString = Bot.GetKeys().GetConnectionString("ReleaseConnection");
+            string schema = Bot.GetConfig().GetValue<string>("AppSettings:DatabaseSchema");
 
             optionsBuilder.UseNpgsql(connectionString,
                 x => x.MigrationsHistoryTable("__MigrationsHistory", schema));
