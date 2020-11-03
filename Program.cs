@@ -17,7 +17,6 @@ namespace ChapubelichBot
             Console.WriteLine($"Default log path is: {path}"); 
             AppDomain.CurrentDomain.UnhandledException += ExceptionManage;
             BotProcessor.StartReceiving();
-            throw new Exception("a", new Exception("b", new Exception("c", new Exception("d", new Exception("e", new Exception("a", new Exception("g")))))));
             //var me = messageManager.client.GetMeAsync();
             //Console.Title = messageManager.client.GetMeAsync().Result.Username;
             Thread.Sleep(int.MaxValue);
