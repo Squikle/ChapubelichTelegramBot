@@ -26,8 +26,11 @@ namespace ChapubelichBot.Init
 
         public void WriteData(string path)
         {
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(Path.GetDirectoryName(path));
+            string directoryName = Path.GetDirectoryName(path);
+            if (!Directory.Exists(directoryName))
+                Directory.CreateDirectory(directoryName);
+            string fileName = Path.GetFileNameWithoutExtension(path) + DateTime.Now.ToString("MM.dd.yyyy HH.mm.ss") + ".json";
+            path = Path.Combine(directoryName, fileName);
             string errorJson = JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true });
             Console.WriteLine(errorJson);
             File.AppendAllText(path, errorJson);
