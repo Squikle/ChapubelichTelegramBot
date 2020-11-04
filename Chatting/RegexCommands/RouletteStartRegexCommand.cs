@@ -3,7 +3,11 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Types.Games.RouletteGame;
+<<<<<<< HEAD
 using ChapubelichBot.Types.Statics;
+=======
+using ChapubelichBot.Types.Extensions;
+>>>>>>> f51eb8cf7a13bedff784b9c601016a242bde30df
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {

@@ -2,6 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Database;
+<<<<<<< HEAD
+=======
+using ChapubelichBot.Types.Extensions;
+>>>>>>> f51eb8cf7a13bedff784b9c601016a242bde30df
 using ChapubelichBot.Types.Jobs;
 using ChapubelichBot.Types.Statics;
 using Microsoft.Extensions.Configuration;
