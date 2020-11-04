@@ -2,14 +2,11 @@
 using ChapubelichBot.Init;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 
 namespace ChapubelichBot.Database
 {
     class ChapubelichdbContext : DbContext
     {
-        public ChapubelichdbContext()
-        { }
 #if (DEBUG)
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading;
 using ChapubelichBot.Init;
 using ChapubelichBot.Types.ManageMessages;
@@ -10,7 +9,7 @@ namespace ChapubelichBot
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var config = Bot.GetConfig();
             string path = Path.Combine(@"./Init/Config", config.GetValue<string>("Logger:DirectoryPath"), config.GetValue<string>("Logger:FileName"));

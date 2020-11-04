@@ -28,48 +28,46 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 markedUser.Id == client.BotId)
                 return;
 
-            using (var db = new ChapubelichdbContext())
+            await using var db = new ChapubelichdbContext();
+            var transferTo = db.Users.FirstOrDefault(x => x.UserId == markedUser.Id);
+            var transferFrom = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+
+            if (null == transferTo)
             {
-                var transferTo = db.Users.FirstOrDefault(x => x.UserId == markedUser.Id);
-                var transferFrom = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+                await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    $"Пользователь <a href=\"tg://user?id={markedUser.Id}\">{markedUser.FirstName}</a> еще не зарегестрировался\U0001F614",
+                    Telegram.Bot.Types.Enums.ParseMode.Html,
+                    replyToMessageId: message.MessageId);
+                return;
+            }
 
-                if (null == transferTo)
-                {
-                    await client.TrySendTextMessageAsync(
-                        message.Chat.Id,
-                        $"Пользователь <a href=\"tg://user?id={markedUser.Id}\">{markedUser.FirstName}</a> еще не зарегестрировался\U0001F614",
-                        Telegram.Bot.Types.Enums.ParseMode.Html,
-                        replyToMessageId: message.MessageId);
-                    return;
-                }
+            if (transferFrom != null && transferFrom.Balance >= transferSum)
+            {
+                string genderWord = transferTo.Gender ? "него" : "неё";
 
-                if (transferFrom.Balance >= transferSum)
-                {
-                    string genderWord = transferTo.Gender ? "него" : "неё";
+                transferFrom.Balance -= transferSum;
+                transferTo.Balance += transferSum;
 
-                    transferFrom.Balance -= transferSum;
-                    transferTo.Balance += transferSum;
-
-                    string resultMessage = $"{transferSum.ToMoneyFormat()} 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
-                        $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0\n";
-                    if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                        resultMessage += $"Подпись: {attachedMessage}";
-
-                    await client.TrySendTextMessageAsync(
-                        message.Chat.Id,
-                        resultMessage,
-                        Telegram.Bot.Types.Enums.ParseMode.Html,
-                        replyToMessageId: message.MessageId);
-
-                    await db.SaveChangesAsync();
-                    return;
-                }
+                string resultMessage = $"{transferSum.ToMoneyFormat()} 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
+                                       $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0\n";
+                if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
+                    resultMessage += $"Подпись: {attachedMessage}";
 
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"У тебя недостаточно средств для перевода средств\U0001F614",
+                    resultMessage,
+                    Telegram.Bot.Types.Enums.ParseMode.Html,
                     replyToMessageId: message.MessageId);
+
+                await db.SaveChangesAsync();
+                return;
             }
+
+            await client.TrySendTextMessageAsync(
+                message.Chat.Id,
+                "У тебя недостаточно средств для перевода средств😔",
+                replyToMessageId: message.MessageId);
         }
     }
 }

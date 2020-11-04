@@ -1,11 +1,6 @@
 ﻿using ChapubelichBot.Database.Models;
 using ChapubelichBot.Types.Enums;
 using ChapubelichBot.Types.Games.RouletteGame;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChapubelichBot.Types.Abstractions
 {
@@ -14,7 +9,7 @@ namespace ChapubelichBot.Types.Abstractions
         public int UserId { get; set; }
         public int BetSum { get; set; }
 
-        public RouletteBetToken(User user, int bet)
+        protected RouletteBetToken(User user, int bet)
         {
             UserId = user.UserId;
             BetSum = bet;

@@ -5,35 +5,35 @@ namespace ChapubelichBot.Types.Statics
     static class ReplyKeyboardsStatic
     {
         public static ReplyKeyboardMarkup MainMarkup = new ReplyKeyboardMarkup(
-            new KeyboardButton[][]
-                {
-                    new KeyboardButton[] 
+            new[]
+            {
+                    new[] 
                     { 
                         new KeyboardButton("💰 Баланс"),
                         new KeyboardButton("🕹 Игры")
                     },
-                    new KeyboardButton[]
+                    new[]
                     {
                         new KeyboardButton("⚙️ Настройки")
                     },
-                    new KeyboardButton[]
+                    new[]
                     {
                         new KeyboardButton("💵 Ежедневная награда")
                     },
-                    new KeyboardButton[] 
+                    new[] 
                     { 
                         new KeyboardButton("❓ Помощь") 
                     }
                 }, resizeKeyboard: true, oneTimeKeyboard: false);
 
         public static ReplyKeyboardMarkup GameMarkup = new ReplyKeyboardMarkup(
-            new KeyboardButton[][]
-                {
-                    new KeyboardButton[]
+            new[]
+            {
+                    new[]
                     {
                         new KeyboardButton(RouletteTableStatic.Name)
                     },
-                    new KeyboardButton[]
+                    new[]
                     {
                         new KeyboardButton("🏠 Главная")
                     }
@@ -47,21 +47,21 @@ namespace ChapubelichBot.Types.Statics
                resizeKeyboard: true, oneTimeKeyboard: true);
 
         public static ReplyKeyboardMarkup SettingsMarkup = new ReplyKeyboardMarkup(
-            new KeyboardButton[][]
-                {
-                    new KeyboardButton[]
+            new[]
+            {
+                    new[]
                     {
                         new KeyboardButton("👤 Мой профиль")
                     },
-                    new KeyboardButton[]
+                    new[]
                     {
                         new KeyboardButton("⚥  Сменить пол")
                     },
-                    new KeyboardButton[]
+                    new[]
                     {
                         new KeyboardButton("💸 Ставка по умолчанию")
                     },
-                    new KeyboardButton[]
+                    new[]
                     {
                         new KeyboardButton("🏠 Главная")
                     }

@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using ChapubelichBot.Types.Enums;
-using ChapubelichBot.Database.Models;
 using System;
 using ChapubelichBot.Types.Abstractions;
-using System.Threading.Tasks;
-using System.Threading;
-using Telegram.Bot.Types;
-using Telegram.Bot;
-using ChapubelichBot.Types.Extensions;
 
 namespace ChapubelichBot.Types.Statics
 {
@@ -19,12 +13,12 @@ namespace ChapubelichBot.Types.Statics
 
 
 
-        public const int tableSize = 37;
+        public const int TableSize = 37;
         public static List<RouletteGameSession> GameSessions { get; set; } = new List<RouletteGameSession>();
         public static int GetRandomResultNumber()
         {
             Random rand = new Random();
-            return rand.Next(0, tableSize - 1);
+            return rand.Next(0, TableSize - 1);
         }
         public static RouletteGameSession GetGameSessionOrNull(long chatId)
         {
@@ -46,7 +40,7 @@ namespace ChapubelichBot.Types.Statics
         }
         public static RouletteColorEnum ToRouletteColor(this int number)
         {
-            RouletteColorEnum[] rouletteTable = new RouletteColorEnum[tableSize]
+            RouletteColorEnum[] rouletteTable = new RouletteColorEnum[TableSize]
             {
                 RouletteColorEnum.Green, //0
                 RouletteColorEnum.Red,
@@ -90,7 +84,7 @@ namespace ChapubelichBot.Types.Statics
         }
         public static int[] GetBetsByNumbers(int firstNumber)
         {
-            return new int[]
+            return new[]
             {
                 firstNumber
             };
@@ -111,7 +105,7 @@ namespace ChapubelichBot.Types.Statics
             switch (queryData)
             {
                 case "rouletteBetEven":
-                    userBet = new int[(tableSize - 1) / 2];
+                    userBet = new int[(TableSize - 1) / 2];
                     for (int i = 0, j = 1; i < userBet.Length; j++)
                     {
                         if (j % 2 == 0)
@@ -122,7 +116,7 @@ namespace ChapubelichBot.Types.Statics
                     }
                     return userBet;
                 case "rouletteBetOdd":
-                    userBet = new int[(tableSize - 1) / 2];
+                    userBet = new int[(TableSize - 1) / 2];
                     for (int i = 0, j = 1; i < userBet.Length; j++)
                     {
                         if (j % 2 != 0)
@@ -134,21 +128,21 @@ namespace ChapubelichBot.Types.Statics
                     return userBet;
 
                 case "rouletteBetFirstHalf":
-                    return GetBetsByNumbers(1, (tableSize - 1) / 2);
+                    return GetBetsByNumbers(1, (TableSize - 1) / 2);
                 case "rouletteBetSecondHalf":
-                    return GetBetsByNumbers(((tableSize - 1) / 2) + 1, tableSize - 1);
+                    return GetBetsByNumbers(((TableSize - 1) / 2) + 1, TableSize - 1);
 
                 case "rouletteBetFirstTwelve":
-                    return GetBetsByNumbers(1, (tableSize - 1) / 3);
+                    return GetBetsByNumbers(1, (TableSize - 1) / 3);
                 case "rouletteBetSecondTwelve":
-                    int dividedByThree = (tableSize - 1) / 3; 
+                    int dividedByThree = (TableSize - 1) / 3; 
                     return GetBetsByNumbers(dividedByThree+1, dividedByThree * 2);
                 case "rouletteBetThirdTwelve":
-                    dividedByThree = (tableSize - 1) / 3;
+                    dividedByThree = (TableSize - 1) / 3;
                     return GetBetsByNumbers((dividedByThree * 2) + 1, dividedByThree * 3);
 
                 case "rouletteBetFirstRow":
-                    userBet = new int[(tableSize - 1) / 3];
+                    userBet = new int[(TableSize - 1) / 3];
                     for (int i = 0, j = 1; i < userBet.Length; i++)
                     {
                         userBet[i] = j;
@@ -156,7 +150,7 @@ namespace ChapubelichBot.Types.Statics
                     }
                     return userBet;
                 case "rouletteBetSecondRow":
-                    userBet = new int[(tableSize - 1) / 3];
+                    userBet = new int[(TableSize - 1) / 3];
                     for (int i = 0, j = 2; i < userBet.Length; i++)
                     {
                         userBet[i] = j;
@@ -164,7 +158,7 @@ namespace ChapubelichBot.Types.Statics
                     }
                     return userBet;
                 case "rouletteBetThirdRow":
-                    userBet = new int[(tableSize - 1) / 3];
+                    userBet = new int[(TableSize - 1) / 3];
                     for (int i = 0, j = 3; i < userBet.Length; i++)
                     {
                         userBet[i] = j;

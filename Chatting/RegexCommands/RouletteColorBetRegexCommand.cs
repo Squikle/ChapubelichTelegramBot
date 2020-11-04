@@ -1,15 +1,7 @@
 ﻿using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Statics;
-using ChapubelichBot.Database;
-using ChapubelichBot.Types.Extensions;
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using User = ChapubelichBot.Database.Models.User;
-using ChapubelichBot.Types.Enums;
-using ChapubelichBot.Types.Games.RouletteGame;
 using System.Threading.Tasks;
 
 namespace ChapubelichBot.Chatting.RegexCommands

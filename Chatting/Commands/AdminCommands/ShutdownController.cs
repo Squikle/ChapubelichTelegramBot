@@ -2,8 +2,8 @@
 {
     public static class ShutdownController
     {
-        public static bool shuttingDown = false;
+        public static bool ShuttingDown = false;
 
-        public const int defaultShutdown = 600;
+        public const int DefaultShutdown = 600;
     }
 }

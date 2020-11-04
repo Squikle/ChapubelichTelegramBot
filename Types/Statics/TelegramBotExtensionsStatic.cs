@@ -1,9 +1,9 @@
-﻿using ChapubelichBot.Database;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ChapubelichBot.Database;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -11,45 +11,43 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace ChapubelichBot.Types.Extensions
+namespace ChapubelichBot.Types.Statics
 {
-    static class TelegramBotExtensions
+    internal static class TelegramBotExtensions
     {
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
-            using (var db = new ChapubelichdbContext())
+            await using var db = new ChapubelichdbContext();
+            var receiverUser = db.Users.FirstOrDefault(x => x.UserId == chatId.Identifier);
+            Message message;
+            try
             {
-                var receiverUser = db.Users.FirstOrDefault(x => x.UserId == chatId.Identifier);
-                Message message = null;
-                try
-                {
-                    message = await client.SendTextMessageAsync(
-                        chatId, text, parseMode,
-                        disableWebPagePreview,
-                        disableNotification, replyToMessageId,
-                        replyMarkup, cancellationToken);
-                }
-                catch (Exception e)
-                {
-                    if (e is ApiRequestException)
-                    {
-                        if (null != receiverUser && receiverUser.IsAvailable)
-                        {
-                            receiverUser.IsAvailable = false;
-                            await db.SaveChangesAsync();
-                        }
-                    }
-                    Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
-                    return null;
-                }
-
-                if (null != receiverUser && !receiverUser.IsAvailable)
-                {
-                    receiverUser.IsAvailable = true;
-                    await db.SaveChangesAsync();
-                }
-                return message;
+                message = await client.SendTextMessageAsync(
+                    chatId, text, parseMode,
+                    disableWebPagePreview,
+                    disableNotification, replyToMessageId,
+                    replyMarkup, cancellationToken);
             }
+            catch (Exception e)
+            {
+                if (e is ApiRequestException)
+                {
+                    if (null != receiverUser && receiverUser.IsAvailable)
+                    {
+                        receiverUser.IsAvailable = false;
+                        await db.SaveChangesAsync();
+                    }
+                }
+                Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
+                return null;
+            }
+
+            if (null != receiverUser && !receiverUser.IsAvailable)
+            {
+                receiverUser.IsAvailable = true;
+                await db.SaveChangesAsync();
+            }
+            return message;
         }
         public static async Task<Message> TryEditMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, InlineKeyboardMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
@@ -189,11 +187,11 @@ namespace ChapubelichBot.Types.Extensions
         }
         public static string ToMoneyFormat(this int moneySum)
         {
-            return String.Format("{0:n0}", moneySum);
+            return $"{moneySum:n0}";
         }
         public static string ToMoneyFormat(this long moneySum)
         {
-            return String.Format("{0:n0}", moneySum);
+            return $"{moneySum:n0}";
         }
     }
 }

@@ -14,13 +14,13 @@ namespace ChapubelichBot.Chatting.Commands.AdminCommands
             if (message.Chat.Id != 243857110)
                 return;
 
-            if (ShutdownController.shuttingDown)
+            if (ShutdownController.ShuttingDown)
             {
                 System.Diagnostics.Process.Start("CMD.exe", "/C shutdown -a");
-                await client.TrySendTextMessageAsync(message.Chat.Id, $"Таймер отменен.");
-                ShutdownController.shuttingDown = false;
+                await client.TrySendTextMessageAsync(message.Chat.Id, "Таймер отменен.");
+                ShutdownController.ShuttingDown = false;
             }
-            else await client.TrySendTextMessageAsync(message.Chat.Id, $"Таймер не был инициализирован.");
+            else await client.TrySendTextMessageAsync(message.Chat.Id, "Таймер не был инициализирован.");
         }
     }
 }

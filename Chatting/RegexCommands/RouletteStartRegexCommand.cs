@@ -1,13 +1,9 @@
-﻿using ChapubelichBot.Init;
-using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Types.Statics;
+﻿using ChapubelichBot.Types.Abstractions;
 using System.Threading.Tasks;
-using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Types.Games.RouletteGame;
 using ChapubelichBot.Types.Extensions;
-using System;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
@@ -21,7 +17,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
             if (gameMessage != null)
             {
-                int replyId = gameMessage == null ? 0 : gameMessage.MessageId;
                 await client.TrySendTextMessageAsync(message.Chat.Id,
                 "Игра уже запущена!",
                 replyToMessageId: gameMessage.MessageId);
