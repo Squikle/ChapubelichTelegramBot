@@ -1,11 +1,10 @@
 ﻿using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Types.Statics;
-using ChapubelichBot.Types.Extensions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Types.Games.RouletteGame;
+using ChapubelichBot.Types.Statics;
 
 namespace ChapubelichBot.Chatting.CallbackMessages
 {

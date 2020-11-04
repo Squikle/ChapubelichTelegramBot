@@ -1,9 +1,9 @@
 ﻿using System;
-using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Types.Abstractions;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Statics;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
@@ -17,7 +17,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
             string[][] answerStrings =
             {
-                new string[]
+                new[]
                 {
                     "Да",
                     "Конечно",
@@ -25,7 +25,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     "Справедливо",
                     "Почему бы и нет?"
                 },
-                new string[]
+                new[]
                 {
                     "Нет",
                     "Ни в коем случае",
@@ -33,7 +33,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     "Возможно, но нет",
                     "Та ну не"
                 },
-                new string[]
+                new[]
                 {
                     "Вряд ли",
                     "Может быть",
@@ -44,7 +44,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             };
             string[][] emojis =
             {
-                new string[]
+                new[]
                 {
                     "✔️",
                     "✅",
@@ -53,7 +53,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     "👌",
                     "💯"
                 },
-                new string[]
+                new[]
                 {
                     "👎",
                     "\U0001F645",                               //🙅
@@ -62,7 +62,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     "⛔",
                     "🙃"
                 },
-                new string[]
+                new[]
                 {
                     "\U0001F937\U0000200D\U00002640\U0000FE0F", //🤷‍♀️
                     "\U0001F937\U0000200D\U00002642\U0000FE0F"  //🤷‍♂️

@@ -1,10 +1,10 @@
 ﻿using ChapubelichBot.Database;
 using ChapubelichBot.Init;
 using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Types.Extensions;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Statics;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -20,7 +20,7 @@ namespace ChapubelichBot.Chatting.Commands
             int configDailyReward = Bot.GetConfig().GetValue<int>("AppSettings:DailyReward");
             int totalDailyReward = configDailyReward >= 1000 ? 1000 : configDailyReward;
 
-            using (var db = new ChapubelichdbContext())
+            await using (var db = new ChapubelichdbContext())
             {
                 user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
                 if (user == null)
@@ -38,7 +38,7 @@ namespace ChapubelichBot.Chatting.Commands
                 user.Balance += totalDailyReward;
                 user.DailyRewarded = true;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
 
             await client.TrySendTextMessageAsync(

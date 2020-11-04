@@ -1,9 +1,9 @@
 ﻿using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Types.Extensions;
 using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Statics;
 
 namespace ChapubelichBot.Chatting.Commands.AdminCommands
 {
@@ -15,12 +15,12 @@ namespace ChapubelichBot.Chatting.Commands.AdminCommands
             if (message.Chat.Id != 243857110)
                 return;
 
-            if (!ShutdownController.shuttingDown)
+            if (!ShutdownController.ShuttingDown)
             {
                 string timerString = Regex.Match(message.Text, @"\d+").ToString();
-                int timerValue = int.TryParse(timerString, out timerValue) ? timerValue : ShutdownController.defaultShutdown;
+                int timerValue = int.TryParse(timerString, out timerValue) ? timerValue : ShutdownController.DefaultShutdown;
                 System.Diagnostics.Process.Start("CMD.exe", "/C shutdown -s -t " + timerValue);
-                ShutdownController.shuttingDown = true;
+                ShutdownController.ShuttingDown = true;
                 await client.TrySendTextMessageAsync(message.Chat.Id, $"Таймер установлен на {timerValue / 60} минут.");
             }
         }

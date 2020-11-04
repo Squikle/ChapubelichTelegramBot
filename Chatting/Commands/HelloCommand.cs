@@ -1,8 +1,8 @@
 ﻿using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Statics;
 
 namespace ChapubelichBot.Chatting.Commands
 {

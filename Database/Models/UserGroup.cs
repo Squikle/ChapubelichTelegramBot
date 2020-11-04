@@ -1,6 +1,4 @@
-﻿using ChapubelichBot.Database.Models;
-
-namespace ChapubelichBot.Database.Models
+﻿namespace ChapubelichBot.Database.Models
 {
     public class UserGroup
     {

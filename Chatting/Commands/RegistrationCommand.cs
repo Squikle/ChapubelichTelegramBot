@@ -1,6 +1,5 @@
 ﻿using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Statics;
-using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Threading.Tasks;
@@ -15,7 +14,7 @@ namespace ChapubelichBot.Chatting.Commands
         {
             await client.TrySendTextMessageAsync(message.Chat.Id,
             "Пожалуйста, укажите свой пол:",
-            replyMarkup: InlineKeyboardsStatic.genderChooseMarkup);
+            replyMarkup: InlineKeyboardsStatic.GenderChooseMarkup);
         }
     }
 }

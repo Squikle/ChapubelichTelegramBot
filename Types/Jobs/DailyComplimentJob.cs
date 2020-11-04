@@ -1,12 +1,11 @@
 ﻿using ChapubelichBot.Database;
 using ChapubelichBot.Database.Models;
-using ChapubelichBot.Types.Extensions;
 using Quartz;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Statics;
 using Telegram.Bot;
 
 namespace ChapubelichBot.Types.Jobs
@@ -26,9 +25,9 @@ namespace ChapubelichBot.Types.Jobs
             string[] girlCompliments = null;
             User[] complimentingUsers;
 
-            using (var db = new ChapubelichdbContext())
+            await using (var db = new ChapubelichdbContext())
             {
-                var complimentingUsersDatabase = db.Users.Where(x => x.ComplimentSubscription == true && x.IsAvailable && !x.Complimented);
+                var complimentingUsersDatabase = db.Users.Where(x => x.ComplimentSubscription && x.IsAvailable && !x.Complimented);
 
                 complimentingUsers = complimentingUsersDatabase.ToArray();
                 if (complimentingUsers.Length <= 0)
@@ -40,7 +39,7 @@ namespace ChapubelichBot.Types.Jobs
                 }
                 await db.SaveChangesAsync();
 
-                if (complimentingUsers.Any(x => x.Gender == true))
+                if (complimentingUsers.Any(x => x.Gender))
                     boyCompliments = db.BoyCompliments.Select(x => x.ComplimentText).ToArray();
                 if (complimentingUsers.Any(x => x.Gender == false))
                     girlCompliments = db.GirlCompliments.Select(x => x.ComplimentText).ToArray();
@@ -54,10 +53,10 @@ namespace ChapubelichBot.Types.Jobs
                 switch (user.Gender)
                 {
                     case true:
-                        compliment = boyCompliments[rand.Next(0, boyCompliments.Length)];
+                        compliment = boyCompliments?[rand.Next(0, boyCompliments.Length)];
                         break;
                     case false:
-                        compliment = girlCompliments[rand.Next(0, girlCompliments.Length)];
+                        compliment = girlCompliments?[rand.Next(0, girlCompliments.Length)];
                         break;
                 }
                 userCompliments.Add(user.UserId, compliment);

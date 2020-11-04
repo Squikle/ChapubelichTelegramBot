@@ -1,7 +1,6 @@
 ﻿using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Statics;
 using ChapubelichBot.Types.Games.RouletteGame;
-using ChapubelichBot.Types.Extensions;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;

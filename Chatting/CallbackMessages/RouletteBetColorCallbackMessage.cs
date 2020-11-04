@@ -1,15 +1,9 @@
-﻿using ChapubelichBot.Database;
-using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Types.Enums;
-using ChapubelichBot.Types.Extensions;
-using ChapubelichBot.Types.Games.RouletteGame;
+﻿using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Statics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using User = ChapubelichBot.Database.Models.User;
 
 namespace ChapubelichBot.Chatting.CallbackMessages
 {

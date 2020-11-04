@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 
 namespace ChapubelichBot.Init
@@ -30,7 +29,7 @@ namespace ChapubelichBot.Init
             if (!Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
             string fileName = Path.GetFileNameWithoutExtension(path) + DateTime.Now.ToString("MM.dd.yyyy HH.mm.ss") + ".json";
-            path = Path.Combine(directoryName, fileName);
+            path = Path.Combine(directoryName ?? string.Empty, fileName);
             string errorJson = JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true });
             Console.WriteLine(errorJson);
             File.AppendAllText(path, errorJson);

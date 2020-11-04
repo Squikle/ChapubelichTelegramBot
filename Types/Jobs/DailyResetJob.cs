@@ -1,9 +1,7 @@
 ﻿using ChapubelichBot.Database;
 using Quartz;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ChapubelichBot.Types.Jobs
@@ -17,16 +15,14 @@ namespace ChapubelichBot.Types.Jobs
         public static async Task ExecuteManually()
         {
             Console.WriteLine($"{DateTime.Now} дневной сброс...");
-            using (ChapubelichdbContext db = new ChapubelichdbContext())
+            await using ChapubelichdbContext db = new ChapubelichdbContext();
+            foreach (var user in db.Users)
             {
-                foreach (var user in db.Users)
-                {
-                    user.Complimented = false;
-                    user.DailyRewarded = false;
-                }
-                db.Configurations.First().LastResetTime = DateTime.Now;
-                await db.SaveChangesAsync();
+                user.Complimented = false;
+                user.DailyRewarded = false;
             }
+            db.Configurations.First().LastResetTime = DateTime.Now;
+            await db.SaveChangesAsync();
         }
     }
 }

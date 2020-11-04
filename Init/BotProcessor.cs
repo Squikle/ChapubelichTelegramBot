@@ -1,20 +1,17 @@
-﻿using ChapubelichBot.Database;
-using ChapubelichBot.Database.Models;
-using ChapubelichBot.Init;
-using ChapubelichBot.Types.Extensions;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using ChapubelichBot.Database;
 using ChapubelichBot.Types.Jobs;
 using ChapubelichBot.Types.Statics;
 using Microsoft.Extensions.Configuration;
 using Quartz;
 using Quartz.Impl;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 
-namespace ChapubelichBot.Types.ManageMessages
+namespace ChapubelichBot.Init
 {
     static class BotProcessor
     {
@@ -26,7 +23,7 @@ namespace ChapubelichBot.Types.ManageMessages
             Client.OnMessage += MessageProcessAsync;
             Client.OnCallbackQuery += CallbackProcess;
             DailyProcess();
-            Console.WriteLine($"StartReceiving...");
+            Console.WriteLine("StartReceiving...");
         }
 
         private static async void DailyProcess()
@@ -65,7 +62,7 @@ namespace ChapubelichBot.Types.ManageMessages
             await Task.Run(async () =>
             {
                 bool alreadyRestarted = false;
-                using (var db = new ChapubelichdbContext())
+                await using (var db = new ChapubelichdbContext())
                 {
                     if (db.Configurations.First().LastResetTime > new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00))
                         alreadyRestarted = true;
@@ -96,22 +93,20 @@ namespace ChapubelichBot.Types.ManageMessages
                     }
             }
 
-            if (e.Message == null || e.Message.Text == null)
+            if (e.Message?.Text == null)
                 return;
 
-            Console.WriteLine("{0}: {1} | {2} ({3} | {4}):\t {5}",
-                e.Message.Date.ToString("HH:mm:ss"),
+            Console.WriteLine("{0:HH:mm:ss}: {1} | {2} ({3} | {4}):\t {5}", e.Message.Date,
                 e.Message.From.Id, e.Message.From.Username,
                 e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.Text);
 
             if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
 
-            Database.Models.User member;
             bool userIsRegistered = false;
-            using (var db = new ChapubelichdbContext())
+            await using (var db = new ChapubelichdbContext())
             {
-                member = db.Users.FirstOrDefault(x => x.UserId == e.Message.From.Id);
+                var member = db.Users.FirstOrDefault(x => x.UserId == e.Message.From.Id);
                 if (member != null)
                 {
                     await UpdateMemberInfoAsync(e.Message.From, member, db);
@@ -134,7 +129,7 @@ namespace ChapubelichBot.Types.ManageMessages
         }
         public  static void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {
-            AllCallbackProcessAsync(sender, e);
+            AllCallbackProcessAsync(e);
         }
         private static async void PrivateMessageProcessAsync(MessageEventArgs e, bool userIsRegistered)
         {
@@ -179,7 +174,7 @@ namespace ChapubelichBot.Types.ManageMessages
             {
                 await Client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
-                $"Ты уже зарегестрирован👍",
+                "Ты уже зарегестрирован👍",
                 replyMarkup: ReplyKeyboardsStatic.MainMarkup);
 
                 return;
@@ -190,13 +185,14 @@ namespace ChapubelichBot.Types.ManageMessages
 
             else await Client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
-                $"Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода👇)",
+                "Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода👇)",
                 replyMarkup: ReplyKeyboardsStatic.MainMarkup,
                 replyToMessageId: e.Message.MessageId);
         }
         private static async void GroupMessageProcessAsync(MessageEventArgs e, bool userIsRegistered)
         {
-            foreach (var groupCommand in Bot.BotGroupCommandsList)
+            // TODO команды групп
+            /*foreach (var groupCommand in Bot.BotGroupCommandsList)
             {
                 if (groupCommand.Contains(e.Message.Text, privateChat: false))
                 {
@@ -205,7 +201,7 @@ namespace ChapubelichBot.Types.ManageMessages
                     else
                         await SendRegistrationAlertAsync(e.Message);
                 }
-            }
+            }*/
 
             foreach (var regexCommand in Bot.BotRegexCommandsList)
             {
@@ -216,16 +212,15 @@ namespace ChapubelichBot.Types.ManageMessages
                         await SendRegistrationAlertAsync(e.Message);
             }
         }
-        private static async void AllCallbackProcessAsync(object sender, CallbackQueryEventArgs e)
+        private static async void AllCallbackProcessAsync(CallbackQueryEventArgs e)
         {
             if (e.CallbackQuery.Data == null)
                 return;
 
-            Database.Models.User member;
             bool userIsRegistered = false;
-            using (var db = new ChapubelichdbContext())
+            await using (var db = new ChapubelichdbContext())
             {
-                member = db.Users.FirstOrDefault(x => x.UserId == e.CallbackQuery.From.Id);
+                var member = db.Users.FirstOrDefault(x => x.UserId == e.CallbackQuery.From.Id);
                 if (member != null)
                 {
                     await UpdateMemberInfoAsync(e.CallbackQuery.From, member, db);
@@ -254,29 +249,27 @@ namespace ChapubelichBot.Types.ManageMessages
         }
 
 
-        private static async Task<Message> SendRegistrationAlertAsync(Message message)
+        private static async Task SendRegistrationAlertAsync(Message message)
         {
             if (message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Private)
             {
-                Message registrationMessage = await Client.TrySendTextMessageAsync(
-                        message.Chat.Id,
-                        $"Упс, кажется тебя нет в базе данных. Пожалуйста, пройди процесс регистрации: ",
-                        replyToMessageId: message.MessageId);
+                await Client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    "Упс, кажется тебя нет в базе данных. Пожалуйста, пройди процесс регистрации: ",
+                    replyToMessageId: message.MessageId);
                 await Bot.RegistrationCommand.ExecuteAsync(message, Client);
-                return registrationMessage;
             }
             else if (message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Group ||
                 message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Supergroup)
             {
-                return await Client.TrySendTextMessageAsync(
-                        message.Chat.Id,
-                        $"Кажется, вы не зарегистрированы. Для регистрации обратитесь к боту в личные сообщения \U0001F48C",
-                        replyToMessageId: message.MessageId
-                        );
+                await Client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    "Кажется, вы не зарегистрированы. Для регистрации обратитесь к боту в личные сообщения 💌",
+                    replyToMessageId: message.MessageId
+                );
             }
-            return null;
         }
-        private static async Task UpdateMemberInfoAsync(Telegram.Bot.Types.User sender, Database.Models.User member, ChapubelichdbContext db)
+        private static async Task UpdateMemberInfoAsync(User sender, Database.Models.User member, ChapubelichdbContext db)
         {
             if (member.FirstName != sender.FirstName)
             {
@@ -288,7 +281,7 @@ namespace ChapubelichBot.Types.ManageMessages
         {
             await Client.TryAnswerCallbackQueryAsync(
                         callbackQuery.Id,
-                        $"Пожалуйста, пройдите процесс регистрации.",
+                        "Пожалуйста, пройдите процесс регистрации.",
                         showAlert: true);
         }
     }
