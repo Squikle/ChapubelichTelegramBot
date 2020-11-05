@@ -1,8 +1,4 @@
 ﻿using ChapubelichBot.Types.Abstractions;
-<<<<<<< HEAD
-=======
-using ChapubelichBot.Types.Extensions;
->>>>>>> f51eb8cf7a13bedff784b9c601016a242bde30df
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Telegram.Bot;
