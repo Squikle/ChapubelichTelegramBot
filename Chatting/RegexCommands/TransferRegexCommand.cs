@@ -32,7 +32,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             var transferTo = db.Users.FirstOrDefault(x => x.UserId == markedUser.Id);
             var transferFrom = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
 
-            if (null == transferTo)
+            if (transferTo == null)
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
@@ -42,7 +42,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 return;
             }
 
-            if (transferFrom != null && transferFrom.Balance >= transferSum)
+            if (transferFrom.Balance >= transferSum)
             {
                 string genderWord = transferTo.Gender ? "него" : "неё";
 

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using ChapubelichBot.Types.Enums;
 using System;
+using System.Threading.Tasks;
 using ChapubelichBot.Types.Abstractions;
+using Telegram.Bot;
+using Telegram.Bot.Types;
 
 namespace ChapubelichBot.Types.Statics
 {
@@ -193,6 +196,18 @@ namespace ChapubelichBot.Types.Statics
                     return false;
             }
             return true;
+        }
+        public static bool IsAlreadyExist(long chatId)
+        {
+            RouletteGameSession gameSession = RouletteTableStatic.GetGameSessionOrNull(chatId);
+            return gameSession != null;
+        }
+        public static async Task<RouletteGameSession> InitializeNew(Message message, ITelegramBotClient client)
+        {
+            RouletteGameSession gameSession = new RouletteGameSession(message.Chat.Id, client);
+            GameSessions.Add(gameSession);
+            await gameSession.InitSessionAsync(message, client);
+            return gameSession;
         }
     }
 }

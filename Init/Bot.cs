@@ -36,7 +36,7 @@ namespace ChapubelichBot.Init
                 new SettingsCommand(),
                 new GenderChangeCommand(),
                 new DefaultBetChangeCommand(),
-                new MyProfileCommand(),
+                new ProfileInfoCommand(),
                 new DailyRewardCommand(),
 
                 new GamesCommand(),
@@ -62,7 +62,7 @@ namespace ChapubelichBot.Init
                 new RouletteStartRegexCommand(),
                 new RouletteRollRegexCommand(),
                 new RouletteBetCancelRegexCommand(),
-                new RouletteCheckBetRegexCommand(),
+                new RouletteBetInfoRegexCommand(),
                 new RouletteNumberBetRegexCommand(),
 
                 new BalanceRegexCommand(),

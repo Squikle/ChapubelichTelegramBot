@@ -21,37 +21,22 @@ namespace ChapubelichBot.Types.Games.RouletteGame
     class RouletteGameSession : IDisposable
     {
         public long ChatId { get; set; }
-        private Message GameMessage { get; set; }
+        public Message GameMessage { get; set; }
         private List<RouletteBetToken> BetTokens { get; set; }
         private bool Resulting { get; set; }
         private int ResultNumber { get; set; }
         private readonly Timer _timer;
         private readonly int _stopGameDelay = Bot.GetConfig().GetValue<int>("AppSettings:StopGameDelay") * 1000;
 
-        public RouletteGameSession(Message message, ITelegramBotClient client)
+        public RouletteGameSession(long chatId, ITelegramBotClient client)
         {
             BetTokens = new List<RouletteBetToken>();
-            ChatId = message.Chat.Id;
+            ChatId = chatId;
 
             _timer = new Timer(x => DisposeAfterTime(client), null, _stopGameDelay, _stopGameDelay);
         }
 
-        public async Task StartAsync(Message message, ITelegramBotClient client)
-        {
-            Resulting = false;
-
-            ResultNumber = RouletteTableStatic.GetRandomResultNumber();
-
-            int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
-
-            GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
-                "https://i.imgur.com/SN8DRoa.png",
-                caption: "Игра запущена. Ждем ваши ставки...\n" +
-                "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
-                replyToMessageId: replyId,
-                replyMarkup: InlineKeyboardsStatic.RouletteBetsMarkup);
-        }
-        public async Task ResultAsync(ITelegramBotClient client, Message startMessage = null)
+        private async Task ResultAsync(ITelegramBotClient client, Message startMessage = null)
         {
             if (Resulting)
                 return;
@@ -93,6 +78,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             List<RouletteBetToken> winTokens = GetWinTokensGroupedByUsers().ToList();
             List<RouletteBetToken> looseTokens = GetLooseTokensGroupedByUsers().ToList();
 
+            //TODO закрывать бд после прохода по выигрышам, т.к. в проигрышных нужен только массив юзеров
             // Определение победителей
             if (winTokens.Any())
             {
@@ -124,30 +110,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             return result;
         }
-        private IEnumerable<RouletteBetToken> GetWinTokensGroupedByUsers()
-        {
-            var winTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == ResultNumber.ToRouletteColor()).ToList();
-            var winTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers.Contains(ResultNumber)).ToList();
-
-            var winTokens = new List<RouletteBetToken>(winTokensColor.Count + winTokensColor.Count);
-            winTokens.AddRange(winTokensColor);
-            winTokens.AddRange(winTokensNumbers);
-
-            return winTokens.GroupByUsers();
-        }
-        private IEnumerable<RouletteBetToken> GetLooseTokensGroupedByUsers()
-        {
-            var looseTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != ResultNumber.ToRouletteColor()).ToList();
-            var looseTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => !x.ChoosenNumbers.Contains(ResultNumber)).ToList();
-
-            var looseTokens = new List<RouletteBetToken>(looseTokensColor.Count + looseTokensNumbers.Count);
-            looseTokens.AddRange(looseTokensColor);
-            looseTokens.AddRange(looseTokensNumbers);
-
-            return looseTokens.GroupByUsers();
-        }
-
-        public StringBuilder UserBetsToStringAsync(User user)
+        private StringBuilder UserBetsToStringAsync(User user)
         {
             StringBuilder resultList = new StringBuilder();
             var userTokens = BetTokens.Where(x => x.UserId == user.UserId).ToList();
@@ -200,6 +163,88 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             return resultList;
+        }
+        private IEnumerable<RouletteBetToken> GetWinTokensGroupedByUsers()
+        {
+            var winTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == ResultNumber.ToRouletteColor()).ToList();
+            var winTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers.Contains(ResultNumber)).ToList();
+
+            var winTokens = new List<RouletteBetToken>(winTokensColor.Count + winTokensColor.Count);
+            winTokens.AddRange(winTokensColor);
+            winTokens.AddRange(winTokensNumbers);
+
+            return winTokens.GroupByUsers();
+        }
+        private IEnumerable<RouletteBetToken> GetLooseTokensGroupedByUsers()
+        {
+            var looseTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != ResultNumber.ToRouletteColor()).ToList();
+            var looseTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => !x.ChoosenNumbers.Contains(ResultNumber)).ToList();
+
+            var looseTokens = new List<RouletteBetToken>(looseTokensColor.Count + looseTokensNumbers.Count);
+            looseTokens.AddRange(looseTokensColor);
+            looseTokens.AddRange(looseTokensNumbers);
+
+            return looseTokens.GroupByUsers();
+        }
+        private async void DisposeAfterTime(ITelegramBotClient client)
+        {
+            if (Resulting)
+                return;
+
+            Resulting = true;
+            var returnedBets = string.Empty;
+            await using (var db = new ChapubelichdbContext())
+            {
+                var groupedBetList = BetTokens.GroupByUsers().ToList();
+                if (groupedBetList.Any())
+                {
+                    foreach (var bet in groupedBetList)
+                    {
+                        var user = db.Users.FirstOrDefault(x => x.UserId == bet.UserId);
+                        if (user != null)
+                            user.Balance += bet.BetSum;
+                    }
+                    returnedBets += "\nСтавки были возвращены👍";
+                }
+                await db.SaveChangesAsync();
+            }
+
+            if (GameMessage != null)
+            {
+                await client.TryDeleteMessageAsync(GameMessage.Chat.Id, GameMessage.MessageId);
+            }
+            await client.TrySendTextMessageAsync(
+                ChatId,
+                "Игровая сессия отменена из-за отсутствия активности" + returnedBets,
+                Telegram.Bot.Types.Enums.ParseMode.Html,
+                replyMarkup: InlineKeyboardsStatic.RoulettePlayAgainMarkup);
+
+            Dispose();
+        }
+        private void DelayTimer()
+        {
+            _timer.Change(_stopGameDelay, _stopGameDelay);
+        }
+        public void Dispose()
+        {
+            RouletteTableStatic.GameSessions.Remove(this);
+            _timer.Dispose();
+        }
+
+        public async Task InitSessionAsync(Message message, ITelegramBotClient client)
+        {
+            Resulting = false;
+
+            ResultNumber = RouletteTableStatic.GetRandomResultNumber();
+
+            int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
+
+            GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
+                "https://i.imgur.com/SN8DRoa.png",
+                caption: "Игра запущена. Ждем ваши ставки...\n" +
+                         "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
+                replyToMessageId: replyId,
+                replyMarkup: InlineKeyboardsStatic.RouletteBetsMarkup);
         }
         public async Task BetCancel(CallbackQuery callbackQuery, ITelegramBotClient client)
         {
@@ -569,7 +614,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             else
                 await ResultAsync(client, message);
         }
-        public async Task CheckBet(Message message, ITelegramBotClient client)
+        public async Task BetInfo(Message message, ITelegramBotClient client)
         {
             DelayTimer();
 
@@ -591,22 +636,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
         }
 
-        public void DelayTimer()
-        {
-            _timer.Change(_stopGameDelay, _stopGameDelay);
-        }
-        public static async Task<Message> InitializeNew(Message message, ITelegramBotClient client)
-        {
-            RouletteGameSession gameSession = RouletteTableStatic.GetGameSessionOrNull(message.Chat.Id);
-
-            if (gameSession != null)
-                return gameSession.GameMessage;
-
-            gameSession = new RouletteGameSession(message, client);
-            RouletteTableStatic.GameSessions.Add(gameSession);
-            await gameSession.StartAsync(message, client);
-            return null;
-        }
         private static InputOnlineFile GetRandomAnimationLink()
         {
             string[] animationsLinks =
@@ -623,47 +652,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Random random = new Random();
             return new InputOnlineFile(animationsLinks[random.Next(0, animationsLinks.Length)]);
-        }
-
-        public async void DisposeAfterTime(ITelegramBotClient client)
-        {
-            if (Resulting)
-                return;
-
-            Resulting = true;
-            var returnedBets = string.Empty;
-            await using (var db = new ChapubelichdbContext())
-            {
-                var groupedBetList = BetTokens.GroupByUsers().ToList();
-                if (groupedBetList.Any())
-                {
-                    foreach (var bet in groupedBetList)
-                    {
-                        var user = db.Users.FirstOrDefault(x => x.UserId == bet.UserId);
-                        if (user != null)
-                            user.Balance += bet.BetSum;
-                    }
-                    returnedBets += "\nСтавки были возвращены👍";
-                }
-                await db.SaveChangesAsync();
-            }
-
-            if (GameMessage != null)
-            {
-                await client.TryDeleteMessageAsync(GameMessage.Chat.Id, GameMessage.MessageId);
-            }
-            await client.TrySendTextMessageAsync(
-            ChatId,
-            "Игровая сессия отменена из-за отсутствия активности" + returnedBets,
-            Telegram.Bot.Types.Enums.ParseMode.Html,
-            replyMarkup: InlineKeyboardsStatic.RoulettePlayAgainMarkup);
-
-            Dispose();
-        }
-        public void Dispose()
-        {
-            RouletteTableStatic.GameSessions.Remove(this);
-            _timer.Dispose();
         }
     }
 }

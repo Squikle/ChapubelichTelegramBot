@@ -6,14 +6,14 @@ using Telegram.Bot.Types;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
-    class RouletteCheckBetRegexCommand : RegexCommand
+    class RouletteBetInfoRegexCommand : RegexCommand
     {
         public override string Pattern => @"^\/? *((мо(и|я))|(my))?\s*((ставк(и|а))|(bets?))(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var gameSession = RouletteTableStatic.GetGameSessionOrNull(message.Chat.Id);
             if (gameSession != null)
-                await gameSession.CheckBet(message, client);
+                await gameSession.BetInfo(message, client);
         }
     }
 }

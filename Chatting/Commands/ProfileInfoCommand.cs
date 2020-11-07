@@ -8,7 +8,7 @@ using Telegram.Bot.Types;
 
 namespace ChapubelichBot.Chatting.Commands
 {
-    class MyProfileCommand : Command
+    class ProfileInfoCommand : Command
     {
         public override string Name => "👤 Мой профиль";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)

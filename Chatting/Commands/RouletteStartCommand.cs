@@ -12,12 +12,15 @@ namespace ChapubelichBot.Chatting.Commands
         public override string Name => RouletteTableStatic.Name;
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            var gameMessage = await RouletteGameSession.InitializeNew(message, client);
-
-            if (gameMessage != null)
+            RouletteGameSession gameSession = RouletteTableStatic.GetGameSessionOrNull(message.Chat.Id);
+            if (gameSession == null)
+                await RouletteTableStatic.InitializeNew(message, client);
+            else
+            {
                 await client.TrySendTextMessageAsync(message.Chat.Id,
-                "Игра уже запущена!",
-                replyToMessageId: gameMessage.MessageId);
+                    "Игра уже запущена!",
+                    replyToMessageId: gameSession.GameMessage.MessageId);
+            }
         }
     }
 }
