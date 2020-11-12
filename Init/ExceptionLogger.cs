@@ -14,7 +14,7 @@ namespace ChapubelichBot.Init
         public ExceptionLogger InnerExeption { get; set; }
 
         public ExceptionLogger(Exception ex)
-        {
+        {   
             Time = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
             Source = ex.Source;
             Message = ex.Message;

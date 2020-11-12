@@ -42,7 +42,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 return;
             }
 
-            if (transferFrom.Balance >= transferSum)
+            if (transferFrom != null && transferFrom.Balance >= transferSum)
             {
                 string genderWord = transferTo.Gender ? "него" : "неё";
 
