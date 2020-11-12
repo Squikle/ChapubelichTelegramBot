@@ -29,7 +29,7 @@ namespace ChapubelichBot.Init
         private static async void DailyProcess()
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
-            await scheduler.Start();
+            Task runScheduler = scheduler.Start();
 
             IJobDetail dailyResetJob = JobBuilder.Create<DailyResetJob>().Build();
             ITrigger dailyResetTrigger = TriggerBuilder.Create()
@@ -55,6 +55,7 @@ namespace ChapubelichBot.Init
                 .Build();
             //WithSimpleSchedule(x => x.RepeatForever().WithIntervalInSeconds(10)).Build(); 
 
+            await runScheduler;
             await scheduler.ScheduleJob(dailyResetJob, dailyResetTrigger);
             await scheduler.ScheduleJob(dailyComplimentJob, dailyComplimentTrigger);
 
