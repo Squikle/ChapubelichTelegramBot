@@ -11,7 +11,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class LeetTranslateRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *(лит|литспик|leet|leetspeak|1337) *(-n|-l)? +([^ ][\s\S]*?)$";
+        public override string Pattern => @"^\/? *(лит|литспик|leet|leetspeak|1337) *(-n|-l)? ?([^ ][\s\S]*?)?$";
 
         private static readonly string[] LeetTable =
         {
@@ -82,6 +82,15 @@ namespace ChapubelichBot.Chatting.RegexCommands
         {
             Match match = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase);
             string textToTranslate = match.Groups[3].Value.ToLower();
+
+            if (string.IsNullOrEmpty(textToTranslate))
+            {
+                await client.TrySendTextMessageAsync(message.Chat.Id,
+                    "Чтобы воспользоваться leet переводчиком введи текст после команды /leet 😉",
+                    replyToMessageId: message.MessageId);
+                return;
+            }
+
             string modifier = match.Groups[2].Value;
             string answer = String.Empty;
 
