@@ -328,7 +328,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 default: return;
             }
 
-            string answerMessage = PlaceBetColor(playerChoose, user);
+            string answerMessage = PlaceBetColor(playerChoose, user, user.DefaultBet);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -379,7 +379,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 playerChoose = RouletteColorEnum.Green;
             else return;
 
-            string answerMessage = PlaceBetColor(playerChoose, user);
+            string answerMessage = PlaceBetColor(playerChoose, user, playerBet);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -416,7 +416,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             int[] userBets = Statics.RouletteGame.GetBetsByCallbackQuery(callbackQuery.Data);
 
-            string answerMessage = PlaceBetNumber(userBets, user);
+            string answerMessage = PlaceBetNumber(userBets, user, user.DefaultBet);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -493,7 +493,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 return;
             }
 
-            string answerMessage = PlaceBetNumber(userBets, user);
+            string answerMessage = PlaceBetNumber(userBets, user, playerBet);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -572,38 +572,38 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Random random = new Random();
             return new InputOnlineFile(animationsLinks[random.Next(0, animationsLinks.Length)]);
         }
-        private string PlaceBetColor(RouletteColorEnum playerChoose, User user)
+        private string PlaceBetColor(RouletteColorEnum playerChoose, User user, int betSum)
         {
             var colorBetTokens = _gameSessionData.BetTokens.OfType<RouletteColorBetToken>();
             RouletteColorBetToken currentBetToken = colorBetTokens.FirstOrDefault(x => x.ChoosenColor == playerChoose && x.UserId == user.UserId);
 
             if (currentBetToken != null)
-                currentBetToken.BetSum += user.DefaultBet;
+                currentBetToken.BetSum += betSum;
             else
             {
-                currentBetToken = new RouletteColorBetToken(user, user.DefaultBet, playerChoose);
+                currentBetToken = new RouletteColorBetToken(user, betSum, playerChoose);
                 _gameSessionData.BetTokens.Add(currentBetToken);
             }
 
-            user.Balance -= user.DefaultBet;
+            user.Balance -= betSum;
 
             return $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Твоя суммарная ставка:"
                                        + UserBetsToStringAsync(user);
         }
-        private string PlaceBetNumber(int[] userBets, User user)
+        private string PlaceBetNumber(int[] userBets, User user, int betSum)
         {
             var numberBetTokens = _gameSessionData.BetTokens.OfType<RouletteNumbersBetToken>();
             RouletteNumbersBetToken currentBetToken = numberBetTokens.FirstOrDefault(x => x.ChoosenNumbers.SequenceEqual(userBets) && x.UserId == user.UserId);
 
             if (currentBetToken != null)
-                currentBetToken.BetSum += user.DefaultBet;
+                currentBetToken.BetSum += betSum;
             else
             {
-                currentBetToken = new RouletteNumbersBetToken(user, user.DefaultBet, userBets);
+                currentBetToken = new RouletteNumbersBetToken(user, betSum, userBets);
                 _gameSessionData.BetTokens.Add(currentBetToken);
             }
 
-            user.Balance -= user.DefaultBet;
+            user.Balance -= betSum;
 
             return $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Твоя суммарная ставка:"
                                        + UserBetsToStringAsync(user);
