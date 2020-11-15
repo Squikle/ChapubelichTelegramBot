@@ -312,7 +312,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             int playerBet = user.DefaultBet;
-            if (playerBet > user.Balance)
+            if (playerBet >= user.Balance)
             {
                 await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
                     "Ты ставишь все свои средства!");
@@ -379,7 +379,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             string allInAlertMessage = string.Empty;
-            if (playerBet > user.Balance)
+            if (playerBet >= user.Balance)
             {
                 allInAlertMessage = "\n\nТы ставишь все свои средства!";
                 playerBet = (int)user.Balance;
@@ -432,7 +432,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             int playerBet = user.DefaultBet;
-            if (playerBet > user.Balance)
+            if (playerBet >= user.Balance)
             {
                 await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
                     "Ты ставишь все свои средства!");
@@ -521,7 +521,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             string allInAlertMessage = string.Empty;
-            if (playerBet > user.Balance)
+            if (playerBet >= user.Balance)
             {
                allInAlertMessage = "\n\nТы ставишь все свои средства!";
                playerBet = (int)user.Balance;
