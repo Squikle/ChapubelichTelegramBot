@@ -14,7 +14,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             var gameSession = RouletteTableStatic.GetGameSessionOrNull(message.Chat.Id);
 
             if (gameSession != null)
-                await gameSession.BetNumbers(message, Pattern, client);
+                await gameSession.BetNumbersRequest(message, Pattern, client);
         }
     }
 }

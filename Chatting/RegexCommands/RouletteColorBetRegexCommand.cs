@@ -13,7 +13,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
         {
             var gameSession = RouletteTableStatic.GetGameSessionOrNull(message.Chat.Id);
             if (gameSession != null)
-                await gameSession.BetColor(message, Pattern, client);
+                await gameSession.BetColorRequest(message, Pattern, client);
         }
     }
 }

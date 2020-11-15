@@ -19,7 +19,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
         {
             var gameSession = RouletteTableStatic.GetGameSessionOrNull(query.Message.Chat.Id);
             if (gameSession != null)
-                await gameSession.BetNumbers(query, client);
+                await gameSession.BetNumbersRequest(query, client);
         }
     }
 }
