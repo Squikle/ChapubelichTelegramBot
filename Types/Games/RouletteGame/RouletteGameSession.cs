@@ -21,29 +21,27 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 {
     class RouletteGameSession : IDisposable
     {
-        public long ChatId { get; set; }
-        public Message GameMessage { get; set; }
-        private List<RouletteBetToken> BetTokens { get; set; }
-        private bool Resulting { get; set; }
-        private int ResultNumber { get; set; }
+        private readonly RouletteGameSessionData _gameSessionData;
+
+        public Message GameMessage => _gameSessionData.GameMessage;
+        public long ChatId => _gameSessionData.ChatId;
+
         private readonly Timer _timer;
         private readonly int _stopGameDelay = Bot.GetConfig().GetValue<int>("AppSettings:StopGameDelay") * 1000;
 
         public RouletteGameSession(long chatId, ITelegramBotClient client)
         {
-            BetTokens = new List<RouletteBetToken>();
-            ChatId = chatId;
-
+            _gameSessionData = new RouletteGameSessionData(chatId);
             _timer = new Timer(x => DisposeAfterTime(client), null, _stopGameDelay, _stopGameDelay);
         }
 
         private async Task ResultAsync(ITelegramBotClient client, Message startMessage = null)
         {
-            if (Resulting)
+            if (_gameSessionData.Resulting)
                 return;
 
-            Resulting = true;
-            Message animationMessage = await client.TrySendAnimationAsync(ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
+            _gameSessionData.Resulting = true;
+            Message animationMessage = await client.TrySendAnimationAsync(_gameSessionData.ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 
             int configAnimationDuration = Bot.GetConfig().GetValue<int>("AppSettings:RouletteAnimationDuration") * 1000;
             Task task = Task.Delay(configAnimationDuration >= 10*1000 ? 10000 : configAnimationDuration);
@@ -56,12 +54,12 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (animationMessage != null)
                 await client.TryDeleteMessageAsync(animationMessage.Chat.Id, animationMessage.MessageId);
 
-            if (GameMessage != null)
-                await client.TryDeleteMessageAsync(GameMessage.Chat.Id, GameMessage.MessageId);
+            if (_gameSessionData.GameMessage != null)
+                await client.TryDeleteMessageAsync(_gameSessionData.GameMessage.Chat.Id, _gameSessionData.GameMessage.MessageId);
 
             int replyId = startMessage?.MessageId ?? 0;
             await client.TrySendTextMessageAsync(
-                ChatId,
+                _gameSessionData.ChatId,
                 result,
                 Telegram.Bot.Types.Enums.ParseMode.Html,
                 replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup,
@@ -74,7 +72,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private StringBuilder Summarize(ChapubelichdbContext db)
         {
             StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
-            result.Append($"{ResultNumber} {ResultNumber.ToRouletteColor().ToEmoji()}");
+            result.Append($"{_gameSessionData.ResultNumber} {_gameSessionData.ResultNumber.ToRouletteColor().ToEmoji()}");
 
             List<RouletteBetToken> winTokens = GetWinTokensGroupedByUsers().ToList();
             List<RouletteBetToken> looseTokens = GetLooseTokensGroupedByUsers().ToList();
@@ -114,7 +112,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private StringBuilder UserBetsToStringAsync(User user)
         {
             StringBuilder resultList = new StringBuilder();
-            var userTokens = BetTokens.Where(x => x.UserId == user.UserId).ToList();
+            var userTokens = _gameSessionData.BetTokens.Where(x => x.UserId == user.UserId).ToList();
 
             var numberUserTokens = userTokens.OfType<RouletteNumbersBetToken>().ToList();
             var oneNumberUserTokens = numberUserTokens.Where(x => x.ChoosenNumbers?.Length == 1).ToList();
@@ -167,8 +165,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private IEnumerable<RouletteBetToken> GetWinTokensGroupedByUsers()
         {
-            var winTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == ResultNumber.ToRouletteColor()).ToList();
-            var winTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers.Contains(ResultNumber)).ToList();
+            var winTokensColor = _gameSessionData.BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor == _gameSessionData.ResultNumber.ToRouletteColor()).ToList();
+            var winTokensNumbers = _gameSessionData.BetTokens.OfType<RouletteNumbersBetToken>().Where(x => x.ChoosenNumbers.Contains(_gameSessionData.ResultNumber)).ToList();
 
             var winTokens = new List<RouletteBetToken>(winTokensColor.Count + winTokensColor.Count);
             winTokens.AddRange(winTokensColor);
@@ -178,8 +176,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private IEnumerable<RouletteBetToken> GetLooseTokensGroupedByUsers()
         {
-            var looseTokensColor = BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != ResultNumber.ToRouletteColor()).ToList();
-            var looseTokensNumbers = BetTokens.OfType<RouletteNumbersBetToken>().Where(x => !x.ChoosenNumbers.Contains(ResultNumber)).ToList();
+            var looseTokensColor = _gameSessionData.BetTokens.OfType<RouletteColorBetToken>().Where(x => x.ChoosenColor != _gameSessionData.ResultNumber.ToRouletteColor()).ToList();
+            var looseTokensNumbers = _gameSessionData.BetTokens.OfType<RouletteNumbersBetToken>().Where(x => !x.ChoosenNumbers.Contains(_gameSessionData.ResultNumber)).ToList();
 
             var looseTokens = new List<RouletteBetToken>(looseTokensColor.Count + looseTokensNumbers.Count);
             looseTokens.AddRange(looseTokensColor);
@@ -189,14 +187,14 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private async void DisposeAfterTime(ITelegramBotClient client)
         {
-            if (Resulting)
+            if (_gameSessionData.Resulting)
                 return;
 
-            Resulting = true;
+            _gameSessionData.Resulting = true;
             var returnedBets = string.Empty;
             await using (var db = new ChapubelichdbContext())
             {
-                var groupedBetList = BetTokens.GroupByUsers().ToList();
+                var groupedBetList = _gameSessionData.BetTokens.GroupByUsers().ToList();
                 if (groupedBetList.Any())
                 {
                     foreach (var bet in groupedBetList)
@@ -210,12 +208,12 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 await db.SaveChangesAsync();
             }
 
-            if (GameMessage != null)
+            if (_gameSessionData.GameMessage != null)
             {
-                await client.TryDeleteMessageAsync(GameMessage.Chat.Id, GameMessage.MessageId);
+                await client.TryDeleteMessageAsync(_gameSessionData.GameMessage.Chat.Id, _gameSessionData.GameMessage.MessageId);
             }
             await client.TrySendTextMessageAsync(
-                ChatId,
+                _gameSessionData.ChatId,
                 "Игровая сессия отменена из-за отсутствия активности" + returnedBets,
                 Telegram.Bot.Types.Enums.ParseMode.Html,
                 replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
@@ -234,13 +232,13 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
         public async Task InitSessionAsync(Message message, ITelegramBotClient client)
         {
-            Resulting = false;
+            _gameSessionData.Resulting = false;
 
-            ResultNumber = Statics.RouletteGame.GetRandomResultNumber();
+            _gameSessionData.ResultNumber = Statics.RouletteGame.GetRandomResultNumber();
 
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
 
-            GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
+            _gameSessionData.GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
                 "https://i.imgur.com/SN8DRoa.png",
                 caption: "Игра запущена. Ждем ваши ставки...\n" +
                          "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
@@ -251,7 +249,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             DelayTimer();
 
-            if (Resulting)
+            if (_gameSessionData.Resulting)
                 return;
 
             await using var db = new ChapubelichdbContext();
@@ -263,7 +261,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
-                ChatId,
+                _gameSessionData.ChatId,
                 answerMessage,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
@@ -273,7 +271,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             DelayTimer();
 
-            if (Resulting)
+            if (_gameSessionData.Resulting)
                 return;
 
             await using var db = new ChapubelichdbContext();
@@ -285,7 +283,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
-                ChatId,
+                _gameSessionData.ChatId,
                 answerMessage,
                 replyToMessageId: message.MessageId,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
@@ -294,7 +292,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             DelayTimer();
 
-            if (Resulting)
+            if (_gameSessionData.Resulting)
             {
                 await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
                         "Барабан уже крутится, слишком поздно для ставок");
@@ -343,7 +341,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             DelayTimer();
 
-            if (Resulting)
+            if (_gameSessionData.Resulting)
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id,
                         "Барабан уже крутится, слишком поздно для ставок",
@@ -397,7 +395,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             DelayTimer();
 
-            if (Resulting)
+            if (_gameSessionData.Resulting)
             {
                 await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
                         "Барабан уже крутится, слишком поздно для ставок");
@@ -431,7 +429,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             DelayTimer();
 
-            if (Resulting)
+            if (_gameSessionData.Resulting)
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id,
                         "Барабан уже крутится, слишком поздно для ставок",
@@ -511,7 +509,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             DelayTimer();
 
-            if (BetTokens.All(x => x.UserId != callbackQuery.From.Id))
+            if (_gameSessionData.BetTokens.All(x => x.UserId != callbackQuery.From.Id))
             {
                 await client.TryAnswerCallbackQueryAsync(
                 callbackQuery.Id,
@@ -526,7 +524,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             DelayTimer();
 
-            if (BetTokens.All(x => x.UserId != message.From.Id))
+            if (_gameSessionData.BetTokens.All(x => x.UserId != message.From.Id))
                 await client.TrySendTextMessageAsync(
                 message.Chat.Id,
                 "Сделай ставку, чтобы крутить барабан",
@@ -541,7 +539,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             await using var db = new ChapubelichdbContext();
             User user = db.Users.First(x => x.UserId == message.From.Id);
-            var userTokens = BetTokens.Where(x => x.UserId == message.From.Id);
+            var userTokens = _gameSessionData.BetTokens.Where(x => x.UserId == message.From.Id);
 
             string transactionResult = string.Empty;
             if (!userTokens.Any())
@@ -576,7 +574,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private string PlaceBetColor(RouletteColorEnum playerChoose, User user)
         {
-            var colorBetTokens = BetTokens.OfType<RouletteColorBetToken>();
+            var colorBetTokens = _gameSessionData.BetTokens.OfType<RouletteColorBetToken>();
             RouletteColorBetToken currentBetToken = colorBetTokens.FirstOrDefault(x => x.ChoosenColor == playerChoose && x.UserId == user.UserId);
 
             if (currentBetToken != null)
@@ -584,7 +582,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             else
             {
                 currentBetToken = new RouletteColorBetToken(user, user.DefaultBet, playerChoose);
-                BetTokens.Add(currentBetToken);
+                _gameSessionData.BetTokens.Add(currentBetToken);
             }
 
             user.Balance -= user.DefaultBet;
@@ -594,7 +592,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private string PlaceBetNumber(int[] userBets, User user)
         {
-            var numberBetTokens = BetTokens.OfType<RouletteNumbersBetToken>();
+            var numberBetTokens = _gameSessionData.BetTokens.OfType<RouletteNumbersBetToken>();
             RouletteNumbersBetToken currentBetToken = numberBetTokens.FirstOrDefault(x => x.ChoosenNumbers.SequenceEqual(userBets) && x.UserId == user.UserId);
 
             if (currentBetToken != null)
@@ -602,7 +600,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             else
             {
                 currentBetToken = new RouletteNumbersBetToken(user, user.DefaultBet, userBets);
-                BetTokens.Add(currentBetToken);
+                _gameSessionData.BetTokens.Add(currentBetToken);
             }
 
             user.Balance -= user.DefaultBet;
@@ -612,14 +610,14 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private string CancelBet(User user)
         {
-            var userTokens = BetTokens.Where(x => x.UserId == user.UserId).ToList();
+            var userTokens = _gameSessionData.BetTokens.Where(x => x.UserId == user.UserId).ToList();
             if (userTokens.Any())
             {
                 foreach (var token in userTokens)
                 {
                     user.Balance += token.BetSum;
                 }
-                BetTokens = BetTokens.Except(userTokens).ToList();
+                _gameSessionData.BetTokens = _gameSessionData.BetTokens.Except(userTokens).ToList();
 
                 return $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, твоя ставка отменена \U0001F44D";
             }
