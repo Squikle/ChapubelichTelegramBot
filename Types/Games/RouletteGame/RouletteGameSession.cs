@@ -44,7 +44,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Message animationMessage = await client.TrySendAnimationAsync(_gameSessionData.ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 
             int configAnimationDuration = Bot.GetConfig().GetValue<int>("AppSettings:RouletteAnimationDuration") * 1000;
-            Task task = Task.Delay(configAnimationDuration >= 10*1000 ? 10000 : configAnimationDuration);
+            Task task = Task.Delay(configAnimationDuration >= 10 * 1000 ? 10000 : configAnimationDuration);
 
             // Удаление сообщений и отправка результатов
             var db = new ChapubelichdbContext();
@@ -304,11 +304,19 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (user == null)
                 return;
 
-            if (user.DefaultBet > user.Balance)
+            if (user.Balance == 0)
             {
                 await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
-                    "У тебя недостаточно средств на счету");
+                    "Ты не можешь сделать ставку. У тебя нет денег😞");
                 return;
+            }
+
+            int playerBet = user.DefaultBet;
+            if (playerBet > user.Balance)
+            {
+                await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
+                    "Ты ставишь все свои средства!");
+                playerBet = (int)user.Balance;
             }
 
             // Определение ставки игрока
@@ -328,7 +336,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 default: return;
             }
 
-            string answerMessage = PlaceBetColor(playerChoose, user, user.DefaultBet);
+            string answerMessage = PlaceBetColor(playerChoose, user, playerBet);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -360,12 +368,21 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (user == null)
                 return;
 
+            if (user.Balance == 0)
+            {
+                await client.TrySendTextMessageAsync(
+                        message.Chat.Id, 
+                    $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
+                    replyToMessageId: message.MessageId,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+                return;
+            }
+
+            string allInAlertMessage = string.Empty;
             if (playerBet > user.Balance)
             {
-                await client.TrySendTextMessageAsync(message.Chat.Id,
-                    "У тебя недостаточно средств на счету\U0001F614",
-                    replyToMessageId: message.MessageId);
-                return;
+                allInAlertMessage = "\n\nТы ставишь все свои средства!";
+                playerBet = (int)user.Balance;
             }
 
             // Определение ставки игрока
@@ -384,7 +401,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,
-                answerMessage,
+                answerMessage + allInAlertMessage,
                 replyToMessageId: message.MessageId,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
@@ -407,16 +424,24 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (user == null)
                 return;
 
-            if (user.DefaultBet > user.Balance)
+            if (user.Balance == 0)
             {
                 await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
-                    "У тебя недостаточно средств на счету");
+                    "Ты не можешь сделать ставку. У тебя нет денег😞");
                 return;
+            }
+
+            int playerBet = user.DefaultBet;
+            if (playerBet > user.Balance)
+            {
+                await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
+                    "Ты ставишь все свои средства!");
+                playerBet = (int)user.Balance;
             }
 
             int[] userBets = Statics.RouletteGame.GetBetsByCallbackQuery(callbackQuery.Data);
 
-            string answerMessage = PlaceBetNumber(userBets, user, user.DefaultBet);
+            string answerMessage = PlaceBetNumber(userBets, user, playerBet);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -485,12 +510,21 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (user == null)
                 return;
 
+            if (user.Balance == 0)
+            {
+                await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
+                    replyToMessageId: message.MessageId,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+                return;
+            }
+
+            string allInAlertMessage = string.Empty;
             if (playerBet > user.Balance)
             {
-                await client.TrySendTextMessageAsync(message.Chat.Id,
-                    "У тебя недостаточно средств на счету\U0001F614",
-                    replyToMessageId: message.MessageId);
-                return;
+               allInAlertMessage = "\n\nТы ставишь все свои средства!";
+               playerBet = (int)user.Balance;
             }
 
             string answerMessage = PlaceBetNumber(userBets, user, playerBet);
@@ -498,7 +532,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,
-                answerMessage,
+                answerMessage + allInAlertMessage,
                 replyToMessageId: message.MessageId,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
