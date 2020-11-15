@@ -13,7 +13,7 @@ namespace ChapubelichBot.Chatting.Commands
         {
             await client.TrySendTextMessageAsync(message.From.Id,
             "Выбери новую ставку по умолчанию:",
-            replyMarkup: InlineKeyboardsStatic.DefaultBetChooseMarkup,
+            replyMarkup: InlineKeyboards.DefaultBetChooseMarkup,
             replyToMessageId: message.MessageId);
         }
     }

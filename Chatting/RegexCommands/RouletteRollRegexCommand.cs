@@ -11,7 +11,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
         public override string Pattern => @"^\/? *(го|ролл|погнали|крути|roll|go)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            var gameSession = RouletteTableStatic.GetGameSessionOrNull(message.Chat.Id);
+            var gameSession = RouletteGame.GetGameSessionOrNull(message.Chat.Id);
             if (gameSession != null)
                 await gameSession.RollRequest(message, client);
         }

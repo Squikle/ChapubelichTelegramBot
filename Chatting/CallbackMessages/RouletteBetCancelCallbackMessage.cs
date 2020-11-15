@@ -12,7 +12,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
         public override List<string> IncludingData => new List<string> { "rouletteBetsCancel" };
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
-            var gameSession = RouletteTableStatic.GetGameSessionOrNull(query.Message.Chat.Id);
+            var gameSession = RouletteGame.GetGameSessionOrNull(query.Message.Chat.Id);
             if (gameSession != null)
                 await gameSession.BetCancelRequest(query, client);
         }

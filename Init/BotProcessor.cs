@@ -176,7 +176,7 @@ namespace ChapubelichBot.Init
                 await Client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
                 "Ты уже зарегестрирован👍",
-                replyMarkup: ReplyKeyboardsStatic.MainMarkup);
+                replyMarkup: ReplyKeyboards.MainMarkup);
 
                 return;
             }
@@ -187,7 +187,7 @@ namespace ChapubelichBot.Init
             else await Client.TrySendTextMessageAsync(
                 e.Message.Chat.Id,
                 "Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода👇)",
-                replyMarkup: ReplyKeyboardsStatic.MainMarkup,
+                replyMarkup: ReplyKeyboards.MainMarkup,
                 replyToMessageId: e.Message.MessageId);
         }
         private static async void GroupMessageProcessAsync(MessageEventArgs e, bool userIsRegistered)

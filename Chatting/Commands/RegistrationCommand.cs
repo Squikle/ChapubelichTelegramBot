@@ -14,7 +14,7 @@ namespace ChapubelichBot.Chatting.Commands
         {
             await client.TrySendTextMessageAsync(message.Chat.Id,
             "Пожалуйста, укажите свой пол:",
-            replyMarkup: InlineKeyboardsStatic.GenderChooseMarkup);
+            replyMarkup: InlineKeyboards.GenderChooseMarkup);
         }
     }
 }

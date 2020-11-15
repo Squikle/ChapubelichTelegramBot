@@ -44,7 +44,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
             await client.TrySendTextMessageAsync(
                 query.Message.Chat.Id,
                 "Ты был успешно зарегестрирован!",
-                replyMarkup: ReplyKeyboardsStatic.MainMarkup
+                replyMarkup: ReplyKeyboards.MainMarkup
             );
         }
 
@@ -60,7 +60,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
             await client.TrySendTextMessageAsync(
                 query.Message.Chat.Id,
                 "Настройки успешно сохранены!",
-                replyMarkup: ReplyKeyboardsStatic.SettingsMarkup);
+                replyMarkup: ReplyKeyboards.SettingsMarkup);
         }
     }
 }

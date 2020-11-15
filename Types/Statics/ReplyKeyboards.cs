@@ -2,7 +2,7 @@
 
 namespace ChapubelichBot.Types.Statics
 {
-    static class ReplyKeyboardsStatic
+    static class ReplyKeyboards
     {
         public static ReplyKeyboardMarkup MainMarkup = new ReplyKeyboardMarkup(
             new[]
@@ -31,7 +31,7 @@ namespace ChapubelichBot.Types.Statics
             {
                     new[]
                     {
-                        new KeyboardButton(RouletteTableStatic.Name)
+                        new KeyboardButton(RouletteGame.Name)
                     },
                     new[]
                     {

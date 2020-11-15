@@ -10,7 +10,7 @@ using Telegram.Bot.Types;
 
 namespace ChapubelichBot.Types.Statics
 {
-    static class RouletteTableStatic
+    static class RouletteGame
     {
         public static string Name => "\U0001F525Рулетка\U0001F525";
 
@@ -199,7 +199,7 @@ namespace ChapubelichBot.Types.Statics
         }
         public static bool IsAlreadyExist(long chatId)
         {
-            RouletteGameSession gameSession = RouletteTableStatic.GetGameSessionOrNull(chatId);
+            RouletteGameSession gameSession = RouletteGame.GetGameSessionOrNull(chatId);
             return gameSession != null;
         }
         public static async Task<RouletteGameSession> InitializeNew(Message message, ITelegramBotClient client)

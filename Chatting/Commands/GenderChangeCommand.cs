@@ -13,7 +13,7 @@ namespace ChapubelichBot.Chatting.Commands
         {
             await client.TrySendTextMessageAsync(message.From.Id,
                 "Укажи свой новый пол:",
-                replyMarkup: InlineKeyboardsStatic.GenderChooseMarkup,
+                replyMarkup: InlineKeyboards.GenderChooseMarkup,
                 replyToMessageId: message.MessageId);
         }
     }

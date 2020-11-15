@@ -14,7 +14,7 @@ namespace ChapubelichBot.Chatting.Commands
             await client.TrySendTextMessageAsync(
                         message.Chat.Id,
                         "\U0001F3E0 Главное меню!",
-                        replyMarkup: ReplyKeyboardsStatic.MainMarkup,
+                        replyMarkup: ReplyKeyboards.MainMarkup,
                         replyToMessageId: message.MessageId);
         }
     }

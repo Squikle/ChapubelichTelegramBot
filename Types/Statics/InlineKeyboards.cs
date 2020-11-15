@@ -2,7 +2,7 @@
 
 namespace ChapubelichBot.Types.Statics
 {
-    static class InlineKeyboardsStatic
+    static class InlineKeyboards
     {
         public static InlineKeyboardMarkup GenderChooseMarkup = new InlineKeyboardMarkup(new[]
         {

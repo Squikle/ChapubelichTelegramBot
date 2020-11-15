@@ -14,7 +14,7 @@ namespace ChapubelichBot.Chatting.Commands
             await client.TrySendTextMessageAsync(
                         message.Chat.Id,
                         "\U0001F579 Список доступных игр!",
-                        replyMarkup: ReplyKeyboardsStatic.GameMarkup,
+                        replyMarkup: ReplyKeyboards.GameMarkup,
                         replyToMessageId: message.MessageId);
         }
     }

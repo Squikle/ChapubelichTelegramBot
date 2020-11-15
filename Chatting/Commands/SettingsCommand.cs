@@ -14,7 +14,7 @@ namespace ChapubelichBot.Chatting.Commands
             await client.TrySendTextMessageAsync(
             message.Chat.Id,
             "\U00002699 Меню настроек!",
-            replyMarkup: ReplyKeyboardsStatic.SettingsMarkup, 
+            replyMarkup: ReplyKeyboards.SettingsMarkup, 
             replyToMessageId: message.MessageId);
         }
     }

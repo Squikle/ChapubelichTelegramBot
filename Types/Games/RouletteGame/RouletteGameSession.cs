@@ -63,7 +63,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 ChatId,
                 result,
                 Telegram.Bot.Types.Enums.ParseMode.Html,
-                replyMarkup: InlineKeyboardsStatic.RoulettePlayAgainMarkup,
+                replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup,
                 replyToMessageId: replyId);
 
             await db.SaveChangesAsync();
@@ -217,7 +217,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 ChatId,
                 "Игровая сессия отменена из-за отсутствия активности" + returnedBets,
                 Telegram.Bot.Types.Enums.ParseMode.Html,
-                replyMarkup: InlineKeyboardsStatic.RoulettePlayAgainMarkup);
+                replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
 
             Dispose();
         }
@@ -227,7 +227,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         public void Dispose()
         {
-            RouletteTableStatic.GameSessions.Remove(this);
+            Statics.RouletteGame.GameSessions.Remove(this);
             _timer.Dispose();
         }
 
@@ -235,7 +235,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             Resulting = false;
 
-            ResultNumber = RouletteTableStatic.GetRandomResultNumber();
+            ResultNumber = Statics.RouletteGame.GetRandomResultNumber();
 
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
 
@@ -244,7 +244,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 caption: "Игра запущена. Ждем ваши ставки...\n" +
                          "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
                 replyToMessageId: replyId,
-                replyMarkup: InlineKeyboardsStatic.RouletteBetsMarkup);
+                replyMarkup: InlineKeyboards.RouletteBetsMarkup);
         }
         public async Task BetCancelRequest(CallbackQuery callbackQuery, ITelegramBotClient client)
         {
@@ -415,7 +415,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 return;
             }
 
-            int[] userBets = RouletteTableStatic.GetBetsByCallbackQuery(callbackQuery.Data);
+            int[] userBets = Statics.RouletteGame.GetBetsByCallbackQuery(callbackQuery.Data);
 
             string answerMessage = PlaceBetNumber(userBets, user);
             await db.SaveChangesAsync();
@@ -444,15 +444,15 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             if (!Int32.TryParse(matchString.Groups[1].Value, out int playerBet))
                 return;
-            if (!Int32.TryParse(matchString.Groups[2].Value, out int firstNumber) || firstNumber > RouletteTableStatic.TableSize)
+            if (!int.TryParse(matchString.Groups[2].Value, out int firstNumber) || firstNumber > Statics.RouletteGame.TableSize)
                 return;
             if (!Int32.TryParse(matchString.Groups[4].Value, out int secondNumber))
-                userBets = RouletteTableStatic.GetBetsByNumbers(firstNumber);
+                userBets = Statics.RouletteGame.GetBetsByNumbers(firstNumber);
             else
             {
                 int rangeSize = secondNumber - firstNumber + 1;
 
-                if (firstNumber >= secondNumber || secondNumber > RouletteTableStatic.TableSize || secondNumber == 0)
+                if (firstNumber >= secondNumber || secondNumber > Statics.RouletteGame.TableSize || secondNumber == 0)
                     return;
 
                 // Валидация ставки
@@ -478,7 +478,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     return;
                 }
 
-                userBets = RouletteTableStatic.GetBetsByNumbers(firstNumber, secondNumber);
+                userBets = Statics.RouletteGame.GetBetsByNumbers(firstNumber, secondNumber);
             }
 
             await using var db = new ChapubelichdbContext();
