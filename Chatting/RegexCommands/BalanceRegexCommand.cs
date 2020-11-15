@@ -9,7 +9,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class BalanceRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *(б|баланс|счет|balance)(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *(б|баланс|счет|balance|b)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var balanceCommand = Bot.BotPrivateCommandsList.First(x => x.Name == "💰 Баланс");
