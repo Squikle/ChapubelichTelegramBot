@@ -3,6 +3,7 @@ using ChapubelichBot.Types.Statics;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Extensions;
 
 namespace ChapubelichBot.Chatting.Commands
 {

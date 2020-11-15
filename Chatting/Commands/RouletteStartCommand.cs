@@ -2,6 +2,7 @@
 using ChapubelichBot.Types.Statics;
 using ChapubelichBot.Types.Games.RouletteGame;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -9,12 +10,12 @@ namespace ChapubelichBot.Chatting.Commands
 {
     class RouletteStartCommand : Command
     {
-        public override string Name => RouletteTableStatic.Name;
+        public override string Name => RouletteGame.Name;
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            RouletteGameSession gameSession = RouletteTableStatic.GetGameSessionOrNull(message.Chat.Id);
+            RouletteGameSession gameSession = RouletteGame.GetGameSessionOrNull(message.Chat.Id);
             if (gameSession == null)
-                await RouletteTableStatic.InitializeNew(message, client);
+                await RouletteGame.InitializeNew(message, client);
             else
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id,

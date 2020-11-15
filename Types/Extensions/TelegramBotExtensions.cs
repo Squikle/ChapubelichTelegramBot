@@ -11,7 +11,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace ChapubelichBot.Types.Statics
+namespace ChapubelichBot.Types.Extensions
 {
     internal static class TelegramBotExtensions
     {

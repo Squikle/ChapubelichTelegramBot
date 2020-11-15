@@ -4,6 +4,7 @@ using ChapubelichBot.Types.Statics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ChapubelichBot.Database.Models.User;
@@ -46,7 +47,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
             await client.TrySendTextMessageAsync(
                 query.Message.Chat.Id,
                 "Настройки успешно сохранены!",
-                replyMarkup: ReplyKeyboardsStatic.SettingsMarkup
+                replyMarkup: ReplyKeyboards.SettingsMarkup
             );
         }
     }

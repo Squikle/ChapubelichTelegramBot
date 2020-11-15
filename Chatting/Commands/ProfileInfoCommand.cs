@@ -3,6 +3,7 @@ using ChapubelichBot.Types.Statics;
 using ChapubelichBot.Database;
 using System.Threading.Tasks;
 using System.Linq;
+using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -32,7 +33,7 @@ namespace ChapubelichBot.Chatting.Commands
             await client.TrySendTextMessageAsync(message.From.Id, answerMessage, 
                 replyToMessageId: message.MessageId, 
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html, 
-                replyMarkup: ReplyKeyboardsStatic.SettingsMarkup);
+                replyMarkup: ReplyKeyboards.SettingsMarkup);
         }
     }
 }

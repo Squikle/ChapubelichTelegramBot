@@ -14,8 +14,6 @@ namespace ChapubelichBot.Types.Statics
     {
         public static string Name => "\U0001F525Рулетка\U0001F525";
 
-
-
         public const int TableSize = 37;
         public static List<RouletteGameSession> GameSessions { get; set; } = new List<RouletteGameSession>();
         public static int GetRandomResultNumber()

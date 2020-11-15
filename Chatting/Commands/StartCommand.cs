@@ -3,6 +3,7 @@ using ChapubelichBot.Types.Statics;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Extensions;
 
 namespace ChapubelichBot.Chatting.Commands
 {
@@ -16,7 +17,7 @@ namespace ChapubelichBot.Chatting.Commands
                 "Привет!\n" +
                 "По поводу возникших вопросов - @Squikle\n" +
                 "Для начала нужно зарегестрироваться. Для этого нажми на кнопку снизу👇",
-                replyMarkup: ReplyKeyboardsStatic.RegistrationMarkup);
+                replyMarkup: ReplyKeyboards.RegistrationMarkup);
         }
     }
 }

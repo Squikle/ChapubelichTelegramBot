@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
 using ChapubelichBot.Init;
+using ChapubelichBot.Types.Extensions;
 using Microsoft.Extensions.Configuration;
 
 namespace ChapubelichBot.Types.Games.RouletteGame

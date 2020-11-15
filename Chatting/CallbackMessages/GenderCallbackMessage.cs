@@ -5,6 +5,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Database;
 using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Statics;
 using User = ChapubelichBot.Database.Models.User;
 
