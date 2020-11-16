@@ -18,7 +18,7 @@ namespace ChapubelichBot.Types.Extensions
                 _ => ""
             };
         }
-        public static IEnumerable<RouletteBetToken> GroupByUsers(this IEnumerable<RouletteBetToken> listOfTokens)
+        public static List<RouletteBetToken> GroupByUsers(this IEnumerable<RouletteBetToken> listOfTokens)
         {
             List<RouletteBetToken> groupedList = new List<RouletteBetToken>();
 

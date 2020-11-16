@@ -1,5 +1,6 @@
 ﻿using ChapubelichBot.Database.Models;
 using ChapubelichBot.Init;
+using ChapubelichBot.Types.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -60,6 +61,11 @@ namespace ChapubelichBot.Database
                 .HasOne(ug => ug.Group)
                 .WithMany(u => u.UserGroups)
                 .HasForeignKey(ug => ug.GroupId);
+
+            modelBuilder.Entity<RouletteGameSessionData>()
+                .OwnsMany(gs => gs.ColorBetTokens);
+            modelBuilder.Entity<RouletteGameSessionData>()
+                .OwnsMany(gs => gs.NumberBetTokens);
         }
 
         public DbSet<User> Users { get; set; }
@@ -67,5 +73,6 @@ namespace ChapubelichBot.Database
         public DbSet<BoyCompliment> BoyCompliments {get; set;}
         public DbSet<GirlCompliment> GirlCompliments { get; set; }
         public DbSet<Configuration> Configurations { get; set; }
+        public DbSet<RouletteGameSessionData> RouletteGameSessions { get; set; }
     }
 }

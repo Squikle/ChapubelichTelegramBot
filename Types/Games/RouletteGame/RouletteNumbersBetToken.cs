@@ -11,5 +11,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             ChoosenNumbers = choosenNumbers;
         }
+
+        public RouletteNumbersBetToken()
+        { }
     }
 }

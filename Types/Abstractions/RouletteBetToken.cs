@@ -15,6 +15,8 @@ namespace ChapubelichBot.Types.Abstractions
             BetSum = bet;
         }
 
+        protected RouletteBetToken()
+        { }
         public long GetGainSum()
         {
             if (this is RouletteColorBetToken colorBetToken)
