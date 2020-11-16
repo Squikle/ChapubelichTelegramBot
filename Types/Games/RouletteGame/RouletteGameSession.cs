@@ -13,6 +13,7 @@ using ChapubelichBot.Types.Abstractions;
 using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
+using ChapubelichBot.Database.Models;
 using ChapubelichBot.Init;
 using ChapubelichBot.Types.Extensions;
 using Microsoft.Extensions.Configuration;

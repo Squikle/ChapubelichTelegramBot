@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
-using ChapubelichBot.Init;
 using ChapubelichBot.Types.Abstractions;
-using Microsoft.Extensions.Configuration;
 using Telegram.Bot.Types;
 
-namespace ChapubelichBot.Types.Games.RouletteGame
+namespace ChapubelichBot.Database.Models
 {
     class RouletteGameSessionData
     {
