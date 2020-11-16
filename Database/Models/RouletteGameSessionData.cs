@@ -10,6 +10,7 @@ namespace ChapubelichBot.Database.Models
         [Key]
         public long ChatId { get; set; }
         public int GameMessageId { get; set; }
+        public int AnimationMessageId { get; set; }
         public List<RouletteColorBetToken> ColorBetTokens { get; set; }
         public List<RouletteNumbersBetToken> NumberBetTokens { get; set; }
         public bool Resulting { get; set; }

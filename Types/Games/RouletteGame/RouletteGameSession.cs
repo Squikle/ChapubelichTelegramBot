@@ -50,13 +50,15 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             _gameSessionData.Resulting = true;
 
             var dbGameSession = db.RouletteGameSessions.FirstOrDefault(x => x.ChatId == ChatId);
+            _gameSessionData.AnimationMessageId = (await client.TrySendAnimationAsync(_gameSessionData.ChatId,
+                GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...")).MessageId;
             if (dbGameSession != null)
             {
                 dbGameSession.Resulting = true;
+                dbGameSession.AnimationMessageId = _gameSessionData.AnimationMessageId;
+
                 db.SaveChanges();
             }
-
-            Message animationMessage = await client.TrySendAnimationAsync(_gameSessionData.ChatId, GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 
             int configAnimationDuration = Bot.GetConfig().GetValue<int>("AppSettings:RouletteAnimationDuration") * 1000;
             Task task = Task.Delay(configAnimationDuration >= 10 * 1000 ? 10000 : configAnimationDuration);
@@ -65,8 +67,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             string result = Summarize(db);
             await task;
 
-            if (animationMessage != null)
-                await client.TryDeleteMessageAsync(animationMessage.Chat.Id, animationMessage.MessageId);
+            if (_gameSessionData.AnimationMessageId != 0)
+                await client.TryDeleteMessageAsync(ChatId, _gameSessionData.AnimationMessageId);
 
             if (_gameSessionData.GameMessageId != 0)
                 await client.TryDeleteMessageAsync(_gameSessionData.GameMessageId, _gameSessionData.GameMessageId);
@@ -89,6 +91,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 await client.TryDeleteMessageAsync(_gameSessionData.GameMessageId, _gameSessionData.GameMessageId);
 
             string result = Summarize(db);
+
+            if (_gameSessionData.AnimationMessageId != 0)
+                    await client.TryDeleteMessageAsync(ChatId, _gameSessionData.AnimationMessageId);
 
             await client.TrySendTextMessageAsync(
                 _gameSessionData.ChatId,
