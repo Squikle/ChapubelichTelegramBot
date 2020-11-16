@@ -11,6 +11,7 @@ using Quartz.Impl;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
+using User = Telegram.Bot.Types.User;
 
 namespace ChapubelichBot.Init
 {
@@ -20,10 +21,11 @@ namespace ChapubelichBot.Init
         private static readonly IConfiguration     Config = Bot.GetConfig();
         public static void StartReceiving()
         {
+            RestoreData();
             Client.StartReceiving();
+            DailyProcess();
             Client.OnMessage += MessageProcessAsync;
             Client.OnCallbackQuery += CallbackProcess;
-            DailyProcess();
             Console.WriteLine("StartReceiving...");
         }
 
@@ -80,6 +82,15 @@ namespace ChapubelichBot.Init
                 if (DateTime.Now > date)
                     await DailyComplimentJob.ExecuteManually(Client);
             });
+        }
+
+        private static async void RestoreData()
+        {
+            using var db = new ChapubelichdbContext();
+            foreach (var gameSessionData in db.RouletteGameSessions)
+            {
+                await RouletteGame.Restore(gameSessionData, Client);
+            }
         }
 
         public  static async void MessageProcessAsync(object sender, MessageEventArgs e)

@@ -4,6 +4,8 @@ using System.Linq;
 using ChapubelichBot.Types.Enums;
 using System;
 using System.Threading.Tasks;
+using ChapubelichBot.Database;
+using ChapubelichBot.Database.Models;
 using ChapubelichBot.Types.Abstractions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -122,6 +124,14 @@ namespace ChapubelichBot.Types.Statics
             RouletteGameSession gameSession = new RouletteGameSession(message.Chat.Id, client);
             GameSessions.Add(gameSession);
             await gameSession.InitSessionAsync(message, client);
+            return gameSession;
+        }
+        public static async Task<RouletteGameSession> Restore(RouletteGameSessionData gameSessionData, ITelegramBotClient client)
+        {
+            RouletteGameSession gameSession = new RouletteGameSession(gameSessionData, client);
+            GameSessions.Add(gameSession);
+            if (gameSessionData.Resulting)
+                await gameSession.ResumeResultingAsync(client);
             return gameSession;
         }
     }
