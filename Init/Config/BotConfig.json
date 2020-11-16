@@ -5,7 +5,9 @@
     "MessageCheckPeriod": 15,
     "StopGameDelay": 300,
     "RouletteAnimationDuration": 3,
-    "DailyReward": 100
+    "DailyReward": 100,
+    "MaxTransferSum": 1000,
+    "MaxBetSum": 10000
   },
   "Logger": {
     "DirectoryPath": "ChapubelichLogs",
@@ -15,6 +17,8 @@
   "_Comments": {
     "_MessageCheckPeriod": "how old message to check (in minutes) default: 15",
     "_StopGameDelay": "time before gamesession destroy itself (in seconds) default: 300 = 5min",
-    "_RouletteAnimationDuration": "duration of roulette animation (in seconds) default: 3"
+    "_RouletteAnimationDuration": "duration of roulette animation (in seconds) default: 3",
+    "_MaxTransferSum": "default: 1000",
+    "_MaxBetSum": "default: 10000"
   }
 }

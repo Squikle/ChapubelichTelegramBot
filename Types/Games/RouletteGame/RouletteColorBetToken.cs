@@ -7,7 +7,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
     public class RouletteColorBetToken : RouletteBetToken
     {
         public RouletteColorEnum ChoosenColor { get; set; }
-        public RouletteColorBetToken(User user, int bet, RouletteColorEnum choosenColor) : base(user, bet)
+        public RouletteColorBetToken(User user, long betSum, RouletteColorEnum choosenColor) : base(user, betSum)
         {
             ChoosenColor = choosenColor;
         }

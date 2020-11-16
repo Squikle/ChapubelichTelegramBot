@@ -7,15 +7,15 @@ namespace ChapubelichBot.Types.Abstractions
     public abstract class RouletteBetToken
     {
         public int UserId { get; set; }
-        public int BetSum { get; set; }
+        public long BetSum { get; set; }
 
-        protected RouletteBetToken(User user, int bet)
+        protected RouletteBetToken(User user, long bet)
         {
             UserId = user.UserId;
             BetSum = bet;
         }
 
-        public int GetGainSum()
+        public long GetGainSum()
         {
             if (this is RouletteColorBetToken colorBetToken)
             {

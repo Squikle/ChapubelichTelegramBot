@@ -8,7 +8,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class RouletteColorBetRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/?(\d{1,4}) *(к(расный)?|ч(ерный)?|з(еленый)?|r(ed)?|b(lack)?|g(reen)?) *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/?(\d+) *(к(расный)?|ч(ерный)?|з(еленый)?|r(ed)?|b(lack)?|g(reen)?) *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var gameSession = RouletteGame.GetGameSessionOrNull(message.Chat.Id);

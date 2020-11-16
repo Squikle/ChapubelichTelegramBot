@@ -7,7 +7,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
     {
         public int[] ChoosenNumbers { get; set; }
 
-        public RouletteNumbersBetToken(User user, int bet, int[] choosenNumbers) : base(user, bet)
+        public RouletteNumbersBetToken(User user, long betSum, int[] choosenNumbers) : base(user, betSum)
         {
             ChoosenNumbers = choosenNumbers;
         }

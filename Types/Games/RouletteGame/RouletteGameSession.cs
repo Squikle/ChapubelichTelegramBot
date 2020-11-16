@@ -84,7 +84,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 result.Append("\n🏆<b>Выиграли:</b>");
                 foreach (var token in winTokens.GroupByUsers())
                 {
-                    int gainSum = token.GetGainSum();
+                    long gainSum = token.GetGainSum();
                     User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
                     if (user != null)
                     {
@@ -311,12 +311,12 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 return;
             }
 
-            int playerBet = user.DefaultBet;
-            if (playerBet >= user.Balance)
+            long playerBetSum = user.DefaultBet;
+            if (playerBetSum >= user.Balance)
             {
                 await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
                     "Ты ставишь все свои средства!");
-                playerBet = (int)user.Balance;
+                playerBetSum = user.Balance;
             }
 
             // Определение ставки игрока
@@ -336,7 +336,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 default: return;
             }
 
-            string answerMessage = PlaceBetColor(playerChoose, user, playerBet);
+            string answerMessage = PlaceBetColor(playerChoose, user, playerBetSum);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -359,8 +359,19 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Match matchString = Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase);
 
-            if (!Int32.TryParse(matchString.Groups[1].Value, out int playerBet) || playerBet == 0)
+            long maxBetSum = Bot.GetConfig().GetValue<long>("AppSettings:MaxBetSum");
+
+            if (!long.TryParse(matchString.Groups[1].Value, out long playerBetSum) || playerBetSum > maxBetSum)
+            {
+                await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    $"Вы не можете ставить больше {maxBetSum} 💵 за раз",
+                    replyToMessageId: message.MessageId);
                 return;
+            }
+            if (playerBetSum == 0)
+                return;
+
             char betColor = matchString.Groups[2].Value.ToLower().ElementAtOrDefault(0);
 
             await using var db = new ChapubelichdbContext();
@@ -379,10 +390,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             string allInAlertMessage = string.Empty;
-            if (playerBet >= user.Balance)
+            if (playerBetSum >= user.Balance)
             {
                 allInAlertMessage = "\n\nТы ставишь все свои средства!";
-                playerBet = (int)user.Balance;
+                playerBetSum = user.Balance;
             }
 
             // Определение ставки игрока
@@ -396,7 +407,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 playerChoose = RouletteColorEnum.Green;
             else return;
 
-            string answerMessage = PlaceBetColor(playerChoose, user, playerBet);
+            string answerMessage = PlaceBetColor(playerChoose, user, playerBetSum);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -431,17 +442,17 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 return;
             }
 
-            int playerBet = user.DefaultBet;
-            if (playerBet >= user.Balance)
+            long playerBetSum = user.DefaultBet;
+            if (playerBetSum >= user.Balance)
             {
                 await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
                     "Ты ставишь все свои средства!");
-                playerBet = (int)user.Balance;
+                playerBetSum = user.Balance;
             }
 
             int[] userBets = Statics.RouletteGame.GetBetsByCallbackQuery(callbackQuery.Data);
 
-            string answerMessage = PlaceBetNumber(userBets, user, playerBet);
+            string answerMessage = PlaceBetNumber(userBets, user, playerBetSum);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -464,12 +475,27 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Match matchString = Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase);
 
-            int[] userBets;
+            long maxBetSum = Bot.GetConfig().GetValue<long>("AppSettings:MaxBetSum");
 
-            if (!Int32.TryParse(matchString.Groups[1].Value, out int playerBet))
+            if (!long.TryParse(matchString.Groups[1].Value, out long playerBetSum) || playerBetSum > maxBetSum)
+            {
+                await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    $"Вы не можете ставить больше {maxBetSum} 💵 за раз",
+                    replyToMessageId: message.MessageId);
                 return;
+            }
+
             if (!int.TryParse(matchString.Groups[2].Value, out int firstNumber) || firstNumber > Statics.RouletteGame.TableSize)
+            {
+                await client.TrySendTextMessageAsync(
+                    message.Chat.Id,
+                    "Некорректная ставка",
+                    replyToMessageId: message.MessageId);
                 return;
+            }
+
+            int[] userBets;
             if (!Int32.TryParse(matchString.Groups[4].Value, out int secondNumber))
                 userBets = Statics.RouletteGame.GetBetsByNumbers(firstNumber);
             else
@@ -521,13 +547,13 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             string allInAlertMessage = string.Empty;
-            if (playerBet >= user.Balance)
+            if (playerBetSum >= user.Balance)
             {
                allInAlertMessage = "\n\nТы ставишь все свои средства!";
-               playerBet = (int)user.Balance;
+               playerBetSum = user.Balance;
             }
 
-            string answerMessage = PlaceBetNumber(userBets, user, playerBet);
+            string answerMessage = PlaceBetNumber(userBets, user, playerBetSum);
             await db.SaveChangesAsync();
 
             await client.TrySendTextMessageAsync(
@@ -606,7 +632,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Random random = new Random();
             return new InputOnlineFile(animationsLinks[random.Next(0, animationsLinks.Length)]);
         }
-        private string PlaceBetColor(RouletteColorEnum playerChoose, User user, int betSum)
+        private string PlaceBetColor(RouletteColorEnum playerChoose, User user, long betSum)
         {
             var colorBetTokens = _gameSessionData.BetTokens.OfType<RouletteColorBetToken>();
             RouletteColorBetToken currentBetToken = colorBetTokens.FirstOrDefault(x => x.ChoosenColor == playerChoose && x.UserId == user.UserId);
@@ -624,7 +650,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             return $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Твоя суммарная ставка:"
                                        + UserBetsToStringAsync(user);
         }
-        private string PlaceBetNumber(int[] userBets, User user, int betSum)
+        private string PlaceBetNumber(int[] userBets, User user, long betSum)
         {
             var numberBetTokens = _gameSessionData.BetTokens.OfType<RouletteNumbersBetToken>();
             RouletteNumbersBetToken currentBetToken = numberBetTokens.FirstOrDefault(x => x.ChoosenNumbers.SequenceEqual(userBets) && x.UserId == user.UserId);

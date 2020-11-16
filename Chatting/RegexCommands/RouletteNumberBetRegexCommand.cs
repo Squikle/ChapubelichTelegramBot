@@ -8,7 +8,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class RouletteNumberBetRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *(\d{1,4}) +([0-9]|[1-3][0-9])( *- *([0-9]|[1-3][0-9]))? *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *(\d+) +([0-9]|[1-3][0-9])( *- *([0-9]|[1-3][0-9]))? *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             var gameSession = RouletteGame.GetGameSessionOrNull(message.Chat.Id);
