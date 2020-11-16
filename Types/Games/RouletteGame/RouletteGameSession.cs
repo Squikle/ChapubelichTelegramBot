@@ -47,8 +47,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Task task = Task.Delay(configAnimationDuration >= 10 * 1000 ? 10000 : configAnimationDuration);
 
             // Удаление сообщений и отправка результатов
-            var db = new ChapubelichdbContext();
-            string result = Summarize(db).ToString();
+            string result = await Summarize(); 
             await task;
 
             if (animationMessage != null)
@@ -65,11 +64,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup,
                 replyToMessageId: replyId);
 
-            await db.SaveChangesAsync();
-            await db.DisposeAsync();
             Dispose();
         }
-        private StringBuilder Summarize(ChapubelichdbContext db)
+        private async Task<string> Summarize()
         {
             StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
             result.Append($"{_gameSessionData.ResultNumber} {_gameSessionData.ResultNumber.ToRouletteColor().ToEmoji()}");
@@ -77,7 +74,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             List<RouletteBetToken> winTokens = GetWinTokensGroupedByUsers().ToList();
             List<RouletteBetToken> looseTokens = GetLooseTokensGroupedByUsers().ToList();
 
-            //TODO закрывать бд после прохода по выигрышам, т.к. в проигрышных нужен только массив юзеров
+            await using var db = new ChapubelichdbContext();
             // Определение победителей
             if (winTokens.Any())
             {
@@ -94,6 +91,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     }
                 }
             }
+
+            var saveChangesTask = db.SaveChangesAsync();
+
             // Определение проигравших
             if (looseTokens.Any())
             {
@@ -107,7 +107,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 }
             }
 
-            return result;
+            await saveChangesTask;
+            return result.ToString();
         }
         private StringBuilder UserBetsToStringAsync(User user)
         {
