@@ -10,17 +10,13 @@ namespace ChapubelichBot.Types.Extensions
     {
         public static string ToEmoji(this RouletteColorEnum color)
         {
-            switch (color)
+            return color switch
             {
-                case RouletteColorEnum.Red:
-                    return "\U0001F534";
-                case RouletteColorEnum.Black:
-                    return "\U000026AB";
-                case RouletteColorEnum.Green:
-                    return "\U0001F7E2";
-                default:
-                    return "";
-            }
+                RouletteColorEnum.Red => "\U0001F534",
+                RouletteColorEnum.Black => "\U000026AB",
+                RouletteColorEnum.Green => "\U0001F7E2",
+                _ => ""
+            };
         }
         public static IEnumerable<RouletteBetToken> GroupByUsers(this IEnumerable<RouletteBetToken> listOfTokens)
         {
