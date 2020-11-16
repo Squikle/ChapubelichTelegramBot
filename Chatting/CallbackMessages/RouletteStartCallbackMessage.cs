@@ -22,7 +22,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
             {
                 await client.TrySendTextMessageAsync(query.Message.Chat.Id,
                     "Игра уже запущена!",
-                    replyToMessageId: gameSession.GameMessage.MessageId);
+                    replyToMessageId: gameSession.GameMessageId);
             }
         }
     }

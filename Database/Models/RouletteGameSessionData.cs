@@ -7,7 +7,7 @@ namespace ChapubelichBot.Database.Models
     class RouletteGameSessionData
     {
         public long ChatId { get; set; }
-        public Message GameMessage { get; set; }
+        public int GameMessageId { get; set; }
         public List<RouletteBetToken> BetTokens { get; set; }
         public bool Resulting { get; set; }
         public int ResultNumber { get; set; }

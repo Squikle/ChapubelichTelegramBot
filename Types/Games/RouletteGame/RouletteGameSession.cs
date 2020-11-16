@@ -24,7 +24,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
     {
         private readonly RouletteGameSessionData _gameSessionData;
 
-        public Message GameMessage => _gameSessionData.GameMessage;
+        public int GameMessageId => _gameSessionData.GameMessageId;
         public long ChatId => _gameSessionData.ChatId;
 
         private readonly Timer _timer;
@@ -54,8 +54,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (animationMessage != null)
                 await client.TryDeleteMessageAsync(animationMessage.Chat.Id, animationMessage.MessageId);
 
-            if (_gameSessionData.GameMessage != null)
-                await client.TryDeleteMessageAsync(_gameSessionData.GameMessage.Chat.Id, _gameSessionData.GameMessage.MessageId);
+            if (_gameSessionData.GameMessageId != 0)
+                await client.TryDeleteMessageAsync(_gameSessionData.GameMessageId, _gameSessionData.GameMessageId);
 
             int replyId = startMessage?.MessageId ?? 0;
             await client.TrySendTextMessageAsync(
@@ -210,9 +210,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 await db.SaveChangesAsync();
             }
 
-            if (_gameSessionData.GameMessage != null)
+            if (_gameSessionData.GameMessageId != 0)
             {
-                await client.TryDeleteMessageAsync(_gameSessionData.GameMessage.Chat.Id, _gameSessionData.GameMessage.MessageId);
+                await client.TryDeleteMessageAsync(_gameSessionData.GameMessageId, _gameSessionData.GameMessageId);
             }
             await client.TrySendTextMessageAsync(
                 _gameSessionData.ChatId,
@@ -240,12 +240,12 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
 
-            _gameSessionData.GameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
+            _gameSessionData.GameMessageId = (await client.TrySendPhotoAsync(message.Chat.Id,
                 "https://i.imgur.com/SN8DRoa.png",
                 caption: "Игра запущена. Ждем ваши ставки...\n" +
                          "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
                 replyToMessageId: replyId,
-                replyMarkup: InlineKeyboards.RouletteBetsMarkup);
+                replyMarkup: InlineKeyboards.RouletteBetsMarkup)).MessageId;
         }
         public async Task BetCancelRequest(CallbackQuery callbackQuery, ITelegramBotClient client)
         {

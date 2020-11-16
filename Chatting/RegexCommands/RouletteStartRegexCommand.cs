@@ -21,7 +21,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id,
                     "Игра уже запущена!",
-                    replyToMessageId: gameSession.GameMessage.MessageId);
+                    replyToMessageId: gameSession.GameMessageId);
             }
         }
     }
