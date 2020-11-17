@@ -49,19 +49,6 @@ namespace ChapubelichBot.Database
             .HasIndex(u => u.ComplimentText)
             .IsUnique();
 
-            modelBuilder.Entity<UserGroup>()
-                .HasKey(k => new { k.UserId, k.GroupId });
-
-            modelBuilder.Entity<UserGroup>()
-                .HasOne(ug => ug.User)
-                .WithMany(u => u.UserGroups)
-                .HasForeignKey(ug => ug.UserId);
-
-            modelBuilder.Entity<UserGroup>()
-                .HasOne(ug => ug.Group)
-                .WithMany(u => u.UserGroups)
-                .HasForeignKey(ug => ug.GroupId);
-
             modelBuilder.Entity<RouletteGameSessionData>()
                 .OwnsMany(gs => gs.ColorBetTokens);
             modelBuilder.Entity<RouletteGameSessionData>()

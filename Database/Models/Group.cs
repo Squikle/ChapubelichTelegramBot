@@ -12,11 +12,11 @@ namespace ChapubelichBot.Database.Models
         public string Name { get; set; }
         public bool IsAvailable { get; set; }
 
-        public List<UserGroup> UserGroups { get; set; }
+        public List<User> Users { get; set; }
 
         public Group()
         {
-            UserGroups = new List<UserGroup>();
+            Users = new List<User>();
             IsAvailable = true;
         }
     }

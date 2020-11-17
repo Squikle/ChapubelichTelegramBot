@@ -21,11 +21,11 @@ namespace ChapubelichBot.Database.Models
         public bool Complimented { get; set; }
         public bool ComplimentSubscription { get; set; }
         public bool DailyRewarded { get; set; }
-        public List<UserGroup> UserGroups { get; set; }
+        public List<Group> Groups { get; set; }
         public DateTime LastMoneyTheft { get; set; }
         public User()
         {
-            UserGroups = new List<UserGroup>();
+            Groups = new List<Group>();
             Balance = 300;
             IsAvailable = true;
             Gender = true;
