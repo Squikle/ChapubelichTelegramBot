@@ -68,11 +68,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 db.RouletteGameSessions.Add(_gameSessionData);
                 db.SaveChanges();
             }
-            else
-            {
-                dbGameSession = _gameSessionData;
-                db.SaveChanges();
-            }
         }
         public async Task BetCancelRequest(CallbackQuery callbackQuery, ITelegramBotClient client)
         {
