@@ -18,6 +18,11 @@ namespace ChapubelichBot.Chatting.RegexCommands
         {
             var markedUser = message.ReplyToMessage?.From;
 
+            if (markedUser == null 
+             || markedUser.Id == message.From.Id 
+             || markedUser.Id == client.BotId)
+                return;
+
             Match match = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase);
             string transferSumString = match.Groups[1].Value;
 
@@ -32,14 +37,10 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     replyToMessageId: message.MessageId);
                 return;
             }
+            if (transferSum == 0)
+                return;
 
             string attachedMessage = match.Groups[3].Value;
-
-            if (markedUser == null ||
-                markedUser == message.From ||
-                transferSum == 0 ||
-                markedUser.Id == client.BotId)
-                return;
 
             await using var db = new ChapubelichdbContext();
             var transferTo = db.Users.FirstOrDefault(x => x.UserId == markedUser.Id);
@@ -63,9 +64,9 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 transferTo.Balance += transferSum;
 
                 string resultMessage = $"{transferSum.ToMoneyFormat()} 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
-                                       $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0\n";
+                                       $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0";
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"Подпись: {attachedMessage}";
+                    resultMessage += $"\nПодпись: {attachedMessage}";
 
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,

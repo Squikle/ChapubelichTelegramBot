@@ -145,6 +145,9 @@ namespace ChapubelichBot.Migrations
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime>("LastMoneyTheft")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("Username")
                         .HasColumnType("character varying(32)")
                         .HasMaxLength(32);
