@@ -129,16 +129,7 @@ namespace ChapubelichBot.Init
             if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
 
-            bool userIsRegistered = false;
-            await using (var db = new ChapubelichdbContext())
-            {
-                var member = db.Users.FirstOrDefault(x => x.UserId == e.Message.From.Id);
-                if (member != null)
-                {
-                    await UpdateMemberInfoAsync(e.Message.From, member, db);
-                    userIsRegistered = true;
-                }
-            }
+            bool userIsRegistered = UpdateMember(e.Message);
 
             switch (e.Message.Chat.Type)
             {
@@ -256,7 +247,7 @@ namespace ChapubelichBot.Init
                 var member = db.Users.FirstOrDefault(x => x.UserId == callbackQuery.From.Id);
                 if (member != null)
                 {
-                    await UpdateMemberInfoAsync(callbackQuery.From, member, db);
+                    await UpdateMember(callbackQuery.From, member, db);
                     userIsRegistered = true;
                 }
             }
@@ -281,8 +272,10 @@ namespace ChapubelichBot.Init
                 await Bot.GenderCallbackMessage.ExecuteAsync(callbackQuery, Client);
         }
 
-        private static void UpdateGroup(Message message)
+        private static bool UpdateGroup(Message message)
         {
+            bool alreadyExist = false;
+
             using var db = new ChapubelichdbContext();
             Group group = db.Groups.Include(u => u.Users).FirstOrDefault(g => g.GroupId == message.Chat.Id);
             if (group == null)
@@ -296,7 +289,10 @@ namespace ChapubelichBot.Init
                 db.Groups.Add(group);
             }
             else if (!group.IsAvailable)
+            {
                 group.IsAvailable = true;
+                alreadyExist = true;
+            }
 
             var user = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
 
@@ -304,6 +300,25 @@ namespace ChapubelichBot.Init
                 group.Users.Add(user);
 
             db.SaveChanges();
+
+            return alreadyExist;
+        }
+        private static bool UpdateMember(Message message)
+        {
+            using var db = new ChapubelichdbContext();
+            var member = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+            if (member != null)
+            {
+                if (member.FirstName != message.From.FirstName)
+                {
+                    member.FirstName = message.From.FirstName;
+                    db.SaveChanges();
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         private static async Task SendRegistrationAlertAsync(Message message)
@@ -324,14 +339,6 @@ namespace ChapubelichBot.Init
                     "Кажется, вы не зарегистрированы. Для регистрации обратитесь к боту в личные сообщения 💌",
                     replyToMessageId: message.MessageId
                 );
-            }
-        }
-        private static async Task UpdateMemberInfoAsync(User sender, Database.Models.User member, ChapubelichdbContext db)
-        {
-            if (member.FirstName != sender.FirstName)
-            {
-                member.FirstName = sender.FirstName;
-                await db.SaveChangesAsync();
             }
         }
         private static async Task SendRegistrationAlertAsync(CallbackQuery callbackQuery)
