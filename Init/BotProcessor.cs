@@ -31,6 +31,13 @@ namespace ChapubelichBot.Init
             Client.OnCallbackQuery += CallbackProcess;
             Console.WriteLine("StartReceiving...");
         }
+        public static void Stop()
+        {
+            Client.OnMessage -= MessageProcessAsync;
+            Client.OnCallbackQuery -= CallbackProcess;
+            Client.StopReceiving();
+            Console.WriteLine("StopReceiving...");
+        }
 
         private static async void DailyProcess()
         {
