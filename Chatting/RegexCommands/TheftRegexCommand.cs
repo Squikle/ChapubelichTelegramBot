@@ -78,11 +78,19 @@ namespace ChapubelichBot.Chatting.RegexCommands
             string attachedMessage = match.Groups[3].Value;
 
             Random rand = new Random();
-            int randCase = rand.Next(0, 100);
+
+            int fullChance = config.GetValue<int>("AppSettings:FullTheftChance"); // шанс забрать 100%
+            int partialChance = config.GetValue<int>("AppSettings:PartialTheftChance") + fullChance; // шанс забрать часть
+            int coef = config.GetValue<int>("AppSettings:TheftSumCoefficient"); // влияние размера кражи на шанс (чем больше тем больше шанс украсть много) (при 30 почти не влияет, при 5 шанс падает в 2 раза при краже от 1% до 100%)
+
+            int randCase = (int)((float)theftSum / maxTheftSum * 100 / coef) + rand.Next(0, 100);
+
+            if (randCase > 99)
+                randCase = 99;
 
             string resultMessage = String.Empty;
 
-            if (randCase < 20)
+            if (randCase < fullChance)
             {
                 if (theftFrom.Balance >= theftSum)
                 {
@@ -111,7 +119,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                     thief.Balance += theftFrom.Balance;
                 }
             }
-            else if (randCase < 33)
+            else if (randCase < partialChance)
             {
                 float stealPercentage = rand.Next(20, 76) * 0.01f;
                 long reducedTheftSum = (long)(theftSum * stealPercentage);

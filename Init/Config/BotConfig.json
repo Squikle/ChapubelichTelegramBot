@@ -9,7 +9,10 @@
     "MaxTransferSum": 1000,
     "MaxBetSum": 10000,
     "MaxTheftSum": 100,
-    "TheftReloadDuration": 300  
+    "TheftReloadDuration": 300,
+    "FullTheftChance": 45,
+    "PartialTheftChance": 30,
+    "TheftSumCoefficient": 5
   },
   "Logger": {
     "DirectoryPath": "ChapubelichLogs",
@@ -17,13 +20,16 @@
   },
 
   "_Comments": {
-    "_MessageCheckPeriod": "how old message to check (in minutes) default: 15",
-    "_StopGameDelay": "time before gamesession destroy itself (in seconds) default: 300 = 5min",
-    "_RouletteAnimationDuration": "duration of roulette animation (in seconds) default: 3",
-    "_MaxTransferSum": "default: 1000",
-    "_MaxStealSum": "default: 100",
-    "_MaxBetSum": "default: 10000",
-    "_MaxTheftSum": "default: 100",
-    "_TheftReloadDuration": "default: 300 = 5min"
+    "_MessageCheckPeriod": "how old message to check (in minutes): Default: 15",
+    "_StopGameDelay": "time before gamesession destroy itself (in seconds): Default: 300 = 5min",
+    "_RouletteAnimationDuration": "duration of roulette animation (in seconds): Default: 3",
+    "_MaxTransferSum": "Default: 1000",
+    "_MaxStealSum": "Default: 100",
+    "_MaxBetSum": "Default: 10000",
+    "_MaxTheftSum": "Default: 100",
+    "_TheftReloadDuration": "Default: 300 = 5min",
+    "_FullTheftChance": "chance to theft full value for 1% (int percents) Default: 40 = 40%",
+    "_PartialTheftChance": "chance to theft pertial value for 1% (int percents) Default: 30 = 20%",
+    "_TheftSumCoefficient": "how much the size of the theft sum affects the chance of theft. On 30 it almost doesn't affect: Default: 5 = decreasing by 2 times"
   }
 }
