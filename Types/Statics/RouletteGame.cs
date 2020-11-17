@@ -1,14 +1,7 @@
 ﻿using ChapubelichBot.Types.Games.RouletteGame;
 using System.Collections.Generic;
 using System.Linq;
-using ChapubelichBot.Types.Enums;
 using System;
-using System.Threading.Tasks;
-using ChapubelichBot.Database;
-using ChapubelichBot.Database.Models;
-using ChapubelichBot.Types.Abstractions;
-using Telegram.Bot;
-using Telegram.Bot.Types;
 
 namespace ChapubelichBot.Types.Statics
 {
