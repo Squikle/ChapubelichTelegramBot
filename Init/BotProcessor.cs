@@ -20,7 +20,7 @@ namespace ChapubelichBot.Init
     {
         private static readonly ITelegramBotClient Client = Bot.GetClient();
         private static readonly IConfiguration     Config = Bot.GetConfig();
-        public static void StartReceiving()
+        public static void Start()
         {
             RestoreData();
             Client.StartReceiving();
