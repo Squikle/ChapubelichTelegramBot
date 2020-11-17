@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Database;
+using ChapubelichBot.Database.Models;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Games.RouletteGame;
 using ChapubelichBot.Types.Jobs;
@@ -87,7 +88,7 @@ namespace ChapubelichBot.Init
 
         private static async void RestoreData()
         {
-            using var db = new ChapubelichdbContext();
+            await using var db = new ChapubelichdbContext();
             foreach (var gameSessionData in db.RouletteGameSessions)
             {
                 var gameSession = RouletteGameSessionBuilder.Create().RestoreFrom(gameSessionData, Client).AddToSessionsList()
@@ -137,11 +138,18 @@ namespace ChapubelichBot.Init
                     PrivateMessageProcessAsync(e.Message, userIsRegistered);
                     break;
                 case Telegram.Bot.Types.Enums.ChatType.Group:
+                {
+                    UpdateGroup(e.Message);
                     GroupMessageProcessAsync(e.Message, userIsRegistered);
                     break;
+                }
                 case Telegram.Bot.Types.Enums.ChatType.Supergroup:
+                {
+                    UpdateGroup(e.Message);
                     GroupMessageProcessAsync(e.Message, userIsRegistered);
                     break;
+                }
+                    
             }
         }
         private static void CallbackProcess(object sender, CallbackQueryEventArgs e)
@@ -265,6 +273,29 @@ namespace ChapubelichBot.Init
                 await Bot.GenderCallbackMessage.ExecuteAsync(callbackQuery, Client);
         }
 
+        private static void UpdateGroup(Message message)
+        {
+            using var db = new ChapubelichdbContext();
+            Group group = db.Groups.FirstOrDefault(g => g.GroupId == message.Chat.Id);
+            if (group == null)
+            {
+                group = new Group
+                {
+                    GroupId = message.Chat.Id,
+                    Name = message.Chat.Title,
+                    IsAvailable = true
+                };
+                db.Groups.Add(group);
+            }
+            else if (!group.IsAvailable)
+                group.IsAvailable = true;
+
+            var user = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
+            if (user != null && group.Users.All(u => u.UserId != user.UserId))
+                group.Users.Add(user);
+
+            db.SaveChanges();
+        }
 
         private static async Task SendRegistrationAlertAsync(Message message)
         {
