@@ -7,7 +7,9 @@
     "RouletteAnimationDuration": 3,
     "DailyReward": 100,
     "MaxTransferSum": 1000,
-    "MaxBetSum": 10000
+    "MaxBetSum": 10000,
+    "MaxTheftSum": 100,
+    "TheftReloadDuration": 300  
   },
   "Logger": {
     "DirectoryPath": "ChapubelichLogs",
@@ -19,6 +21,9 @@
     "_StopGameDelay": "time before gamesession destroy itself (in seconds) default: 300 = 5min",
     "_RouletteAnimationDuration": "duration of roulette animation (in seconds) default: 3",
     "_MaxTransferSum": "default: 1000",
-    "_MaxBetSum": "default: 10000"
+    "_MaxStealSum": "default: 100",
+    "_MaxBetSum": "default: 10000",
+    "_MaxTheftSum": "default: 100",
+    "_TheftReloadDuration": "default: 300 = 5min"
   }
 }

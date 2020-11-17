@@ -67,6 +67,7 @@ namespace ChapubelichBot.Init
 
                 new BalanceRegexCommand(),
                 new TransferRegexCommand(),
+                new TheftRegexCommand(),
 
                 new IsItGameRegexCommand(),
 

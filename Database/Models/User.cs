@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,6 +22,7 @@ namespace ChapubelichBot.Database.Models
         public bool ComplimentSubscription { get; set; }
         public bool DailyRewarded { get; set; }
         public List<UserGroup> UserGroups { get; set; }
+        public DateTime LastMoneyTheft { get; set; }
         public User()
         {
             UserGroups = new List<UserGroup>();
