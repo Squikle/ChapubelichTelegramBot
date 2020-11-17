@@ -107,10 +107,5 @@ namespace ChapubelichBot.Types.Statics
 
             return null;
         }
-        public static bool IsAlreadyExist(long chatId)
-        {
-            RouletteGameSession gameSession = RouletteGame.GetGameSessionOrNull(chatId);
-            return gameSession != null;
-        }
     }
 }
