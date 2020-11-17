@@ -556,7 +556,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 await client.TryDeleteMessageAsync(ChatId, _gameSessionData.AnimationMessageId);
 
             if (_gameSessionData.GameMessageId != 0)
-                await client.TryDeleteMessageAsync(_gameSessionData.GameMessageId, _gameSessionData.GameMessageId);
+                await client.TryDeleteMessageAsync(ChatId, _gameSessionData.GameMessageId);
 
             int replyId = startMessage?.MessageId ?? 0;
             await client.TrySendTextMessageAsync(
@@ -572,10 +572,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         public async Task ResumeResultingAsync(ITelegramBotClient client)
         {
             using var db = new ChapubelichdbContext();
-            if (_gameSessionData.GameMessageId != 0)
-                await client.TryDeleteMessageAsync(_gameSessionData.GameMessageId, _gameSessionData.GameMessageId);
-
             string result = Summarize(db);
+
+            if (_gameSessionData.GameMessageId != 0)
+                await client.TryDeleteMessageAsync(ChatId, _gameSessionData.GameMessageId);
 
             if (_gameSessionData.AnimationMessageId != 0)
                 await client.TryDeleteMessageAsync(ChatId, _gameSessionData.AnimationMessageId);
