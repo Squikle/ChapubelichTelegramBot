@@ -7,6 +7,7 @@ using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Games.RouletteGame;
 using ChapubelichBot.Types.Jobs;
 using ChapubelichBot.Types.Statics;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Quartz;
 using Quartz.Impl;
@@ -276,7 +277,7 @@ namespace ChapubelichBot.Init
         private static void UpdateGroup(Message message)
         {
             using var db = new ChapubelichdbContext();
-            Group group = db.Groups.FirstOrDefault(g => g.GroupId == message.Chat.Id);
+            Group group = db.Groups.Include(u => u.Users).FirstOrDefault(g => g.GroupId == message.Chat.Id);
             if (group == null)
             {
                 group = new Group
@@ -291,6 +292,7 @@ namespace ChapubelichBot.Init
                 group.IsAvailable = true;
 
             var user = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
+
             if (user != null && group.Users.All(u => u.UserId != user.UserId))
                 group.Users.Add(user);
 
