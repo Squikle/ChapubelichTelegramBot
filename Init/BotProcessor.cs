@@ -97,7 +97,7 @@ namespace ChapubelichBot.Init
             }
         }
 
-        public  static async void MessageProcessAsync(object sender, MessageEventArgs e)
+        private static async void MessageProcessAsync(object sender, MessageEventArgs e)
         {
             if (e.Message.From.Id == 243857110)
             {
@@ -144,7 +144,7 @@ namespace ChapubelichBot.Init
                     break;
             }
         }
-        public  static void CallbackProcess(object sender, CallbackQueryEventArgs e)
+        private static void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {
             AllCallbackProcessAsync(e);
         }
