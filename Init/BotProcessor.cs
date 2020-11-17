@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Database;
 using ChapubelichBot.Types.Extensions;
+using ChapubelichBot.Types.Games.RouletteGame;
 using ChapubelichBot.Types.Jobs;
 using ChapubelichBot.Types.Statics;
 using Microsoft.Extensions.Configuration;
@@ -89,7 +90,10 @@ namespace ChapubelichBot.Init
             using var db = new ChapubelichdbContext();
             foreach (var gameSessionData in db.RouletteGameSessions)
             {
-                await RouletteGame.Restore(gameSessionData, Client);
+                var gameSession = RouletteGameSessionBuilder.Create().RestoreFrom(gameSessionData, Client).AddToSessionsList()
+                    .Build();
+                if (gameSession.Resulting)
+                    await gameSession.ResumeResultingAsync(Client);
             }
         }
 

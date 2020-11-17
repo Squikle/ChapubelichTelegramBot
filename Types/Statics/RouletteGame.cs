@@ -119,20 +119,5 @@ namespace ChapubelichBot.Types.Statics
             RouletteGameSession gameSession = RouletteGame.GetGameSessionOrNull(chatId);
             return gameSession != null;
         }
-        public static async Task<RouletteGameSession> InitializeNew(Message message, ITelegramBotClient client)
-        {
-            RouletteGameSession gameSession = new RouletteGameSession(message.Chat.Id, client);
-            GameSessions.Add(gameSession);
-            await gameSession.InitSessionAsync(message, client);
-            return gameSession;
-        }
-        public static async Task<RouletteGameSession> Restore(RouletteGameSessionData gameSessionData, ITelegramBotClient client)
-        {
-            RouletteGameSession gameSession = new RouletteGameSession(gameSessionData, client);
-            GameSessions.Add(gameSession);
-            if (gameSessionData.Resulting)
-                await gameSession.ResumeResultingAsync(client);
-            return gameSession;
-        }
     }
 }

@@ -17,7 +17,11 @@ namespace ChapubelichBot.Chatting.CallbackMessages
             await client.TryEditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
             RouletteGameSession gameSession = RouletteGame.GetGameSessionOrNull(query.Message.MessageId);
             if (gameSession == null)
-                await RouletteGame.InitializeNew(query.Message, client);
+                await RouletteGameSessionBuilder.Create()
+                    .InitializeNew(query.Message, client)
+                    .AddToSessionsList()
+                    .Build()
+                .Start(query.Message, client);
             else
             {
                 await client.TrySendTextMessageAsync(query.Message.Chat.Id,

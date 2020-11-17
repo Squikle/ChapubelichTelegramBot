@@ -15,7 +15,8 @@ namespace ChapubelichBot.Chatting.Commands
         {
             RouletteGameSession gameSession = RouletteGame.GetGameSessionOrNull(message.Chat.Id);
             if (gameSession == null)
-                await RouletteGame.InitializeNew(message, client);
+                await RouletteGameSessionBuilder.Create().InitializeNew(message, client).AddToSessionsList().Build()
+                    .Start(message, client);
             else
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id,

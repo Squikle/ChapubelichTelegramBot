@@ -3,7 +3,7 @@ using ChapubelichBot.Database.Models;
 
 namespace ChapubelichBot.Types.Games.RouletteGame
 {
-    class RouletteNumbersBetToken : RouletteBetToken
+    public class RouletteNumbersBetToken : RouletteBetToken
     {
         public int[] ChoosenNumbers { get; set; }
 

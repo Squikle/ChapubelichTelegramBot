@@ -5,7 +5,7 @@ using ChapubelichBot.Types.Games.RouletteGame;
 
 namespace ChapubelichBot.Database.Models
 {
-    class RouletteGameSessionData
+    public class RouletteGameSessionData
     {
         [Key]
         public long ChatId { get; set; }
