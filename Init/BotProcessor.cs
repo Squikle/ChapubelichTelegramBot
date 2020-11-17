@@ -134,54 +134,54 @@ namespace ChapubelichBot.Init
             switch (e.Message.Chat.Type)
             {
                 case Telegram.Bot.Types.Enums.ChatType.Private:
-                    PrivateMessageProcessAsync(e, userIsRegistered);
+                    PrivateMessageProcessAsync(e.Message, userIsRegistered);
                     break;
                 case Telegram.Bot.Types.Enums.ChatType.Group:
-                    GroupMessageProcessAsync(e, userIsRegistered);
+                    GroupMessageProcessAsync(e.Message, userIsRegistered);
                     break;
                 case Telegram.Bot.Types.Enums.ChatType.Supergroup:
-                    GroupMessageProcessAsync(e, userIsRegistered);
+                    GroupMessageProcessAsync(e.Message, userIsRegistered);
                     break;
             }
         }
         private static void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {
-            AllCallbackProcessAsync(e);
+            AllCallbackProcessAsync(e.CallbackQuery);
         }
-        private static async void PrivateMessageProcessAsync(MessageEventArgs e, bool userIsRegistered)
+        private static async void PrivateMessageProcessAsync(Message message, bool userIsRegistered)
         {
             bool repeatedRegisterRequest = false;
             if (userIsRegistered)
             {
                 foreach (var privateCommand in Bot.BotPrivateCommandsList)
-                    if (privateCommand.Contains(e.Message.Text, privateChat: true))
+                    if (privateCommand.Contains(message.Text, privateChat: true))
                     {
-                        await privateCommand.ExecuteAsync(e.Message, Client);
+                        await privateCommand.ExecuteAsync(message, Client);
                         return;
                     }
 
                 foreach (var regexCommand in Bot.BotRegexCommandsList)
-                    if (regexCommand.Contains(e.Message.Text))
+                    if (regexCommand.Contains(message.Text))
                     {
-                        await regexCommand.ExecuteAsync(e.Message, Client);
+                        await regexCommand.ExecuteAsync(message, Client);
                         return;
                     }
             }
 
-            if (Bot.StartCommand.Contains(e.Message.Text, privateChat: true))
+            if (Bot.StartCommand.Contains(message.Text, privateChat: true))
             {
                 if (!userIsRegistered)
                 {
-                    await Bot.StartCommand.ExecuteAsync(e.Message, Client);
+                    await Bot.StartCommand.ExecuteAsync(message, Client);
                     return;
                 }
                 repeatedRegisterRequest = true;
             }
-            else if (Bot.RegistrationCommand.Contains(e.Message.Text, privateChat: true))
+            else if (Bot.RegistrationCommand.Contains(message.Text, privateChat: true))
             {
                 if (!userIsRegistered)
                 {
-                    await Bot.RegistrationCommand.ExecuteAsync(e.Message, Client);
+                    await Bot.RegistrationCommand.ExecuteAsync(message, Client);
                     return;
                 }
                 repeatedRegisterRequest = true;
@@ -190,7 +190,7 @@ namespace ChapubelichBot.Init
             if (repeatedRegisterRequest)
             {
                 await Client.TrySendTextMessageAsync(
-                e.Message.Chat.Id,
+                message.Chat.Id,
                 "Ты уже зарегестрирован👍",
                 replyMarkup: ReplyKeyboards.MainMarkup);
 
@@ -198,15 +198,15 @@ namespace ChapubelichBot.Init
             }
 
             if (!userIsRegistered)
-                await SendRegistrationAlertAsync(e.Message);
+                await SendRegistrationAlertAsync(message);
 
             else await Client.TrySendTextMessageAsync(
-                e.Message.Chat.Id,
+                message.Chat.Id,
                 "Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода👇)",
                 replyMarkup: ReplyKeyboards.MainMarkup,
-                replyToMessageId: e.Message.MessageId);
+                replyToMessageId: message.MessageId);
         }
-        private static async void GroupMessageProcessAsync(MessageEventArgs e, bool userIsRegistered)
+        private static async void GroupMessageProcessAsync(Message message, bool userIsRegistered)
         {
             // TODO команды групп
             /*foreach (var groupCommand in Bot.BotGroupCommandsList)
@@ -222,25 +222,25 @@ namespace ChapubelichBot.Init
 
             foreach (var regexCommand in Bot.BotRegexCommandsList)
             {
-                if (regexCommand.Contains(e.Message.Text))
+                if (regexCommand.Contains(message.Text))
                     if (userIsRegistered)
-                        await regexCommand.ExecuteAsync(e.Message, Client);
+                        await regexCommand.ExecuteAsync(message, Client);
                     else
-                        await SendRegistrationAlertAsync(e.Message);
+                        await SendRegistrationAlertAsync(message);
             }
         }
-        private static async void AllCallbackProcessAsync(CallbackQueryEventArgs e)
+        private static async void AllCallbackProcessAsync(CallbackQuery callbackQuery)
         {
-            if (e.CallbackQuery.Data == null)
+            if (callbackQuery.Data == null)
                 return;
 
             bool userIsRegistered = false;
             await using (var db = new ChapubelichdbContext())
             {
-                var member = db.Users.FirstOrDefault(x => x.UserId == e.CallbackQuery.From.Id);
+                var member = db.Users.FirstOrDefault(x => x.UserId == callbackQuery.From.Id);
                 if (member != null)
                 {
-                    await UpdateMemberInfoAsync(e.CallbackQuery.From, member, db);
+                    await UpdateMemberInfoAsync(callbackQuery.From, member, db);
                     userIsRegistered = true;
                 }
             }
@@ -248,21 +248,21 @@ namespace ChapubelichBot.Init
             var callbackMessages = Bot.CallBackMessagesList;
             foreach (var command in callbackMessages)
             {
-                if (command.Contains(e.CallbackQuery))
+                if (command.Contains(callbackQuery))
                     if (userIsRegistered)
                     {
-                        await command.ExecuteAsync(e.CallbackQuery, Client);
+                        await command.ExecuteAsync(callbackQuery, Client);
                         return;
                     }
                     else
                     {
-                        await SendRegistrationAlertAsync(e.CallbackQuery);
+                        await SendRegistrationAlertAsync(callbackQuery);
                         return;
                     }
             }
 
-            if (Bot.GenderCallbackMessage.Contains(e.CallbackQuery))
-                await Bot.GenderCallbackMessage.ExecuteAsync(e.CallbackQuery, Client);
+            if (Bot.GenderCallbackMessage.Contains(callbackQuery))
+                await Bot.GenderCallbackMessage.ExecuteAsync(callbackQuery, Client);
         }
 
 
