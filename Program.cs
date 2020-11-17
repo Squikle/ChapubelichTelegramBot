@@ -20,7 +20,8 @@ namespace ChapubelichBot
             Thread.Sleep(int.MaxValue);
         }
         private static void ExceptionManage(object sender, UnhandledExceptionEventArgs e)
-        {
+        {   
+            BotProcessor.Stop();
             var config = Bot.GetConfig();
             string path = Path.Combine(@"./Init/Config", config.GetValue<string>("Logger:DirectoryPath"), config.GetValue<string>("Logger:FileName"));
             ExceptionLogger exceptionLogger = new ExceptionLogger((Exception)e.ExceptionObject);
