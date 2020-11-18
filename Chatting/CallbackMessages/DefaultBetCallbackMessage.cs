@@ -40,8 +40,8 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                 return;
 
             senderUser.DefaultBet = defaultBet;
-            await db.SaveChangesAsync();
-            await client.TryDeleteMessageAsync(
+            db.SaveChanges();
+            Task deletingMessage = client.TryDeleteMessageAsync(
                 query.Message.Chat.Id,
                 query.Message.MessageId);
             await client.TrySendTextMessageAsync(
@@ -49,6 +49,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
                 "Настройки успешно сохранены!",
                 replyMarkup: ReplyKeyboards.SettingsMarkup
             );
+            await deletingMessage;
         }
     }
 }
