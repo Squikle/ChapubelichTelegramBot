@@ -68,13 +68,13 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
                     resultMessage += $"\nПодпись: {attachedMessage}";
 
+                db.SaveChanges();
+
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
                     resultMessage,
                     Telegram.Bot.Types.Enums.ParseMode.Html,
                     replyToMessageId: message.MessageId);
-
-                await db.SaveChangesAsync();
                 return;
             }
 
