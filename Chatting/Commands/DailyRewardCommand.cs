@@ -39,7 +39,7 @@ namespace ChapubelichBot.Chatting.Commands
                 user.Balance += totalDailyReward;
                 user.DailyRewarded = true;
 
-                await db.SaveChangesAsync();
+                db.SaveChanges();
             }
 
             await client.TrySendTextMessageAsync(
