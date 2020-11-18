@@ -26,7 +26,7 @@ namespace ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands
 
             await using (var db = new ChapubelichdbContext())
             {
-                usersToSendId = db.Users.Where(x => x.IsAvailable).Select(x => x.UserId).ToList();
+                usersToSendId = db.Users.Select(x => x.UserId).ToList();
             }
 
             if (message.Photo != null)

@@ -14,7 +14,6 @@ namespace ChapubelichBot.Database.Models
         [StringLength(32)]
         public string Username { get; set; }
         public long Balance { get; set; }
-        public bool IsAvailable { get; set; }
         public short DefaultBet { get; set; }
         public bool Complimented { get; set; }
         public bool ComplimentSubscription { get; set; }
@@ -25,7 +24,6 @@ namespace ChapubelichBot.Database.Models
         {
             Groups = new List<Group>();
             Balance = 300;
-            IsAvailable = true;
             Gender = true;
             DefaultBet = 50;
             Complimented = false;

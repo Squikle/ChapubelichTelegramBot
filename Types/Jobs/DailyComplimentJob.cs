@@ -28,7 +28,7 @@ namespace ChapubelichBot.Types.Jobs
 
             await using (var db = new ChapubelichdbContext())
             {
-                var complimentingUsersDatabase = db.Users.Where(x => x.ComplimentSubscription && x.IsAvailable && !x.Complimented);
+                var complimentingUsersDatabase = db.Users.Where(x => x.ComplimentSubscription && !x.Complimented);
 
                 complimentingUsers = complimentingUsersDatabase.ToArray();
                 if (complimentingUsers.Length <= 0)

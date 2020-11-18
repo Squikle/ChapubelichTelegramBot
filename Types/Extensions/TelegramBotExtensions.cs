@@ -17,8 +17,6 @@ namespace ChapubelichBot.Types.Extensions
     {
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
-            await using var db = new ChapubelichdbContext();
-            var receiverUser = db.Users.FirstOrDefault(x => x.UserId == chatId.Identifier);
             Message message;
             try
             {
@@ -30,23 +28,10 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                {
-                    if (null != receiverUser && receiverUser.IsAvailable)
-                    {
-                        receiverUser.IsAvailable = false;
-                        await db.SaveChangesAsync();
-                    }
-                }
-                Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
+                Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
-            if (null != receiverUser && !receiverUser.IsAvailable)
-            {
-                receiverUser.IsAvailable = true;
-                await db.SaveChangesAsync();
-            }
             return message;
         }
         public static async Task<Message> TryEditMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, InlineKeyboardMarkup replyMarkup = null, CancellationToken cancellationToken = default)
@@ -54,12 +39,13 @@ namespace ChapubelichBot.Types.Extensions
             Message message;
             try
             {
-                message = await client.EditMessageTextAsync(chatId, messageId, text, parseMode, disableWebPagePreview, replyMarkup, cancellationToken);
+                message = await client.EditMessageTextAsync(chatId, messageId, text, parseMode, disableWebPagePreview,
+                    replyMarkup, cancellationToken);
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось редактировать сообщение. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.Message}");
+                Console.WriteLine(
+                    $"Не удалось редактировать сообщение. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
@@ -74,8 +60,7 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось редактировать разметку сообщения. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.Message}");
+                Console.WriteLine($"Не удалось редактировать разметку сообщения. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
@@ -90,8 +75,7 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось отправить анимацию ChatId: {chatId}\nОшибка: {e.Message}");
+                Console.WriteLine($"Не удалось отправить анимацию ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
@@ -106,8 +90,7 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось отправить фото ChatId: {chatId}\nОшибка: {e.Message}");
+                Console.WriteLine($"Не удалось отправить фото ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
@@ -122,8 +105,7 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось отправить видео ChatId: {chatId}\nОшибка: {e.Message}");
+                Console.WriteLine($"Не удалось отправить видео ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
@@ -138,8 +120,7 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось отправить аудио ChatId: {chatId}\nОшибка: {e.Message}");
+                Console.WriteLine($"Не удалось отправить аудио ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
@@ -154,8 +135,7 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось отправить голосование ChatId: {chatId}\nОшибка: {e.Message}");
+                Console.WriteLine($"Не удалось отправить голосование ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
@@ -169,8 +149,7 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось удалить сообщение. ChatId: {chatId}\nОшибка: {e.Message}");
+               Console.WriteLine($"Не удалось удалить сообщение. ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
             }
         }
         public static async Task TryAnswerCallbackQueryAsync(this ITelegramBotClient client, string callbackQueryId, string text = null, bool showAlert = false, string url = null, int cacheTime = 0, CancellationToken cancellationToken = default)
@@ -181,8 +160,7 @@ namespace ChapubelichBot.Types.Extensions
             }
             catch (Exception e)
             {
-                if (e is ApiRequestException)
-                    Console.WriteLine($"Не удалось удалить сообщение. callbackQueryId: {callbackQueryId}\nОшибка: {e.Message}");
+                Console.WriteLine($"Не удалось удалить сообщение. callbackQueryId: {callbackQueryId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
             }
         }
         public static string ToMoneyFormat(this int moneySum)
