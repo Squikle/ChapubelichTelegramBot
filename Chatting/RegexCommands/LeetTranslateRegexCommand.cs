@@ -4,7 +4,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChapubelichBot.Types.Extensions;
-using ChapubelichBot.Types.Statics;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -133,7 +132,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 answer,
                 replyToMessageId: message.MessageId);
         }
-        static private string FromLeet(string textToTranslate)
+        private static string FromLeet(string textToTranslate)
         {
             StringBuilder translatedString = new StringBuilder();
             for (int pivot = 0; pivot < textToTranslate.Length;)
@@ -362,7 +361,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             }
             return translatedString.ToString();
         }
-        static private string ToLeet(string textToTranslate)
+        private static string ToLeet(string textToTranslate)
         {
             StringBuilder convertedToCyrillic = new StringBuilder(textToTranslate.Length);
 

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Types.Extensions;
-using ChapubelichBot.Types.Statics;
 using Telegram.Bot;
 
 namespace ChapubelichBot.Types.Jobs

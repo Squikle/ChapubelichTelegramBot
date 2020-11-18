@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using ChapubelichBot.Database.Models;
+﻿using ChapubelichBot.Database.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 

@@ -4,7 +4,6 @@ using Telegram.Bot.Types;
 using ChapubelichBot.Types.Abstractions;
 using System.Threading.Tasks;
 using ChapubelichBot.Types.Extensions;
-using ChapubelichBot.Types.Statics;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {

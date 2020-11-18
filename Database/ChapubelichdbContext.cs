@@ -1,6 +1,5 @@
 ﻿using ChapubelichBot.Database.Models;
 using ChapubelichBot.Init;
-using ChapubelichBot.Types.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
