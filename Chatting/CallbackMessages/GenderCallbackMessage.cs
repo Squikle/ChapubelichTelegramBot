@@ -21,12 +21,15 @@ namespace ChapubelichBot.Chatting.CallbackMessages
             bool choosenGender = query.Data == "Male";
 
             User senderUser = db.Users.FirstOrDefault(x => x.UserId == query.From.Id);
+
+            Task deletingMessage = client.TryDeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId);
+
             if (senderUser != null)
                 await ChangeSettings(query, db, client, senderUser, choosenGender);
             else
                 await RegisterUser(query, db, client, choosenGender);
 
-            await client.TryDeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId);
+            await deletingMessage;
         }
 
         private async Task RegisterUser(CallbackQuery query, ChapubelichdbContext db, ITelegramBotClient client,
@@ -40,7 +43,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
             };
 
             await db.Users.AddAsync(senderUser);
-            await db.SaveChangesAsync();
+            db.SaveChanges();
             await client.TrySendTextMessageAsync(
                 query.Message.Chat.Id,
                 "Ты был успешно зарегестрирован!",
@@ -53,10 +56,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
         {
 
             senderUser.Gender = choosenGender;
-            await db.SaveChangesAsync();
-            await client.TryDeleteMessageAsync(
-                query.Message.Chat.Id,
-                query.Message.MessageId);
+            db.SaveChanges();
             await client.TrySendTextMessageAsync(
                 query.Message.Chat.Id,
                 "Настройки успешно сохранены!",
