@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Database;
@@ -74,38 +75,39 @@ namespace ChapubelichBot.Init
             await scheduler.ScheduleJob(dailyResetJob, dailyResetTrigger);
             await scheduler.ScheduleJob(dailyComplimentJob, dailyComplimentTrigger);
 
-            //reset data if not
-            await Task.Run(async () =>
+            Task dailyResetTask = null;
+            //reset data if not done before
+            bool alreadyRestarted = false;
+            await using (var db = new ChapubelichdbContext())
             {
-                bool alreadyRestarted = false;
-                await using (var db = new ChapubelichdbContext())
-                {
-                    if (db.Configurations.First().LastResetTime > new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00))
-                        alreadyRestarted = true;
-                }
-                if (!alreadyRestarted)
-                    await DailyResetJob.ExecuteManually();
-            });
+                if (db.Configurations.First().LastResetTime > new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00))
+                    alreadyRestarted = true;
+            }
+            if (!alreadyRestarted)
+                dailyResetTask = DailyResetJob.ExecuteManually();
 
-            await Task.Run(async () =>
-            {
-                //send compliments if not
-                var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 00, 00);
-                if (DateTime.Now > date)
-                    await DailyComplimentJob.ExecuteManually(Client);
-            });
+            //send compliments if not done before
+            var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 00, 00);
+            if (DateTime.Now > date)
+                await DailyComplimentJob.ExecuteManually(Client);
+
+            if (dailyResetTask != null)
+                await dailyResetTask;
         }
 
         private static async void RestoreData()
         {
+            List<Task> resumingTasks = new List<Task>();
             await using var db = new ChapubelichdbContext();
             foreach (var gameSessionData in db.RouletteGameSessions)
             {
                 var gameSession = RouletteGameSessionBuilder.Create().RestoreFrom(gameSessionData, Client).AddToSessionsList()
                     .Build();
                 if (gameSession.Resulting)
-                    await gameSession.ResumeResultingAsync(Client);
+                    resumingTasks.Add(gameSession.ResumeResultingAsync(Client));
             }
+
+            Task.WaitAll(resumingTasks.ToArray());
         }
 
         private static async void MessageProcessAsync(object sender, MessageEventArgs e)
@@ -211,8 +213,9 @@ namespace ChapubelichBot.Init
             }
 
             if (!userIsRegistered)
+            {
                 await SendRegistrationAlertAsync(message);
-
+            }
             else await Client.TrySendTextMessageAsync(
                 message.Chat.Id,
                 "Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода👇)",
