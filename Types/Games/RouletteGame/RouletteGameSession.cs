@@ -88,7 +88,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (user == null)
                 return;
 
-            string answerMessage = CancelBet(user);
+            string answerMessage = CancelBet(user, callbackQuery.From.FirstName);
             db.SaveChanges();
 
             await client.TrySendTextMessageAsync(
@@ -110,7 +110,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (user == null)
                 return;
 
-            string answerMessage = CancelBet(user);
+            string answerMessage = CancelBet(user, message.From.FirstName);
             db.SaveChanges();
 
             await client.TrySendTextMessageAsync(
@@ -170,7 +170,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 default: return;
             }
 
-            string answerMessage = PlaceBetColor(playerChoose, user, playerBetSum);
+            string answerMessage = PlaceBetColor(playerChoose, user, callbackQuery.From.FirstName, playerBetSum);
 
             await client.TrySendTextMessageAsync(
                 callbackQuery.Message.Chat.Id,
@@ -219,7 +219,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             {
                 await client.TrySendTextMessageAsync(
                         message.Chat.Id,
-                    $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
+                    $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
                     replyToMessageId: message.MessageId,
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
                 return;
@@ -243,7 +243,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 playerChoose = RouletteColorEnum.Green;
             else return;
 
-            string answerMessage = PlaceBetColor(playerChoose, user, playerBetSum);
+            string answerMessage = PlaceBetColor(playerChoose, user, message.From.FirstName, playerBetSum);
 
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,
@@ -290,7 +290,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             int[] userBets = Statics.RouletteGame.GetBetsByCallbackQuery(callbackQuery.Data);
 
-            string answerMessage = PlaceBetNumber(userBets, user, playerBetSum);
+            string answerMessage = PlaceBetNumber(userBets, user, callbackQuery.From.FirstName, playerBetSum);
 
             await client.TrySendTextMessageAsync(
                 callbackQuery.Message.Chat.Id,
@@ -380,7 +380,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
+                    $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
                     replyToMessageId: message.MessageId,
                     parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
                 return;
@@ -393,7 +393,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 playerBetSum = user.Balance;
             }
 
-            string answerMessage = PlaceBetNumber(userBets, user, playerBetSum);
+            string answerMessage = PlaceBetNumber(userBets, user, message.From.FirstName, playerBetSum);
 
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,
@@ -451,9 +451,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             string transactionResult = string.Empty;
             if (!userHasTokens)
-                transactionResult += $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, у тебя нет активных ставок";
+                transactionResult += $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, у тебя нет активных ставок";
             else
-                transactionResult += $"Ставка <a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>:"
+                transactionResult += $"Ставка <a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>:"
                                      + UserBetsToStringAsync(user);
 
             await client.TrySendTextMessageAsync(
@@ -478,7 +478,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
 
         // Private
-        private string Summarize(ChapubelichdbContext db)
+        private string Summarize(ChapubelichdbContext db, ITelegramBotClient client)
         {
             StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
             result.Append($"{_gameSessionData.ResultNumber} {_gameSessionData.ResultNumber.ToRouletteColor().ToEmoji()}");
@@ -506,8 +506,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
                     if (user != null)
                     {
+                        string userFirstName = client.GetChatMemberAsync(ChatId, user.UserId).Result.User.FirstName;
                         result.Append(
-                            $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
+                            $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
                         user.Balance += gainSum + token.BetSum;
                     }
                 }
@@ -521,8 +522,11 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 {
                     User user = db.Users.FirstOrDefault(x => x.UserId == token.UserId);
                     if (user != null)
+                    {
+                        string userFirstName = client.GetChatMemberAsync(ChatId, user.UserId).Result.User.FirstName;
                         result.Append(
-                            $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>: <b>-{token.BetSum.ToMoneyFormat()}</b>💵");
+                            $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a>: <b>-{token.BetSum.ToMoneyFormat()}</b>💵");
+                    }
                 }
             }
 
@@ -551,7 +555,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Task task = Task.Delay(configAnimationDuration >= 10 * 1000 ? 10000 : configAnimationDuration);
 
             // Удаление сообщений и отправка результатов
-            string result = Summarize(db);
+            string result = Summarize(db, client);
             await task;
 
             if (_gameSessionData.AnimationMessageId != 0)
@@ -574,7 +578,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         public async Task ResumeResultingAsync(ITelegramBotClient client)
         {
             using var db = new ChapubelichdbContext();
-            string result = Summarize(db);
+            string result = Summarize(db, client);
 
             if (_gameSessionData.GameMessageId != 0)
                 await client.TryDeleteMessageAsync(ChatId, _gameSessionData.GameMessageId);
@@ -737,7 +741,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Random random = new Random();
             return new InputOnlineFile(animationsLinks[random.Next(0, animationsLinks.Length)]);
         }
-        private string PlaceBetColor(RouletteColorEnum playerChoose, User user, long betSum)
+        private string PlaceBetColor(RouletteColorEnum playerChoose, User user, string firstName, long betSum)
         {
             using (var db = new ChapubelichdbContext())
             {
@@ -777,10 +781,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 db.SaveChanges();
             }
 
-            return $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Твоя суммарная ставка:"
+            return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, ставка принята. Твоя суммарная ставка:"
                    + UserBetsToStringAsync(user);
         }
-        private string PlaceBetNumber(int[] userBets, User user, long betSum)
+        private string PlaceBetNumber(int[] userBets, User user, string firstName, long betSum)
         {
             using (var db = new ChapubelichdbContext())
             {
@@ -826,10 +830,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 db.SaveChanges();
             }
 
-            return $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ставка принята. Твоя суммарная ставка:"
+            return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, ставка принята. Твоя суммарная ставка:"
                    + UserBetsToStringAsync(user);
         }
-        private string CancelBet(User user)
+        private string CancelBet(User user, string firstName)
         {
             var userColorTokens = _gameSessionData.ColorBetTokens.Where(x => x.UserId == user.UserId).ToList();
             var userNumberTokens = _gameSessionData.NumberBetTokens.Where(x => x.UserId == user.UserId).ToList();
@@ -862,9 +866,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     }
                     db.SaveChanges();
                 }
-                return $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, твоя ставка отменена \U0001F44D";
+                return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, твоя ставка отменена \U0001F44D";
             }
-            return $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, у тебя нет активных ставок";
+            return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, у тебя нет активных ставок";
         }
     }
 }

@@ -30,7 +30,7 @@ namespace ChapubelichBot.Chatting.Commands
                 {
                     await client.TrySendTextMessageAsync(
                             message.Chat.Id,
-                            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ты уже получил ежедневную награду. Забери новую награду завтра😉",
+                            $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты уже получил ежедневную награду. Забери новую награду завтра😉",
                             replyToMessageId: message.MessageId,
                             parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
                     return;
@@ -44,7 +44,7 @@ namespace ChapubelichBot.Chatting.Commands
 
             await client.TrySendTextMessageAsync(
             message.Chat.Id,
-            $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, ты получил {totalDailyReward} 💵",
+            $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты получил {totalDailyReward} 💵",
             replyToMessageId: message.MessageId,
             parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
         }

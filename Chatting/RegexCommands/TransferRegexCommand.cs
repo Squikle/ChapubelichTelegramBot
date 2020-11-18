@@ -64,7 +64,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 transferTo.Balance += transferSum;
 
                 string resultMessage = $"{transferSum.ToMoneyFormat()} 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
-                                       $"{transferTo.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0";
+                                       $"{markedUser.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0";
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
                     resultMessage += $"\nПодпись: {attachedMessage}";
 

@@ -23,8 +23,7 @@ namespace ChapubelichBot.Chatting.Commands
             string gender = user.Gender ? "мужской" : "женский";
 
             string answerMessage = 
-                $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, твой профиль:\n" +
-                $"Имя: {user.FirstName}\n" +
+                $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, твой профиль:\n" +
                 $"Пол: {gender}\n" +
                 $"Баланс: {user.Balance.ToMoneyFormat()}\n" +
                 $"Id: {user.UserId}\n" +

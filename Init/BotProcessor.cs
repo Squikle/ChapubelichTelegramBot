@@ -316,14 +316,6 @@ namespace ChapubelichBot.Init
         {
             using var db = new ChapubelichdbContext();
             var member = db.Users.FirstOrDefault(x => x.UserId == user.Id);
-            if (member != null)
-            {
-                if (member.FirstName != user.FirstName)
-                {
-                    member.FirstName = user.FirstName;
-                    db.SaveChanges();
-                }
-            }
 
             return member;
         }

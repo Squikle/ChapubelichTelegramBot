@@ -13,8 +13,6 @@ namespace ChapubelichBot.Database.Models
         public bool Gender { get; set; }
         [StringLength(32)]
         public string Username { get; set; }
-        [StringLength(64)]
-        public string FirstName { get; set; }
         public long Balance { get; set; }
         public bool IsAvailable { get; set; }
         public short DefaultBet { get; set; }

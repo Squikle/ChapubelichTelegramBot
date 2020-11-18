@@ -23,7 +23,7 @@ namespace ChapubelichBot.Chatting.Commands
             if (user != null)
                 await client.TrySendTextMessageAsync(
                 message.Chat.Id,
-                $"<a href=\"tg://user?id={user.UserId}\">{user.FirstName}</a>, твой баланс: {user.Balance.ToMoneyFormat()} \U0001F4B0",
+                $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, твой баланс: {user.Balance.ToMoneyFormat()} \U0001F4B0",
                 replyToMessageId: message.MessageId,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
         }

@@ -36,8 +36,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
             {
                 Gender = choosenGender,
                 Username = query.From.Username,
-                UserId = query.From.Id,
-                FirstName = query.From.FirstName
+                UserId = query.From.Id
             };
 
             await db.Users.AddAsync(senderUser);
