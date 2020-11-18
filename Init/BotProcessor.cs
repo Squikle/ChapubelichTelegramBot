@@ -124,9 +124,9 @@ namespace ChapubelichBot.Init
             if (e.Message?.Text == null)
                 return;
 
-            Console.WriteLine("{0:HH:mm:ss}: {1} | {2} ({3} | {4}):\t {5}", e.Message.Date,
+            Console.WriteLine("{0:HH:mm:ss}: {1} | {2} ({3} | {4}): [{5}] {6}", e.Message.Date,
                 e.Message.From.Id, e.Message.From.Username,
-                e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.Text);
+                e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.MessageId, e.Message.Text);
 
             if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
