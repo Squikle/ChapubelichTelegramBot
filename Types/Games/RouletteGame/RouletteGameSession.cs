@@ -67,7 +67,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             _gameSessionData.GameMessageId = gameMessage.MessageId;
 
-            using var db = new ChapubelichdbContext();
+            await using var db = new ChapubelichdbContext();
 
             var dbGameSession = db.RouletteGameSessions.FirstOrDefault(x => x.ChatId == ChatId);
             if (dbGameSession == null)
@@ -91,12 +91,13 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             string answerMessage = CancelBet(user, callbackQuery.From.FirstName);
             db.SaveChanges();
 
-            await client.TrySendTextMessageAsync(
+            Task sendingMessage = client.TrySendTextMessageAsync(
                 _gameSessionData.ChatId,
                 answerMessage,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 
             await client.TryAnswerCallbackQueryAsync(callbackQuery.Id);
+            await sendingMessage;
         }
         public async Task BetCancelRequest(Message message, ITelegramBotClient client)
         {
@@ -145,11 +146,11 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 return;
             }
 
+            string allInAlertMessage = null;
             long playerBetSum = user.DefaultBet;
             if (playerBetSum >= user.Balance)
             {
-                await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
-                    "Ты ставишь все свои средства!");
+                allInAlertMessage = "Ты ставишь все свои средства!";
                 playerBetSum = user.Balance;
             }
 
@@ -172,11 +173,12 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             string answerMessage = PlaceBetColor(playerChoose, user, callbackQuery.From.FirstName, playerBetSum);
 
-            await client.TrySendTextMessageAsync(
+            Task sendingMessage = client.TrySendTextMessageAsync(
                 callbackQuery.Message.Chat.Id,
                 answerMessage,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
-            await client.TryAnswerCallbackQueryAsync(callbackQuery.Id);
+            await client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
+            await sendingMessage;
         }
         public async Task BetColorRequest(Message message, string pattern, ITelegramBotClient client)
         {
@@ -281,10 +283,11 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             long playerBetSum = user.DefaultBet;
+
+            string allInAlertMessage = null;
             if (playerBetSum >= user.Balance)
             {
-                await client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
-                    "Ты ставишь все свои средства!");
+                allInAlertMessage = "Ты ставишь все свои средства!";
                 playerBetSum = user.Balance;
             }
 
@@ -292,11 +295,12 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             string answerMessage = PlaceBetNumber(userBets, user, callbackQuery.From.FirstName, playerBetSum);
 
-            await client.TrySendTextMessageAsync(
+            Task sendingMessage = client.TrySendTextMessageAsync(
                 callbackQuery.Message.Chat.Id,
                 answerMessage,
                 parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
-            await client.TryAnswerCallbackQueryAsync(callbackQuery.Id);
+            await client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
+            await sendingMessage;
         }
         public async Task BetNumbersRequest(Message message, string pattern, ITelegramBotClient client)
         {
@@ -419,8 +423,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 return;
             }
 
+            Task answeringCallbackQuery = client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "✅");
             await ResultAsync(client);
-            await client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "✅");
+            await answeringCallbackQuery;
         }
         public async Task RollRequest(Message message, ITelegramBotClient client)
         {
@@ -534,7 +539,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private async Task ResultAsync(ITelegramBotClient client, Message startMessage = null)
         {
-            using var db = new ChapubelichdbContext();
+            await using var db = new ChapubelichdbContext();
             if (_gameSessionData.Resulting)
                 return;
 
@@ -557,12 +562,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             // Удаление сообщений и отправка результатов
             string result = Summarize(db, client);
             await task;
+            
+            Task deletingAnimationMessage = client.TryDeleteMessageAsync(ChatId, _gameSessionData.AnimationMessageId);
 
-            if (_gameSessionData.AnimationMessageId != 0)
-                await client.TryDeleteMessageAsync(ChatId, _gameSessionData.AnimationMessageId);
-
-            if (_gameSessionData.GameMessageId != 0)
-                await client.TryDeleteMessageAsync(ChatId, _gameSessionData.GameMessageId);
+            Task deletingGameMessage = client.TryDeleteMessageAsync(ChatId, _gameSessionData.GameMessageId);
 
             int replyId = startMessage?.MessageId ?? 0;
             await client.TrySendTextMessageAsync(
@@ -574,25 +577,29 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             db.SaveChanges();
             Dispose();
+            await deletingAnimationMessage;
+            await deletingGameMessage;
         }
         public async Task ResumeResultingAsync(ITelegramBotClient client)
         {
-            using var db = new ChapubelichdbContext();
+            await using var db = new ChapubelichdbContext();
             string result = Summarize(db, client);
 
-            if (_gameSessionData.GameMessageId != 0)
-                await client.TryDeleteMessageAsync(ChatId, _gameSessionData.GameMessageId);
+            Task deletingAnimationMessage = client.TryDeleteMessageAsync(ChatId, _gameSessionData.AnimationMessageId);
 
-            if (_gameSessionData.AnimationMessageId != 0)
-                await client.TryDeleteMessageAsync(ChatId, _gameSessionData.AnimationMessageId);
+            Task deletingGameMessage = client.TryDeleteMessageAsync(ChatId, _gameSessionData.GameMessageId);
+
 
             await client.TrySendTextMessageAsync(
                 _gameSessionData.ChatId,
                 result,
                 Telegram.Bot.Types.Enums.ParseMode.Html,
                 replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
+
             db.SaveChanges();
             Dispose();
+            await deletingAnimationMessage;
+            await deletingGameMessage;
         }
         private StringBuilder UserBetsToStringAsync(User user)
         {
@@ -706,17 +713,16 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 db.SaveChanges();
             }
 
-            if (_gameSessionData.GameMessageId != 0)
-            {
-                await client.TryDeleteMessageAsync(_gameSessionData.GameMessageId, _gameSessionData.GameMessageId);
-            }
-            await client.TrySendTextMessageAsync(
+            Task deletingMessage = client.TryDeleteMessageAsync(_gameSessionData.GameMessageId, _gameSessionData.GameMessageId);
+            Task sendingMessage = client.TrySendTextMessageAsync(
                 _gameSessionData.ChatId,
                 "Игровая сессия отменена из-за отсутствия активности" + returnedBets,
                 Telegram.Bot.Types.Enums.ParseMode.Html,
                 replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
 
             Dispose();
+            await deletingMessage;
+            await sendingMessage;
         }
         private void DelayTimer()
         {
@@ -840,32 +846,30 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             if (userColorTokens.Any() || userNumberTokens.Any())
             {
-                using (var db = new ChapubelichdbContext())
+                using var db = new ChapubelichdbContext();
+                foreach (var token in userColorTokens)
                 {
-                    foreach (var token in userColorTokens)
-                    {
-                        user.Balance += token.BetSum;
-                        _gameSessionData.ColorBetTokens.Remove(token);
-                    }
-
-                    foreach (var token in userNumberTokens)
-                    {
-                        user.Balance += token.BetSum;
-                        _gameSessionData.NumberBetTokens.Remove(token);
-                    }
-
-                    var dbGameSession = db.RouletteGameSessions.FirstOrDefault(x => x.ChatId == ChatId);
-                    if (dbGameSession != null)
-                    {
-                        dbGameSession.ColorBetTokens = _gameSessionData.ColorBetTokens;
-                        dbGameSession.NumberBetTokens = _gameSessionData.NumberBetTokens;
-                    }
-                    else
-                    {
-                        db.RouletteGameSessions.Add(_gameSessionData);
-                    }
-                    db.SaveChanges();
+                    user.Balance += token.BetSum;
+                    _gameSessionData.ColorBetTokens.Remove(token);
                 }
+
+                foreach (var token in userNumberTokens)
+                {
+                    user.Balance += token.BetSum;
+                    _gameSessionData.NumberBetTokens.Remove(token);
+                }
+
+                var dbGameSession = db.RouletteGameSessions.FirstOrDefault(x => x.ChatId == ChatId);
+                if (dbGameSession != null)
+                {
+                    dbGameSession.ColorBetTokens = _gameSessionData.ColorBetTokens;
+                    dbGameSession.NumberBetTokens = _gameSessionData.NumberBetTokens;
+                }
+                else
+                {
+                    db.RouletteGameSessions.Add(_gameSessionData);
+                }
+                db.SaveChanges();
                 return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, твоя ставка отменена \U0001F44D";
             }
             return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, у тебя нет активных ставок";
