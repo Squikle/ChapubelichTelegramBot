@@ -27,8 +27,8 @@ namespace ChapubelichBot.Init
         public static void Start()
         {
             RestoreData();
-            Client.StartReceiving();
             DailyProcess();
+            Client.StartReceiving();
             Client.OnMessage += MessageProcessAsync;
             Client.OnCallbackQuery += CallbackProcess;
             Console.WriteLine("StartReceiving...");
@@ -117,7 +117,7 @@ namespace ChapubelichBot.Init
                     return;
             }
 
-            bool userIsRegistered = IsMemberRegistered(e.Message.From);
+            bool userIsRegistered = IsUserRegistered(e.Message.From);
 
             if (e.Message?.Text == null)
                 return;
@@ -254,7 +254,7 @@ namespace ChapubelichBot.Init
                     return;
             }
 
-            bool userIsRegistered = IsMemberRegistered(callbackQuery.From);
+            bool userIsRegistered = IsUserRegistered(callbackQuery.From);
 
             var callbackMessages = Bot.CallBackMessagesList;
             foreach (var command in callbackMessages)
@@ -310,7 +310,7 @@ namespace ChapubelichBot.Init
 
             return group;
         }
-        private static bool IsMemberRegistered(User user)
+        private static bool IsUserRegistered(User user)
         {
             using var db = new ChapubelichdbContext();
             var member = db.Users.FirstOrDefault(x => x.UserId == user.Id);
