@@ -27,9 +27,6 @@ namespace ChapubelichBot.Init
             {
                 new HelloCommand(),
 
-                new SetShutdownCommand(),
-                new CancelShutdownCommand(),
-
                 new BalanceCommand(),
                 new MenuCommand(),
                 new HelpCommand(),
@@ -78,6 +75,12 @@ namespace ChapubelichBot.Init
                 new SendAllRegexCommand(),
                 new EchoRegexCommand(),
             };
+            _botAdminCommands = new List<Command>()
+            {
+                new SetShutdownCommand(),
+                new CancelShutdownCommand(),
+                new GetIdCommand()
+            };
 
 #if (DEBUG)
             string apiKey = GetKeys().GetValue<string>("ApiKeys:DebugKey");
@@ -100,12 +103,14 @@ namespace ChapubelichBot.Init
         private static List<Command>                    _botPrivateCommands;
         // TODO команды груп
         // private static List<Command>                    _botGroupCommands;
+        private static List<Command>                    _botAdminCommands;
         private static List<RegexCommand>               _botRegexCommands;
         private static List<RegexCommand>               _botAdminRegexCommands;
         private static List<CallBackMessage>            _botCallbackMessages;
         public static IReadOnlyList<Command>            BotPrivateCommandsList => _botPrivateCommands.AsReadOnly();
         // TODO команды груп
         // public static IReadOnlyList<Command>            BotGroupCommandsList => _botGroupCommands.AsReadOnly();
+        public static IReadOnlyList<Command>            BotAdminCommandsList => _botAdminCommands.AsReadOnly();
         public static IReadOnlyList<RegexCommand>       BotRegexCommandsList => _botRegexCommands.AsReadOnly();
         public static IReadOnlyList<RegexCommand>       BotAdminRegexCommandsList => _botAdminRegexCommands.AsReadOnly();
         public static IReadOnlyList<CallBackMessage>    CallBackMessagesList => _botCallbackMessages.AsReadOnly();

@@ -121,10 +121,10 @@ namespace ChapubelichBot.Init
 
             bool userIsRegistered = IsUserRegistered(e.Message.From);
 
-            if (e.Message?.Text == null)
+            if (e.Message?.Text == null || e.Message.ForwardFrom != null)
                 return;
 
-            Console.WriteLine("{0:HH:mm:ss}: {1} | {2} ({3} | {4}): [{5}] {6}", e.Message.Date,
+            Console.WriteLine("{0:HH:mm:ss}: {1} {2}| {3} ({4} | {5}): [{6}] {7}", e.Message.Date, e.Message.Type,
                 e.Message.From.Id, e.Message.From.Username,
                 e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.MessageId, e.Message.Text);
 
@@ -133,13 +133,22 @@ namespace ChapubelichBot.Init
 
             if (e.Message.From.Id == 243857110)
             {
-                foreach (var privateMediaCommand in Bot.BotAdminRegexCommandsList)
-                    if (e.Message.Text != null && privateMediaCommand.Contains(e.Message.Text)
-                        || e.Message.Caption != null && privateMediaCommand.Contains(e.Message.Caption))
+                foreach (var adminRegexCommand in Bot.BotAdminRegexCommandsList)
+                    if (e.Message.Text != null && adminRegexCommand.Contains(e.Message.Text)
+                        || e.Message.Caption != null && adminRegexCommand.Contains(e.Message.Caption))
                     {
-                        await privateMediaCommand.ExecuteAsync(e.Message, Client);
+                        await adminRegexCommand.ExecuteAsync(e.Message, Client);
                         return;
                     }
+
+                foreach (var adminCommand in Bot.BotAdminCommandsList)
+                {
+                    if (adminCommand.Contains(e.Message.Text, privateChat: true))
+                    {
+                        await adminCommand.ExecuteAsync(e.Message, Client);
+                        return;
+                    }
+                }
             }
 
             switch (e.Message.Chat.Type)
