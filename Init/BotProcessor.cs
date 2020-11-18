@@ -117,7 +117,7 @@ namespace ChapubelichBot.Init
                     return;
             }
 
-            bool userIsRegistered = UpdateMember(e.Message.From) != null;
+            bool userIsRegistered = IsMemberRegistered(e.Message.From);
 
             if (e.Message?.Text == null)
                 return;
@@ -154,8 +154,7 @@ namespace ChapubelichBot.Init
                 {
                     GroupMessageProcessAsync(e.Message, userIsRegistered);
                     break;
-                }
-                    
+                }  
             }
         }
         private static void CallbackProcess(object sender, CallbackQueryEventArgs e)
@@ -255,7 +254,7 @@ namespace ChapubelichBot.Init
                     return;
             }
 
-            bool userIsRegistered = UpdateMember(callbackQuery.From) != null;
+            bool userIsRegistered = IsMemberRegistered(callbackQuery.From);
 
             var callbackMessages = Bot.CallBackMessagesList;
             foreach (var command in callbackMessages)
@@ -272,7 +271,6 @@ namespace ChapubelichBot.Init
                         return;
                     }
             }
-
             if (Bot.GenderCallbackMessage.Contains(callbackQuery))
                 await Bot.GenderCallbackMessage.ExecuteAsync(callbackQuery, Client);
         }
@@ -312,12 +310,15 @@ namespace ChapubelichBot.Init
 
             return group;
         }
-        private static ChapubelichBot.Database.Models.User UpdateMember(User user)
+        private static bool IsMemberRegistered(User user)
         {
             using var db = new ChapubelichdbContext();
             var member = db.Users.FirstOrDefault(x => x.UserId == user.Id);
 
-            return member;
+            if (member != null)
+                return true;
+
+            return false;
         }
 
         private static async Task SendRegistrationAlertAsync(Message message)
