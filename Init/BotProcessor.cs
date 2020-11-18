@@ -14,6 +14,7 @@ using Quartz.Impl;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using User = Telegram.Bot.Types.User;
 
 namespace ChapubelichBot.Init
@@ -22,6 +23,7 @@ namespace ChapubelichBot.Init
     {
         private static readonly ITelegramBotClient Client = Bot.GetClient();
         private static readonly IConfiguration     Config = Bot.GetConfig();
+        private static readonly int BotId = Client.GetMeAsync().Result.Id;
         public static void Start()
         {
             RestoreData();
@@ -108,16 +110,14 @@ namespace ChapubelichBot.Init
 
         private static async void MessageProcessAsync(object sender, MessageEventArgs e)
         {
-            if (e.Message.From.Id == 243857110)
+            if (e.Message.Chat.Type == ChatType.Supergroup || e.Message.Chat.Type == ChatType.Group)
             {
-                foreach (var privateMediaCommand in Bot.BotAdminRegexCommandsList)
-                    if (e.Message.Text != null && privateMediaCommand.Contains(e.Message.Text)
-                        || e.Message.Caption != null && privateMediaCommand.Contains(e.Message.Caption))
-                    {
-                        await privateMediaCommand.ExecuteAsync(e.Message, Client);
-                        return;
-                    }
+                var group = UpdateGroup(e.Message);
+                if (group != null && !group.IsAvailable)
+                    return;
             }
+
+            bool userIsRegistered = UpdateMember(e.Message.From) != null;
 
             if (e.Message?.Text == null)
                 return;
@@ -129,22 +129,29 @@ namespace ChapubelichBot.Init
             if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
 
-            bool userIsRegistered = UpdateMember(e.Message);
+            if (e.Message.From.Id == 243857110)
+            {
+                foreach (var privateMediaCommand in Bot.BotAdminRegexCommandsList)
+                    if (e.Message.Text != null && privateMediaCommand.Contains(e.Message.Text)
+                        || e.Message.Caption != null && privateMediaCommand.Contains(e.Message.Caption))
+                    {
+                        await privateMediaCommand.ExecuteAsync(e.Message, Client);
+                        return;
+                    }
+            }
 
             switch (e.Message.Chat.Type)
             {
-                case Telegram.Bot.Types.Enums.ChatType.Private:
+                case ChatType.Private:
                     PrivateMessageProcessAsync(e.Message, userIsRegistered);
                     break;
-                case Telegram.Bot.Types.Enums.ChatType.Group:
+                case ChatType.Group:
                 {
-                    UpdateGroup(e.Message);
                     GroupMessageProcessAsync(e.Message, userIsRegistered);
                     break;
                 }
-                case Telegram.Bot.Types.Enums.ChatType.Supergroup:
+                case ChatType.Supergroup:
                 {
-                    UpdateGroup(e.Message);
                     GroupMessageProcessAsync(e.Message, userIsRegistered);
                     break;
                 }
@@ -241,16 +248,14 @@ namespace ChapubelichBot.Init
             if (callbackQuery.Data == null)
                 return;
 
-            bool userIsRegistered = false;
-            await using (var db = new ChapubelichdbContext())
+            if (callbackQuery.Message.Chat.Type == ChatType.Supergroup || callbackQuery.Message.Chat.Type == ChatType.Group)
             {
-                var member = db.Users.FirstOrDefault(x => x.UserId == callbackQuery.From.Id);
-                if (member != null)
-                {
-                    await UpdateMember(callbackQuery.From, member, db);
-                    userIsRegistered = true;
-                }
+                var group = UpdateGroup(callbackQuery.Message);
+                if (group != null && !group.IsAvailable)
+                    return;
             }
+
+            bool userIsRegistered = UpdateMember(callbackQuery.From) != null;
 
             var callbackMessages = Bot.CallBackMessagesList;
             foreach (var command in callbackMessages)
@@ -272,9 +277,15 @@ namespace ChapubelichBot.Init
                 await Bot.GenderCallbackMessage.ExecuteAsync(callbackQuery, Client);
         }
 
-        private static bool UpdateGroup(Message message)
+        private static Group UpdateGroup(Message message)
         {
-            bool alreadyExist = false;
+            bool isChatAvailableToSend;
+            var botMember = Client.GetChatMemberAsync(message.Chat.Id, BotId).Result;
+            if (botMember != null)
+                isChatAvailableToSend = (botMember.CanSendMessages ?? true)
+                                        && (botMember.CanSendMediaMessages ?? true)
+                                        && (botMember.IsMember ?? true);
+            else isChatAvailableToSend = false;
 
             using var db = new ChapubelichdbContext();
             Group group = db.Groups.Include(u => u.Users).FirstOrDefault(g => g.GroupId == message.Chat.Id);
@@ -288,12 +299,10 @@ namespace ChapubelichBot.Init
                 };
                 db.Groups.Add(group);
             }
-            else if (!group.IsAvailable)
-            {
-                group.IsAvailable = true;
-                alreadyExist = true;
-            }
 
+            if (group.IsAvailable != isChatAvailableToSend)
+                group.IsAvailable = isChatAvailableToSend;
+            
             var user = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
 
             if (user != null && group.Users.All(u => u.UserId != user.UserId))
@@ -301,29 +310,27 @@ namespace ChapubelichBot.Init
 
             db.SaveChanges();
 
-            return alreadyExist;
+            return group;
         }
-        private static bool UpdateMember(Message message)
+        private static ChapubelichBot.Database.Models.User UpdateMember(User user)
         {
             using var db = new ChapubelichdbContext();
-            var member = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+            var member = db.Users.FirstOrDefault(x => x.UserId == user.Id);
             if (member != null)
             {
-                if (member.FirstName != message.From.FirstName)
+                if (member.FirstName != user.FirstName)
                 {
-                    member.FirstName = message.From.FirstName;
+                    member.FirstName = user.FirstName;
                     db.SaveChanges();
                 }
-
-                return true;
             }
 
-            return false;
+            return member;
         }
 
         private static async Task SendRegistrationAlertAsync(Message message)
         {
-            if (message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Private)
+            if (message.Chat.Type == ChatType.Private)
             {
                 await Client.TrySendTextMessageAsync(
                     message.Chat.Id,
@@ -331,8 +338,8 @@ namespace ChapubelichBot.Init
                     replyToMessageId: message.MessageId);
                 await Bot.RegistrationCommand.ExecuteAsync(message, Client);
             }
-            else if (message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Group ||
-                message.Chat.Type == Telegram.Bot.Types.Enums.ChatType.Supergroup)
+            else if (message.Chat.Type == ChatType.Group ||
+                message.Chat.Type == ChatType.Supergroup)
             {
                 await Client.TrySendTextMessageAsync(
                     message.Chat.Id,
