@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ChapubelichBot.Database;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
@@ -13,7 +10,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ChapubelichBot.Types.Extensions
 {
-    internal static class TelegramBotExtensions
+    internal static class ChapubelichBotApiExtensions
     {
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
@@ -162,14 +159,6 @@ namespace ChapubelichBot.Types.Extensions
             {
                 Console.WriteLine($"Не удалось удалить сообщение. callbackQueryId: {callbackQueryId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
             }
-        }
-        public static string ToMoneyFormat(this int moneySum)
-        {
-            return $"{moneySum:n0}";
-        }
-        public static string ToMoneyFormat(this long moneySum)
-        {
-            return $"{moneySum:n0}";
         }
     }
 }
