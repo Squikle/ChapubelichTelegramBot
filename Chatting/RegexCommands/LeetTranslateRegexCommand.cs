@@ -133,7 +133,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 answer,
                 replyToMessageId: message.MessageId);
         }
-        static string FromLeet(string textToTranslate)
+        static private string FromLeet(string textToTranslate)
         {
             StringBuilder translatedString = new StringBuilder();
             for (int pivot = 0; pivot < textToTranslate.Length;)
@@ -362,7 +362,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             }
             return translatedString.ToString();
         }
-        static string ToLeet(string textToTranslate)
+        static private string ToLeet(string textToTranslate)
         {
             StringBuilder convertedToCyrillic = new StringBuilder(textToTranslate.Length);
 
