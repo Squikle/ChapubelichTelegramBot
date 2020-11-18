@@ -53,12 +53,19 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             int replyId = message.From.Id == client.BotId ? 0 : message.MessageId;
 
-            _gameSessionData.GameMessageId = (await client.TrySendPhotoAsync(message.Chat.Id,
+            var gameMessage = await client.TrySendPhotoAsync(message.Chat.Id,
                 "https://i.imgur.com/SN8DRoa.png",
                 caption: "Игра запущена. Ждем ваши ставки...\n" +
                          "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
                 replyToMessageId: replyId,
-                replyMarkup: InlineKeyboards.RouletteBetsMarkup)).MessageId;
+                replyMarkup: InlineKeyboards.RouletteBetsMarkup);
+            if (gameMessage == null)
+            {
+                Dispose();
+                return;
+            }
+
+            _gameSessionData.GameMessageId = gameMessage.MessageId;
 
             using var db = new ChapubelichdbContext();
 
