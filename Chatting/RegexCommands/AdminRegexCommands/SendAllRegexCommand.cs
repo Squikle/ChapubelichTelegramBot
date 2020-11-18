@@ -29,12 +29,16 @@ namespace ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands
                 usersToSendId = db.Users.Select(x => x.UserId).ToList();
             }
 
+            List<Task> sendingMessages = new List<Task>();
+
             if (message.Photo != null)
             {
                 InputOnlineFile inputFile = new InputOnlineFile(message.Photo[^1].FileId);
                 foreach (var userToSendId in usersToSendId)
                 {
-                    await client.TrySendPhotoAsync(userToSendId, inputFile, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html);
+                    Task sendMessageTask = client.TrySendPhotoAsync(userToSendId, inputFile, sendMessage,
+                        Telegram.Bot.Types.Enums.ParseMode.Html);
+                    sendingMessages.Add(sendMessageTask);
                 }
             }
             else if (message.Audio != null)
@@ -43,7 +47,10 @@ namespace ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands
                 InputMedia inputFileThumb = new InputMedia(message.Audio.Thumb.FileId);
                 foreach (var userToSendId in usersToSendId)
                 {
-                    await client.TrySendAudioAsync(userToSendId, inputFile, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, message.Audio.Duration, message.Audio.Performer, message.Audio.Title, false, 0, null, default, inputFileThumb);
+                    Task sendMessageTask = client.TrySendAudioAsync(userToSendId, inputFile, sendMessage, 
+                        Telegram.Bot.Types.Enums.ParseMode.Html, message.Audio.Duration, message.Audio.Performer, 
+                        message.Audio.Title, false, 0, null, default, inputFileThumb);
+                    sendingMessages.Add(sendMessageTask);
                 }
             }
             else if (message.Video != null)
@@ -52,7 +59,9 @@ namespace ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands
                 InputMedia inputFileThumb = new InputMedia(message.Video.Thumb.FileId);
                 foreach (var userToSendId in usersToSendId)
                 {
-                    await client.TrySendVideoAsync(userToSendId, inputFile, message.Video.Duration, message.Video.Width, message.Video.Height, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, false, 0, null, default, inputFileThumb);
+                    Task sendMessageTask = client.TrySendVideoAsync(userToSendId, inputFile, message.Video.Duration, message.Video.Width, 
+                        message.Video.Height, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html, false, false, 0, null, default, inputFileThumb);
+                    sendingMessages.Add(sendMessageTask);
                 }
             }
             else if (message.Animation != null)
@@ -61,16 +70,21 @@ namespace ChapubelichBot.Chatting.RegexCommands.AdminRegexCommands
                 InputMedia inputFileThumb = new InputMedia(message.Animation.Thumb.FileId);
                 foreach (var userToSendId in usersToSendId)
                 {
-                    await client.TrySendAnimationAsync(userToSendId, inputFile, message.Animation.Duration, message.Animation.Width, message.Animation.Height, inputFileThumb, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html);
+                    Task sendMessageTask = client.TrySendAnimationAsync(userToSendId, inputFile, message.Animation.Duration, message.Animation.Width, 
+                        message.Animation.Height, inputFileThumb, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html);
+                    sendingMessages.Add(sendMessageTask);
                 }
             }
             else if (message.Text != null && !string.IsNullOrEmpty(sendMessage))
             {
                 foreach (var userToSendId in usersToSendId)
                 {
-                    await client.TrySendTextMessageAsync(userToSendId, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html);
+                    Task sendMessageTask = client.TrySendTextMessageAsync(userToSendId, sendMessage, Telegram.Bot.Types.Enums.ParseMode.Html);
+                    sendingMessages.Add(sendMessageTask);
                 }
             }
+
+            Task.WaitAll(sendingMessages.ToArray());
         }
     }
 }
