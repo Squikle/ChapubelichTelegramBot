@@ -325,12 +325,7 @@ namespace ChapubelichBot.Init
         private static bool IsUserRegistered(User user)
         {
             using var db = new ChapubelichdbContext();
-            var member = db.Users.FirstOrDefault(x => x.UserId == user.Id);
-
-            if (member != null)
-                return true;
-
-            return false;
+            return db.Users.Any(x => x.UserId == user.Id);
         }
 
         private static async Task SendRegistrationAlertAsync(Message message)
