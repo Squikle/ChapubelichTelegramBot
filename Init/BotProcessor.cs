@@ -114,7 +114,7 @@ namespace ChapubelichBot.Init
         {
             if (e.Message.Chat.Type == ChatType.Supergroup || e.Message.Chat.Type == ChatType.Group)
             {
-                var group = UpdateGroup(e.Message);
+                var group = await UpdateGroup(e.Message);
                 if (group != null && !group.IsAvailable)
                     return;
             }
@@ -261,7 +261,7 @@ namespace ChapubelichBot.Init
 
             if (callbackQuery.Message.Chat.Type == ChatType.Supergroup || callbackQuery.Message.Chat.Type == ChatType.Group)
             {
-                var group = UpdateGroup(callbackQuery.Message);
+                var group = await UpdateGroup(callbackQuery.Message);
                 if (group != null && !group.IsAvailable)
                     return;
             }
@@ -287,17 +287,13 @@ namespace ChapubelichBot.Init
                 await Bot.GenderCallbackMessage.ExecuteAsync(callbackQuery, Client);
         }
 
-        private static Group UpdateGroup(Message message)
+        private static async Task<Group> UpdateGroup(Message message)
         {
-            bool isChatAvailableToSend;
-            var botMember = Client.GetChatMemberAsync(message.Chat.Id, BotId).Result;
-            if (botMember != null)
-                isChatAvailableToSend = (botMember.CanSendMessages ?? true)
-                                        && (botMember.CanSendMediaMessages ?? true)
-                                        && (botMember.IsMember ?? true);
-            else isChatAvailableToSend = false;
+            Task<ChatMember> gettingChatMember = Client.GetChatMemberAsync(message.Chat.Id, BotId);
 
-            using var db = new ChapubelichdbContext();
+            bool saveChangesRequired = false;
+
+            await using var db = new ChapubelichdbContext();
             Group group = db.Groups.Include(u => u.Users).FirstOrDefault(g => g.GroupId == message.Chat.Id);
             if (group == null)
             {
@@ -308,17 +304,32 @@ namespace ChapubelichBot.Init
                     IsAvailable = true
                 };
                 db.Groups.Add(group);
+                saveChangesRequired = true;
             }
 
+            var botMember = await gettingChatMember;
+
+            bool isChatAvailableToSend = false;
+            if (botMember != null)
+                isChatAvailableToSend = (botMember.CanSendMessages ?? true)
+                                        && (botMember.CanSendMediaMessages ?? true)
+                                        && (botMember.IsMember ?? true);
+
             if (group.IsAvailable != isChatAvailableToSend)
+            {
                 group.IsAvailable = isChatAvailableToSend;
+                saveChangesRequired = true;
+            }
             
             var user = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
-
             if (user != null && group.Users.All(u => u.UserId != user.UserId))
+            {
                 group.Users.Add(user);
+                saveChangesRequired = true;
+            }
 
-            db.SaveChanges();
+            if (saveChangesRequired)
+                db.SaveChanges();
 
             return group;
         }
