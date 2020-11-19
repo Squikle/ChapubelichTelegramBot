@@ -112,15 +112,16 @@ namespace ChapubelichBot.Init
 
         private static async void MessageProcessAsync(object sender, MessageEventArgs e)
         {
-            if (e.Message.Chat.Type == ChatType.Supergroup || e.Message.Chat.Type == ChatType.Group)
-            {
-                var group = await UpdateGroup(e.Message);
-                if (group != null && !group.IsAvailable)
-                    return;
-            }
-
             if (e.Message?.Text == null || e.Message.ForwardFrom != null)
                 return;
+
+            Group groupOfMessage = null;
+            if (e.Message.Chat.Type == ChatType.Supergroup || e.Message.Chat.Type == ChatType.Group)
+            {
+                groupOfMessage = await UpdateGroup(e.Message);
+                if (groupOfMessage != null && !groupOfMessage.IsAvailable)
+                    return;
+            }
 
             Console.WriteLine("{0:HH:mm:ss}: {1} {2}| {3} ({4} | {5}): [{6}] {7}", e.Message.Date, e.Message.Type,
                 e.Message.From.Id, e.Message.From.Username,
@@ -149,23 +150,15 @@ namespace ChapubelichBot.Init
                 }
             }
 
-            bool userIsRegistered = IsUserRegistered(e.Message.From);
-
-            switch (e.Message.Chat.Type)
+            if (groupOfMessage != null)
             {
-                case ChatType.Private:
-                    PrivateMessageProcessAsync(e.Message, userIsRegistered);
-                    break;
-                case ChatType.Group:
-                {
-                    GroupMessageProcessAsync(e.Message, userIsRegistered);
-                    break;
-                }
-                case ChatType.Supergroup:
-                {
-                    GroupMessageProcessAsync(e.Message, userIsRegistered);
-                    break;
-                }  
+                bool userIsRegistered = IsMemberRegistered(groupOfMessage, e.Message.From);
+                GroupMessageProcessAsync(e.Message, userIsRegistered);
+            }
+            else
+            {
+                bool userIsRegistered = IsUserRegistered(e.Message.From);
+                PrivateMessageProcessAsync(e.Message, userIsRegistered);
             }
         }
         private static void CallbackProcess(object sender, CallbackQueryEventArgs e)
@@ -259,14 +252,18 @@ namespace ChapubelichBot.Init
             if (callbackQuery.Data == null)
                 return;
 
-            if (callbackQuery.Message.Chat.Type == ChatType.Supergroup || callbackQuery.Message.Chat.Type == ChatType.Group)
+            bool userIsRegistered;
+            if (callbackQuery.Message.Chat.Type == ChatType.Supergroup ||
+                callbackQuery.Message.Chat.Type == ChatType.Group)
             {
-                var group = await UpdateGroup(callbackQuery.Message);
-                if (group != null && !group.IsAvailable)
+                Group groupOfMessage = await UpdateGroup(callbackQuery.Message);
+                if (groupOfMessage != null && !groupOfMessage.IsAvailable)
                     return;
-            }
 
-            bool userIsRegistered = IsUserRegistered(callbackQuery.From);
+                userIsRegistered = IsMemberRegistered(groupOfMessage, callbackQuery.From);
+            }
+            else
+                userIsRegistered = IsUserRegistered(callbackQuery.From);
 
             var callbackMessages = Bot.CallBackMessagesList;
             foreach (var command in callbackMessages)
@@ -337,6 +334,10 @@ namespace ChapubelichBot.Init
         {
             using var db = new ChapubelichdbContext();
             return db.Users.Any(x => x.UserId == user.Id);
+        }
+        private static bool IsMemberRegistered(Group group, User user)
+        {
+            return group.Users.Any(x => x.UserId == user.Id);
         }
 
         private static async Task SendRegistrationAlertAsync(Message message)
