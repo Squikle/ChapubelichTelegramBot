@@ -119,8 +119,6 @@ namespace ChapubelichBot.Init
                     return;
             }
 
-            bool userIsRegistered = IsUserRegistered(e.Message.From);
-
             if (e.Message?.Text == null || e.Message.ForwardFrom != null)
                 return;
 
@@ -150,6 +148,8 @@ namespace ChapubelichBot.Init
                     }
                 }
             }
+
+            bool userIsRegistered = IsUserRegistered(e.Message.From);
 
             switch (e.Message.Chat.Type)
             {
