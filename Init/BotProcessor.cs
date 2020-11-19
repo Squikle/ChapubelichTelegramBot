@@ -94,7 +94,6 @@ namespace ChapubelichBot.Init
             if (dailyResetTask != null)
                 await dailyResetTask;
         }
-
         private static async void RestoreData()
         {
             List<Task> resumingTasks = new List<Task>();
@@ -161,10 +160,43 @@ namespace ChapubelichBot.Init
                 PrivateMessageProcessAsync(e.Message, userIsRegistered);
             }
         }
-        private static void CallbackProcess(object sender, CallbackQueryEventArgs e)
+        private static async void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {
-            AllCallbackProcessAsync(e.CallbackQuery);
+            if (e.CallbackQuery.Data == null)
+                return;
+
+            bool userIsRegistered;
+            if (e.CallbackQuery.Message.Chat.Type == ChatType.Supergroup ||
+                e.CallbackQuery.Message.Chat.Type == ChatType.Group)
+            {
+                Group groupOfMessage = await UpdateGroup(e.CallbackQuery.Message);
+                if (groupOfMessage != null && !groupOfMessage.IsAvailable)
+                    return;
+
+                userIsRegistered = IsMemberRegistered(groupOfMessage, e.CallbackQuery.From);
+            }
+            else
+                userIsRegistered = IsUserRegistered(e.CallbackQuery.From);
+
+            var callbackMessages = Bot.CallBackMessagesList;
+            foreach (var command in callbackMessages)
+            {
+                if (command.Contains(e.CallbackQuery))
+                    if (userIsRegistered)
+                    {
+                        await command.ExecuteAsync(e.CallbackQuery, Client);
+                        return;
+                    }
+                    else
+                    {
+                        await SendRegistrationAlertAsync(e.CallbackQuery);
+                        return;
+                    }
+            }
+            if (Bot.GenderCallbackMessage.Contains(e.CallbackQuery))
+                await Bot.GenderCallbackMessage.ExecuteAsync(e.CallbackQuery, Client);
         }
+
         private static async void PrivateMessageProcessAsync(Message message, bool userIsRegistered)
         {
             bool repeatedRegisterRequest = false;
@@ -246,42 +278,6 @@ namespace ChapubelichBot.Init
                     else
                         await SendRegistrationAlertAsync(message);
             }
-        }
-        private static async void AllCallbackProcessAsync(CallbackQuery callbackQuery)
-        {
-            if (callbackQuery.Data == null)
-                return;
-
-            bool userIsRegistered;
-            if (callbackQuery.Message.Chat.Type == ChatType.Supergroup ||
-                callbackQuery.Message.Chat.Type == ChatType.Group)
-            {
-                Group groupOfMessage = await UpdateGroup(callbackQuery.Message);
-                if (groupOfMessage != null && !groupOfMessage.IsAvailable)
-                    return;
-
-                userIsRegistered = IsMemberRegistered(groupOfMessage, callbackQuery.From);
-            }
-            else
-                userIsRegistered = IsUserRegistered(callbackQuery.From);
-
-            var callbackMessages = Bot.CallBackMessagesList;
-            foreach (var command in callbackMessages)
-            {
-                if (command.Contains(callbackQuery))
-                    if (userIsRegistered)
-                    {
-                        await command.ExecuteAsync(callbackQuery, Client);
-                        return;
-                    }
-                    else
-                    {
-                        await SendRegistrationAlertAsync(callbackQuery);
-                        return;
-                    }
-            }
-            if (Bot.GenderCallbackMessage.Contains(callbackQuery))
-                await Bot.GenderCallbackMessage.ExecuteAsync(callbackQuery, Client);
         }
 
         private static async Task<Group> UpdateGroup(Message message)
