@@ -263,17 +263,16 @@ namespace ChapubelichBot.Init
         }
         private static async void GroupMessageProcessAsync(Message message, bool userIsRegistered)
         {
-            // TODO команды групп
-            /*foreach (var groupCommand in Bot.BotGroupCommandsList)
+            foreach (var groupCommand in Bot.BotGroupRegexCommandsList)
             {
-                if (groupCommand.Contains(e.Message.Text, privateChat: false))
+                if (groupCommand.Contains(message.Text))
                 {
                     if (userIsRegistered)
-                        await groupCommand.ExecuteAsync(e.Message, Client);
+                        await groupCommand.ExecuteAsync(message, Client);
                     else
-                        await SendRegistrationAlertAsync(e.Message);
+                        await SendRegistrationAlertAsync(message);
                 }
-            }*/
+            }
 
             foreach (var regexCommand in Bot.BotRegexCommandsList)
             {

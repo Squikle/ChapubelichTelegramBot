@@ -39,11 +39,10 @@ namespace ChapubelichBot.Init
                 new GamesCommand(),
                 new RouletteStartCommand(),
             };
-            // TODO команды груп
-            /*BotGroupCommands = new List<Command>()
+            _botGroupRegexCommands = new List<RegexCommand>()
             {
-
-            };*/
+                new TopChatPlayersRegexCommand(),
+            };
             _botCallbackMessages = new List<CallBackMessage>()
             {
                 new DefaultBetChangeCallbackMessage(),
@@ -102,16 +101,14 @@ namespace ChapubelichBot.Init
         public static GenderCallbackMessage             GenderCallbackMessage;
 
         private static List<Command>                    _botPrivateCommands;
-        // TODO команды груп
-        // private static List<Command>                    _botGroupCommands;
         private static List<Command>                    _botAdminCommands;
+        private static List<RegexCommand>               _botGroupRegexCommands;
         private static List<RegexCommand>               _botRegexCommands;
         private static List<RegexCommand>               _botAdminRegexCommands;
         private static List<CallBackMessage>            _botCallbackMessages;
         public static IReadOnlyList<Command>            BotPrivateCommandsList => _botPrivateCommands.AsReadOnly();
-        // TODO команды груп
-        // public static IReadOnlyList<Command>            BotGroupCommandsList => _botGroupCommands.AsReadOnly();
         public static IReadOnlyList<Command>            BotAdminCommandsList => _botAdminCommands.AsReadOnly();
+        public static IReadOnlyList<RegexCommand>       BotGroupRegexCommandsList => _botGroupRegexCommands.AsReadOnly();
         public static IReadOnlyList<RegexCommand>       BotRegexCommandsList => _botRegexCommands.AsReadOnly();
         public static IReadOnlyList<RegexCommand>       BotAdminRegexCommandsList => _botAdminRegexCommands.AsReadOnly();
         public static IReadOnlyList<CallBackMessage>    CallBackMessagesList => _botCallbackMessages.AsReadOnly();
