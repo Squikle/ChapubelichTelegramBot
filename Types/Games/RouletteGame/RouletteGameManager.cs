@@ -739,8 +739,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     .ToList()
                     .Where(gs => gs.LastActivity.AddSeconds(timeToSessionDispose) < DateTime.Now)
                     .ToList();
-
-                Console.WriteLine(deadSessions[0].LastActivity.AddSeconds(timeToSessionDispose));
             }
 
             Parallel.ForEach(deadSessions, async gs =>
