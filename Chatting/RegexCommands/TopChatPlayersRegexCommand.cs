@@ -43,7 +43,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
             var orderedTopUsers = topUsersNamed.OrderByDescending(k => k.Key.Balance).ToList();
 
-            StringBuilder answer = new StringBuilder($"💰Топ {orderedTopUsers.Count} богатеев чата💰");
+            StringBuilder answer = new StringBuilder($"💰Топ {orderedTopUsers.Count} богатеев чата💰\n");
             for (int i = 0; i < orderedTopUsers.Count; i++)
             {
                 if (topUsersNamed.ElementAt(i).Value == null)
