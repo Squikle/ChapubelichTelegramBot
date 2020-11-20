@@ -739,7 +739,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 int timeToSessionDispose = Bot.GetConfig().GetValue<int>("AppSettings:StopGameDelay");
 
                 deadSessions = dbContext.RouletteGameSessions
-                    .Where(gs => gs.LastActivity < DateTime.Now)
+                    .Where(gs => gs.LastActivity < DateTime.Now && !gs.Resulting)
                     .ToList()
                     .Where(gs => gs.LastActivity.AddSeconds(timeToSessionDispose) < DateTime.Now)
                     .ToList();
