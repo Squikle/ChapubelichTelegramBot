@@ -56,6 +56,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     Resulting = false,
                     ColorBetTokens = new List<RouletteColorBetToken>(),
                     NumberBetTokens = new List<RouletteNumbersBetToken>(),
+                    LastActivity = DateTime.Now,
                     ResultNumber = GetRandomResultNumber()
                 };
                 dbContext.RouletteGameSessions.Add(gameSession);
@@ -63,9 +64,12 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
             else
             {
-                await _client.TrySendTextMessageAsync(message.Chat.Id,
+                Task sendingMessage = _client.TrySendTextMessageAsync(message.Chat.Id,
                     "Игра уже запущена!",
                     replyToMessageId: gameSession.GameMessageId);
+                gameSession.LastActivity = DateTime.Now;
+                dbContext.SaveChanges();
+                await sendingMessage;
                 return;
             }
 
