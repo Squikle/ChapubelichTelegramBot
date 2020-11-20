@@ -103,6 +103,10 @@ namespace ChapubelichBot.Init
             {
                  gameSessionsToResume =
                     db.RouletteGameSessions
+                        .Include(gs => gs.ColorBetTokens)
+                        .ThenInclude(bt => bt.User)
+                        .Include(gs => gs.NumberBetTokens)
+                        .ThenInclude(bt => bt.User)
                         .Where(gs => gs.Resulting).ToList();
             }
 

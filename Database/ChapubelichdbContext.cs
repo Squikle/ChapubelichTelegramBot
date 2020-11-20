@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace ChapubelichBot.Database
 {
-    class ChapubelichdbContext : DbContext
+    public class ChapubelichdbContext : DbContext
     {
 #if (DEBUG)
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

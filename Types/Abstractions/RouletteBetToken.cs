@@ -1,4 +1,5 @@
-﻿using ChapubelichBot.Database.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using ChapubelichBot.Database.Models;
 using ChapubelichBot.Types.Enums;
 
 namespace ChapubelichBot.Types.Abstractions
@@ -6,6 +7,8 @@ namespace ChapubelichBot.Types.Abstractions
     public abstract class RouletteBetToken
     {
         public int UserId { get; set; }
+        public User User { get; set; }
+
         public long BetSum { get; set; }
 
         protected RouletteBetToken(User user, long bet)

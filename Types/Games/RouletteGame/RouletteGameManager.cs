@@ -47,7 +47,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         public static async Task StartAsync(Message message)
         {
             await using var dbContext = new ChapubelichdbContext();
-            RouletteGameSession gameSession = dbContext.RouletteGameSessions.FirstOrDefault(gs => gs.ChatId == message.Chat.Id);
+            RouletteGameSession gameSession = GetGameSessionOrNull(message.Chat.Id, dbContext);
             if (gameSession == null)
             {
                 gameSession = new RouletteGameSession
@@ -95,7 +95,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             dbContext.Entry(gameSession).State = EntityState.Modified;
 
             // Удаление сообщений и отправка результатов
-            string result = await Summarize(gameSession, dbContext);
+            string result = await Summarize(gameSession);
 
             dbContext.Remove(gameSession);
             dbContext.SaveChanges();
@@ -126,8 +126,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             await using var dbContext = new ChapubelichdbContext();
 
-            var gameSession = dbContext.RouletteGameSessions
-                .FirstOrDefault(x => x.ChatId == callbackQuery.Message.Chat.Id);
+            var gameSession = GetGameSessionOrNull(callbackQuery.Message.Chat.Id, dbContext);
             if (gameSession == null || gameSession.Resulting)
                 return;
 
@@ -152,8 +151,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             await using var dbContext = new ChapubelichdbContext();
 
-            var gameSession = dbContext.RouletteGameSessions
-                .FirstOrDefault(x => x.ChatId == message.Chat.Id);
+            var gameSession = GetGameSessionOrNull(message.Chat.Id, dbContext);
             if (gameSession == null || gameSession.Resulting)
                 return;
 
@@ -176,8 +174,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             await using var dbContext = new ChapubelichdbContext();
 
-            var gameSession = dbContext.RouletteGameSessions
-                .FirstOrDefault(x => x.ChatId == callbackQuery.Message.Chat.Id);
+            var gameSession = GetGameSessionOrNull(callbackQuery.Message.Chat.Id, dbContext);
             if (gameSession == null || gameSession.Resulting)
                 return;
 
@@ -233,8 +230,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             await using var dbContext = new ChapubelichdbContext();
 
-            var gameSession = dbContext.RouletteGameSessions
-                .FirstOrDefault(x => x.ChatId == message.Chat.Id);
+            var gameSession = GetGameSessionOrNull(message.Chat.Id, dbContext);
             if (gameSession == null || gameSession.Resulting)
                 return;
 
@@ -304,8 +300,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             await using var dbContext = new ChapubelichdbContext();
 
-            var gameSession = dbContext.RouletteGameSessions
-                .FirstOrDefault(x => x.ChatId == callbackQuery.Message.Chat.Id);
+            var gameSession = GetGameSessionOrNull(callbackQuery.Message.Chat.Id, dbContext);
             if (gameSession == null || gameSession.Resulting)
                 return;
 
@@ -348,8 +343,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             await using var dbContext = new ChapubelichdbContext();
 
-            var gameSession = dbContext.RouletteGameSessions
-                .FirstOrDefault(x => x.ChatId == message.Chat.Id);
+            var gameSession = GetGameSessionOrNull(message.Chat.Id, dbContext);
             if (gameSession == null || gameSession.Resulting)
                 return;
 
@@ -449,8 +443,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             await using var dbContext = new ChapubelichdbContext();
 
-            var gameSession = dbContext.RouletteGameSessions
-                .FirstOrDefault(x => x.ChatId == callbackQuery.Message.Chat.Id);
+            var gameSession = GetGameSessionOrNull(callbackQuery.Message.Chat.Id, dbContext);
 
             if (gameSession == null || gameSession.Resulting)
                 return;
@@ -476,8 +469,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         {
             await using var dbContext = new ChapubelichdbContext();
             
-            var gameSession = dbContext.RouletteGameSessions
-                .FirstOrDefault(x => x.ChatId == message.Chat.Id);
+            var gameSession = GetGameSessionOrNull(message.Chat.Id, dbContext);
 
             if (gameSession == null || gameSession.Resulting)
                 return;
@@ -502,8 +494,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             RouletteGameSession gameSession;
             await using (var dbContext = new ChapubelichdbContext())
             {
-                gameSession = dbContext.RouletteGameSessions
-                    .FirstOrDefault(x => x.ChatId == message.Chat.Id);
+                gameSession = GetGameSessionOrNull(message.Chat.Id, dbContext);
                 if (gameSession == null)
                     return;
 
@@ -536,20 +527,20 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 parseMode: ParseMode.Html);
         }
 
-        public static RouletteGameSession GetGameSessionOrNull(long chatId)
+        public static RouletteGameSession GetGameSessionOrNull(long chatId, ChapubelichdbContext dbContext)
         {
-            using var dbContext = new ChapubelichdbContext();
-
             RouletteGameSession gameSession =
                 dbContext.RouletteGameSessions
                     .Include(gs => gs.ColorBetTokens)
+                    .ThenInclude(bt => bt.User)
                     .Include(gs => gs.NumberBetTokens)
+                    .ThenInclude(bt => bt.User)
                     .FirstOrDefault(x => x.ChatId == chatId);
             return gameSession;
         }
 
         // Private
-        private static async Task<string> Summarize(RouletteGameSession gameSession, ChapubelichdbContext dbContext)
+        private static async Task<string> Summarize(RouletteGameSession gameSession)
         {
             StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
             result.Append($"{gameSession.ResultNumber} {gameSession.ResultNumber.ToRouletteColor().ToEmoji()}");
@@ -574,7 +565,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 foreach (var token in allWinTokens.GroupByUsers())
                 {
                     long gainSum = token.GetGainSum();
-                    User user = dbContext.Users.FirstOrDefault(x => x.UserId == token.UserId);
+                    User user = token.User;
                     if (user != null)
                     {
                         ChatMember chatMember = await _client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
@@ -595,7 +586,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 result.Append("\n\U0001F614<b>Проиграли:</b>");
                 foreach (var token in allLooseTokens.GroupByUsers())
                 {
-                    User user = dbContext.Users.FirstOrDefault(x => x.UserId == token.UserId);
+                    User user = token.User;
                     if (user != null)
                     {
                         ChatMember chatMember = await _client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
@@ -634,7 +625,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Task task = Task.Delay(animationDuration >= maxLimitAnimationDuration ? maxLimitAnimationDuration : animationDuration);
 
             // Удаление сообщений и отправка результатов
-            string result = await Summarize(gameSession, dbContext);
+            string result = await Summarize(gameSession);
 
             await task;
             dbContext.Remove(gameSession);
@@ -752,8 +743,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Parallel.ForEach(deadSessions, async gs =>
             {
-                await using var thisDbContext = new ChapubelichdbContext();
-                thisDbContext.Entry(gs).State = EntityState.Modified;
+                await using var dbContext = new ChapubelichdbContext();
+                dbContext.Entry(gs).State = EntityState.Modified;
 
                 var returnedBets = string.Empty;
 
@@ -763,14 +754,14 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 {
                     foreach (var bet in groupedColorBetList)
                     {
-                        var user = thisDbContext.Users.FirstOrDefault(x => x.UserId == bet.UserId);
+                        var user = bet.User;
                         if (user != null)
                             user.Balance += bet.BetSum;
                     }
 
                     foreach (var bet in groupedNumberBetList)
                     {
-                        var user = thisDbContext.Users.FirstOrDefault(x => x.UserId == bet.UserId);
+                        var user = bet.User;
                         if (user != null)
                             user.Balance += bet.BetSum;
                     }
@@ -785,8 +776,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     ParseMode.Html,
                     replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
 
-                thisDbContext.RouletteGameSessions.Remove(gs);
-                thisDbContext.SaveChanges();
+                dbContext.RouletteGameSessions.Remove(gs);
+                dbContext.SaveChanges();
 
                 if (deletingMessage != null)
                     await deletingMessage;
