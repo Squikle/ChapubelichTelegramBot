@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -33,8 +31,10 @@ namespace ChapubelichBot.Chatting.RegexCommands
             if (usersToOutput > group.Users.Count)
                 usersToOutput = group.Users.Count;
 
-            List<User> topUsers = group.Users.Take(usersToOutput).ToList();
-            var topUsersNamed = topUsers.AsParallel().Select(async tu =>
+            var topUsersNamed = group.Users
+                .Take(usersToOutput)
+                .AsParallel()
+                .Select(async tu =>
             {
                 ChatMember member = await client.GetChatMemberAsync(message.Chat.Id, tu.UserId);
                 return new KeyValuePair<User, string>(tu, member?.User?.FirstName);
@@ -46,7 +46,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             for (int i = 0; i < orderedTopUsers.Count; i++)
             {
                 if (topUsersNamed.ElementAt(i).Value != null)
-                    answer.Append($"{i + 1}. {topUsersNamed.ElementAt(i).Value} - {topUsersNamed.ElementAt(i).Key.Balance.ToMoneyFormat()} 💰\n");
+                    answer.Append($"{i + 1}. {orderedTopUsers.ElementAt(i).Value} - {orderedTopUsers.ElementAt(i).Key.Balance.ToMoneyFormat()} 💰\n");
             }
 
             await client.TrySendTextMessageAsync(message.Chat.Id, answer.ToString(),
