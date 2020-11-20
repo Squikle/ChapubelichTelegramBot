@@ -18,11 +18,15 @@ namespace ChapubelichBot.Database.Models
         public bool Complimented { get; set; }
         public bool ComplimentSubscription { get; set; }
         public bool DailyRewarded { get; set; }
-        public List<Group> Groups { get; set; }
         public DateTime LastMoneyTheft { get; set; }
+        public List<int> LastGameSessions { get; set; }
+
+        public List<Group> Groups { get; set; }
+
         public User()
         {
             Groups = new List<Group>();
+            LastGameSessions = new List<int>();
             Balance = 300;
             Gender = true;
             DefaultBet = 50;

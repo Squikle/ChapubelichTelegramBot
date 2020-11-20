@@ -11,12 +11,14 @@ namespace ChapubelichBot.Database.Models
         public long GroupId { get; set; }
         public string Name { get; set; }
         public bool IsAvailable { get; set; }
+        public List<int> LastGameSessions { get; set; }
 
         public List<User> Users { get; set; }
 
         public Group()
         {
             Users = new List<User>();
+            LastGameSessions = new List<int>();
             IsAvailable = true;
         }
     }
