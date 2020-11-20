@@ -15,7 +15,7 @@ namespace ChapubelichBot.Init
 
         public ExceptionLogger(Exception ex)
         {   
-            Time = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
+            Time = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
             Source = ex.Source;
             Message = ex.Message;
             CallStack = ex.StackTrace;
@@ -28,7 +28,7 @@ namespace ChapubelichBot.Init
             string directoryName = Path.GetDirectoryName(path);
             if (!Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
-            string fileName = Path.GetFileNameWithoutExtension(path) + DateTime.Now.ToString("MM.dd.yyyy HH.mm.ss") + ".json";
+            string fileName = Path.GetFileNameWithoutExtension(path) + DateTime.Now.ToString("dd.MM.yyyy HH.mm.ss") + ".json";
             path = Path.Combine(directoryName ?? string.Empty, fileName);
             string errorJson = JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true });
             Console.WriteLine(errorJson);

@@ -19,7 +19,7 @@ namespace ChapubelichBot.Types.Jobs
         }
         public static async Task ExecuteManually(ITelegramBotClient client)
         {
-            Console.WriteLine($"{DateTime.Now} рассылаю комплименты...");
+            Console.WriteLine($"{DateTime.Now:HH:mm:ss} рассылаю комплименты...");
 
             string[] boyCompliments = null;
             string[] girlCompliments = null;
