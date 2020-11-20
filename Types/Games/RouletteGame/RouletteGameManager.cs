@@ -18,6 +18,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+using Group = ChapubelichBot.Database.Models.Group;
 using User = ChapubelichBot.Database.Models.User;
 
 namespace ChapubelichBot.Types.Games.RouletteGame
@@ -90,6 +91,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         public static async Task ResumeResultingAsync(RouletteGameSession gameSession)
         {
+            Task<Chat> getChatTypeTask = _client.GetChatAsync(gameSession.ChatId);
+
             await using var dbContext = new ChapubelichdbContext();
 
             dbContext.Entry(gameSession).State = EntityState.Modified;
@@ -107,6 +110,36 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Task deletingGameMessage = null;
             if (gameSession.AnimationMessageId != 0)
                 deletingGameMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
+
+            Chat chat = await getChatTypeTask;
+
+            if (chat != null)
+            {
+                if (chat.Type == ChatType.Private)
+                {
+                    User user = dbContext.Users
+                        .FirstOrDefault(u => u.UserId == gameSession.ChatId);
+                    if (user != null)
+                    {
+                        List<int> lastGameSessionsResults = user.LastGameSessions ??= new List<int>(1);
+                        lastGameSessionsResults.Add(gameSession.ResultNumber);
+                        if (user.LastGameSessions.Count > 10)
+                            user.LastGameSessions.RemoveAt(0);
+                    }
+                }
+                else
+                {
+                    Group group = dbContext.Groups
+                        .FirstOrDefault(g => g.GroupId == gameSession.ChatId);
+                    if (group != null)
+                    {
+                        List<int> lastGameSessionsResults = group.LastGameSessions ??= new List<int>(1);
+                        lastGameSessionsResults.Add(gameSession.ResultNumber);
+                        if (group.LastGameSessions.Count > 10)
+                            group.LastGameSessions.RemoveAt(0);
+                    }
+                }
+            }
 
             dbContext.SaveChanges();
 
@@ -294,7 +327,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 parseMode: ParseMode.Html);
 
             if (!string.IsNullOrEmpty(matchString.Groups[9].Value))
-                await ResultAsync(gameSession, dbContext, message.MessageId);
+                await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
         public static async Task BetNumbersRequest(CallbackQuery callbackQuery)
         {
@@ -437,7 +470,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 parseMode: ParseMode.Html);
 
             if (!string.IsNullOrEmpty(Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase).Groups[5].Value))
-                await ResultAsync(gameSession, dbContext, message.MessageId);
+                await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
         public static async Task RollRequest(CallbackQuery callbackQuery)
         {
@@ -462,7 +495,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             Task answeringCallbackQuery = _client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "✅");
-            await ResultAsync(gameSession, dbContext);
+            await ResultAsync(gameSession, dbContext, callbackQuery.Message.Chat.Type);
             await answeringCallbackQuery;
         }
         public static async Task RollRequest(Message message)
@@ -486,7 +519,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 replyToMessageId: message.MessageId,
                 parseMode: ParseMode.Html);
             else
-                await ResultAsync(gameSession, dbContext, message.MessageId);
+                await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
         public static async Task BetInfoRequest(Message message)
         {
@@ -602,7 +635,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             return result.ToString();
         }
-        private static async Task ResultAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, int startMessageId = 0)
+        private static async Task ResultAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType chatType, int startMessageId = 0)
         {
             if (gameSession.Resulting)
                 return;
@@ -628,6 +661,32 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             string result = await Summarize(gameSession);
 
             await task;
+
+            if (chatType == ChatType.Private)
+            {
+                User user = dbContext.Users
+                    .FirstOrDefault(u => u.UserId == gameSession.ChatId);
+                if (user != null)
+                {
+                    List<int> lastGameSessionsResults = user.LastGameSessions ??= new List<int>(1);
+                    lastGameSessionsResults.Add(gameSession.ResultNumber);
+                    if (user.LastGameSessions.Count > 10)
+                        user.LastGameSessions.RemoveAt(0);
+                }
+            }
+            else
+            {
+                Group group = dbContext.Groups
+                    .FirstOrDefault(g => g.GroupId == gameSession.ChatId);
+                if (group != null)
+                {
+                    List<int> lastGameSessionsResults = group.LastGameSessions ??= new List<int>(1);
+                    lastGameSessionsResults.Add(gameSession.ResultNumber);
+                    if (group.LastGameSessions.Count > 10)
+                        group.LastGameSessions.RemoveAt(0);
+                }
+            }
+
             dbContext.Remove(gameSession);
             dbContext.SaveChanges();
 
