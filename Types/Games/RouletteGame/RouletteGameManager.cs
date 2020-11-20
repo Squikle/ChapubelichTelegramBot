@@ -95,7 +95,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             dbContext.Entry(gameSession).State = EntityState.Modified;
 
             // Удаление сообщений и отправка результатов
-            Task<string> resulting = Summarize(gameSession, dbContext);
+            string result = await Summarize(gameSession, dbContext);
 
             dbContext.Remove(gameSession);
             dbContext.SaveChanges();
@@ -107,8 +107,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Task deletingGameMessage = null;
             if (gameSession.AnimationMessageId != 0)
                 deletingGameMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
-
-            string result = await resulting;
 
             dbContext.SaveChanges();
 
@@ -636,7 +634,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Task task = Task.Delay(animationDuration >= maxLimitAnimationDuration ? maxLimitAnimationDuration : animationDuration);
 
             // Удаление сообщений и отправка результатов
-            Task<string> resulting = Summarize(gameSession, dbContext);
+            string result = await Summarize(gameSession, dbContext);
 
             await task;
             dbContext.Remove(gameSession);
@@ -646,7 +644,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             Task deletingGameMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
 
-            string result = await resulting;
             Task sendingResult = _client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 result,
