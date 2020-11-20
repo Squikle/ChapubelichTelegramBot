@@ -615,7 +615,11 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private static async Task ResultAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, int startMessageId = 0)
         {
+            if (gameSession.Resulting)
+                return;
+
             gameSession.Resulting = true;
+            dbContext.SaveChanges();
 
             Message animationMessage = await _client.TrySendAnimationAsync(gameSession.ChatId,
                 GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
