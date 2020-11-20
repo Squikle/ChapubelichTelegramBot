@@ -61,6 +61,7 @@ namespace ChapubelichBot.Init
                 new RouletteBetCancelRegexCommand(),
                 new RouletteBetInfoRegexCommand(),
                 new RouletteNumberBetRegexCommand(),
+                new RouletteLogRegexCommand(),
 
                 new BalanceRegexCommand(),
                 new TransferRegexCommand(),
