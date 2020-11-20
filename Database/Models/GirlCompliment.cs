@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ChapubelichBot.Database.Models
 {
     [Table("GirlCompliments")]
-    class GirlCompliment
+    public class GirlCompliment
     {
         [Key]
         public int ComplimentId { get; set; }

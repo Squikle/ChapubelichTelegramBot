@@ -47,10 +47,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         public static async Task StartAsync(Message message)
         {
             await using var dbContext = new ChapubelichdbContext();
-            RouletteGameSession rouletteGameSession = dbContext.RouletteGameSessions.FirstOrDefault(gs => gs.ChatId == message.Chat.Id);
-            if (rouletteGameSession == null)
+            RouletteGameSession gameSession = dbContext.RouletteGameSessions.FirstOrDefault(gs => gs.ChatId == message.Chat.Id);
+            if (gameSession == null)
             {
-                rouletteGameSession = new RouletteGameSession
+                gameSession = new RouletteGameSession
                 {
                     ChatId = message.Chat.Id,
                     Resulting = false,
@@ -58,13 +58,20 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     NumberBetTokens = new List<RouletteNumbersBetToken>(),
                     ResultNumber = GetRandomResultNumber()
                 };
-                dbContext.RouletteGameSessions.Add(rouletteGameSession);
+                dbContext.RouletteGameSessions.Add(gameSession);
                 dbContext.SaveChanges();
+            }
+            else
+            {
+                await _client.TrySendTextMessageAsync(message.Chat.Id,
+                    "Игра уже запущена!",
+                    replyToMessageId: gameSession.GameMessageId);
+                return;
             }
 
             int replyId = message.From.Id == _client.BotId ? 0 : message.MessageId;
 
-            var gameMessage = await _client.TrySendPhotoAsync(rouletteGameSession.ChatId,
+            var gameMessage = await _client.TrySendPhotoAsync(gameSession.ChatId,
                 "https://i.imgur.com/SN8DRoa.png",
                 caption: "Игра запущена. Ждем ваши ставки...\n" +
                          "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
@@ -73,7 +80,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             if (gameMessage != null)
             {
-                rouletteGameSession.GameMessageId = gameMessage.MessageId;
+                gameSession.GameMessageId = gameMessage.MessageId;
                 dbContext.SaveChanges();
             }
         }
@@ -446,8 +453,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (gameSession == null || gameSession.Resulting)
                 return;
 
-            gameSession.Resulting = true;
-
             UpdateLastActivity(gameSession, dbContext);
 
             if (gameSession.ColorBetTokens
@@ -474,8 +479,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
             if (gameSession == null || gameSession.Resulting)
                 return;
-
-            gameSession.Resulting = true;
 
             UpdateLastActivity(gameSession, dbContext);
 
@@ -608,6 +611,8 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         }
         private static async Task ResultAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, int startMessageId = 0)
         {
+            gameSession.Resulting = true;
+
             Message animationMessage = await _client.TrySendAnimationAsync(gameSession.ChatId,
                 GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 

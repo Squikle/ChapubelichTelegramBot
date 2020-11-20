@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ChapubelichBot.Database.Models
 {
-    class Configuration
+    public class Configuration
     {
         [DefaultValue("1")]
         [Key]

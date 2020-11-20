@@ -15,17 +15,7 @@ namespace ChapubelichBot.Chatting.CallbackMessages
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             await client.TryEditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
-            RouletteGameSession gameSession = RouletteGameManager.GetGameSessionOrNull(query.Message.MessageId);
-            if (gameSession != null)
-            {
-                await client.TrySendTextMessageAsync(query.Message.Chat.Id,
-                    "Игра уже запущена!",
-                    replyToMessageId: gameSession.GameMessageId);
-            }
-            else
-            {
-                await RouletteGameManager.StartAsync(query.Message);
-            }
+            await RouletteGameManager.StartAsync(query.Message);
         }
     }
 } 

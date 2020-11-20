@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChapubelichBot.Database.Models
 {
-    class BoyCompliment
+    public class BoyCompliment
     {
 
         [Key]
