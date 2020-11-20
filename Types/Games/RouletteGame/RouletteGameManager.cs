@@ -618,10 +618,10 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 dbContext.SaveChanges();
             }
 
-            int configAnimationDuration = Bot.GetConfig().GetValue<int>("AppSettings:StopGameDelay");
+            int configAnimationDuration = Bot.GetConfig().GetValue<int>("AppSettings:RouletteAnimationDuration");
             int animationDuration = (int)TimeSpan.FromSeconds(configAnimationDuration).TotalMilliseconds;
             int maxLimitAnimationDuration = (int)TimeSpan.FromSeconds(10).TotalMilliseconds;
-            Task task = Task.Delay(animationDuration >= maxLimitAnimationDuration ? maxLimitAnimationDuration : configAnimationDuration);
+            Task task = Task.Delay(animationDuration >= maxLimitAnimationDuration ? maxLimitAnimationDuration : animationDuration);
 
             // Удаление сообщений и отправка результатов
             Task<string> resulting = Summarize(gameSession, dbContext);
