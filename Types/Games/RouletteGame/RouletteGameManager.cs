@@ -88,27 +88,19 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 dbContext.SaveChanges();
             }
         }
-        public static async Task ResumeResultingAsync(RouletteGameSession gameSession)
+        public static async Task ResumeResultingAsync(long chatId)
         {
-            Task<Chat> getChatTypeTask = _client.GetChatAsync(gameSession.ChatId);
-
             await using var dbContext = new ChapubelichdbContext();
 
-            dbContext.Entry(gameSession).State = EntityState.Modified;
+            RouletteGameSession gameSession = GetGameSessionOrNull(chatId, dbContext);
 
+            Task<Chat> getChatTypeTask = _client.GetChatAsync(gameSession.ChatId);
+            
             // Удаление сообщений и отправка результатов
             string result = await Summarize(gameSession);
 
-            dbContext.Remove(gameSession);
             dbContext.SaveChanges();
-
-            Task deletingAnimationMessage = null;
-            if (gameSession.AnimationMessageId != 0)
-                deletingAnimationMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
-
-            Task deletingGameMessage = null;
-            if (gameSession.AnimationMessageId != 0)
-                deletingGameMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
+            dbContext.Remove(gameSession);
 
             Chat chat = await getChatTypeTask;
 
@@ -141,6 +133,14 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             dbContext.SaveChanges();
+
+            Task deletingAnimationMessage = null;
+            if (gameSession.AnimationMessageId != 0)
+                deletingAnimationMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
+
+            Task deletingGameMessage = null;
+            if (gameSession.AnimationMessageId != 0)
+                deletingGameMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
 
             Task sendingResult = _client.TrySendTextMessageAsync(
                 gameSession.ChatId,
@@ -802,7 +802,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             Parallel.ForEach(deadSessions, async gs =>
             {
                 await using var dbContext = new ChapubelichdbContext();
-                dbContext.Entry(gs).State = EntityState.Modified;
+                gs = GetGameSessionOrNull(gs.ChatId, dbContext);
 
                 var returnedBets = string.Empty;
 

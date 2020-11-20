@@ -98,7 +98,7 @@ namespace ChapubelichBot.Init
         }
         private static async void RestoreData()
         {
-            List<RouletteGameSession> gameSessionsToResume;
+            IQueryable<RouletteGameSession> gameSessionsToResume;
             await using var db = new ChapubelichdbContext();
             {
                  gameSessionsToResume =
@@ -107,11 +107,11 @@ namespace ChapubelichBot.Init
                         .ThenInclude(bt => bt.User)
                         .Include(gs => gs.NumberBetTokens)
                         .ThenInclude(bt => bt.User)
-                        .Where(gs => gs.Resulting).ToList();
+                        .Where(gs => gs.Resulting);
             }
 
             Parallel.ForEach(gameSessionsToResume, 
-                async gs => await RouletteGameManager.ResumeResultingAsync(gs));
+                async gs => await RouletteGameManager.ResumeResultingAsync(gs.ChatId));
         }
 
         private static async void MessageProcessAsync(object sender, MessageEventArgs e)
