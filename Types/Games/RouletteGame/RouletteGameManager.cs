@@ -735,8 +735,12 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 int timeToSessionDispose = Bot.GetConfig().GetValue<int>("AppSettings:StopGameDelay");
 
                 deadSessions = dbContext.RouletteGameSessions
+                    .Where(gs => gs.LastActivity < DateTime.Now)
+                    .ToList()
                     .Where(gs => gs.LastActivity.AddSeconds(timeToSessionDispose) < DateTime.Now)
                     .ToList();
+
+                Console.WriteLine(deadSessions[0].LastActivity.AddSeconds(timeToSessionDispose));
             }
 
             Parallel.ForEach(deadSessions, async gs =>
