@@ -30,7 +30,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
         private static ITelegramBotClient _client;
         private static Timer _deadSessionsCollector;
 
-        // C-tors
+        // C-tor
         public static void Init(ITelegramBotClient client)
         {
             _client = client;
@@ -38,7 +38,6 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             int periodToCollect = (int)TimeSpan.FromMinutes(1).TotalMilliseconds;
             _deadSessionsCollector = new Timer(x => CollectDeadSessions(), null, periodToCollect, periodToCollect);
         }
-
         public static void Terminate()
         {
             _deadSessionsCollector.Dispose();
@@ -695,7 +694,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
             foreach (var token in oneNumberUserTokens)
             {
-                resultList.Append($"\n<b>{token.BetSum}</b> ({token.ChoosenNumbers[0]} {token.ChoosenNumbers[0].ToRouletteColor().ToEmoji()})");
+                resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: ({token.ChoosenNumbers[0]} {token.ChoosenNumbers[0].ToRouletteColor().ToEmoji()})");
             }
 
             return resultList;
