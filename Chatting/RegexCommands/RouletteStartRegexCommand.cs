@@ -1,10 +1,10 @@
 ﻿using ChapubelichBot.Types.Abstractions;
 using System.Threading.Tasks;
+using ChapubelichBot.Database.Models;
 using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Types.Games.RouletteGame;
-using ChapubelichBot.Types.Statics;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
@@ -14,15 +14,16 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            RouletteGameSession gameSession = RouletteGame.GetGameSessionOrNull(message.Chat.Id);
-            if (gameSession == null)
-                await RouletteGameSessionBuilder.Create().InitializeNew(message, client).AddToSessionsList().Build()
-                    .Start(message, client);
-            else
+            RouletteGameSession gameSession = RouletteGameManager.GetGameSessionOrNull(message.Chat.Id);
+            if (gameSession != null)
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id,
                     "Игра уже запущена!",
                     replyToMessageId: gameSession.GameMessageId);
+            }
+            else
+            {
+                await RouletteGameManager.StartAsync(message);
             }
         }
     }

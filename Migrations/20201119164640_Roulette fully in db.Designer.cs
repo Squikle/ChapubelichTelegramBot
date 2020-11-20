@@ -3,13 +3,17 @@ using System;
 using ChapubelichBot.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ChapubelichBot.Migrations
 {
     [DbContext(typeof(ChapubelichdbContext))]
-    partial class ChapubelichdbContextModelSnapshot : ModelSnapshot
+    [Migration("20201119164640_Roulette fully in db")]
+    partial class Roulettefullyindb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

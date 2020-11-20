@@ -1,4 +1,5 @@
-﻿using Telegram.Bot.Types.ReplyMarkups;
+﻿using ChapubelichBot.Types.Games.RouletteGame;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ChapubelichBot.Types.Statics
 {
@@ -31,7 +32,7 @@ namespace ChapubelichBot.Types.Statics
             {
                     new[]
                     {
-                        new KeyboardButton(RouletteGame.Name)
+                        new KeyboardButton(RouletteGameManager.Name)
                     },
                     new[]
                     {

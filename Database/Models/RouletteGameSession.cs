@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using ChapubelichBot.Types.Games.RouletteGame;
 
 namespace ChapubelichBot.Database.Models
 {
-    public class RouletteGameSessionData
+    public class RouletteGameSession
     {
         [Key]
         public long ChatId { get; set; }
@@ -14,12 +15,6 @@ namespace ChapubelichBot.Database.Models
         public List<RouletteNumbersBetToken> NumberBetTokens { get; set; }
         public bool Resulting { get; set; }
         public int ResultNumber { get; set; }
-
-        public RouletteGameSessionData(long chatId)
-        {
-            ChatId = chatId;
-            ColorBetTokens = new List<RouletteColorBetToken>();
-            NumberBetTokens = new List<RouletteNumbersBetToken>();
-        }
+        public DateTime LastActivity { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Types.Statics;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ChapubelichBot.Types.Games.RouletteGame;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -12,9 +12,9 @@ namespace ChapubelichBot.Chatting.CallbackMessages
         public override List<string> IncludingData => new List<string> {"rouletteRoll"};
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
-            var gameSession = RouletteGame.GetGameSessionOrNull(query.Message.Chat.Id);
+            var gameSession = RouletteGameManager.GetGameSessionOrNull(query.Message.Chat.Id);
             if (gameSession != null)
-                await gameSession.RollRequest(query, client);
+                await RouletteGameManager.RollRequest(query);
         }
     }
 }

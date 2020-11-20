@@ -2,7 +2,7 @@
 using System.Linq;
 using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Enums;
-using ChapubelichBot.Types.Statics;
+using ChapubelichBot.Types.Games.RouletteGame;
 
 namespace ChapubelichBot.Types.Extensions
 {
@@ -45,7 +45,7 @@ namespace ChapubelichBot.Types.Extensions
         }
         public static RouletteColorEnum ToRouletteColor(this int number)
         {
-            RouletteColorEnum[] rouletteTable = new RouletteColorEnum[RouletteGame.TableSize]
+            RouletteColorEnum[] rouletteTable = new RouletteColorEnum[RouletteGameManager.TableSize]
             {
                 RouletteColorEnum.Green, //0
                 RouletteColorEnum.Red,

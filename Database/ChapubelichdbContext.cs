@@ -48,9 +48,9 @@ namespace ChapubelichBot.Database
             .HasIndex(u => u.ComplimentText)
             .IsUnique();
 
-            modelBuilder.Entity<RouletteGameSessionData>()
+            modelBuilder.Entity<RouletteGameSession>()
                 .OwnsMany(gs => gs.ColorBetTokens);
-            modelBuilder.Entity<RouletteGameSessionData>()
+            modelBuilder.Entity<RouletteGameSession>()
                 .OwnsMany(gs => gs.NumberBetTokens);
         }
 
@@ -59,6 +59,6 @@ namespace ChapubelichBot.Database
         public DbSet<BoyCompliment> BoyCompliments {get; set;}
         public DbSet<GirlCompliment> GirlCompliments { get; set; }
         public DbSet<Configuration> Configurations { get; set; }
-        public DbSet<RouletteGameSessionData> RouletteGameSessions { get; set; }
+        public DbSet<RouletteGameSession> RouletteGameSessions { get; set; }
     }
 }

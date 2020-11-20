@@ -23,12 +23,13 @@ namespace ChapubelichBot.Init
     static class BotProcessor
     {
         private static readonly ITelegramBotClient Client = Bot.GetClient();
-        private static readonly IConfiguration     Config = Bot.GetConfig();
+        private static readonly IConfiguration Config = Bot.GetConfig();
         private static readonly int BotId = Client.GetMeAsync().Result.Id;
         public static void Start()
         {
-            RestoreData();
             DailyProcess();
+            RouletteGameManager.Init(Client);
+            RestoreData();
             Client.StartReceiving();
             Client.OnMessage += MessageProcessAsync;
             Client.OnCallbackQuery += CallbackProcess;
@@ -36,6 +37,7 @@ namespace ChapubelichBot.Init
         }
         public static void Stop()
         {
+            RouletteGameManager.Terminate();
             Client.OnMessage -= MessageProcessAsync;
             Client.OnCallbackQuery -= CallbackProcess;
             Client.StopReceiving();
@@ -96,17 +98,16 @@ namespace ChapubelichBot.Init
         }
         private static async void RestoreData()
         {
-            List<Task> resumingTasks = new List<Task>();
+            List<RouletteGameSession> gameSessionsToResume;
             await using var db = new ChapubelichdbContext();
-            foreach (var gameSessionData in db.RouletteGameSessions)
             {
-                var gameSession = RouletteGameSessionBuilder.Create().RestoreFrom(gameSessionData, Client).AddToSessionsList()
-                    .Build();
-                if (gameSession.Resulting)
-                    resumingTasks.Add(gameSession.ResumeResultingAsync(Client));
+                 gameSessionsToResume =
+                    db.RouletteGameSessions
+                        .Where(gs => gs.Resulting).ToList();
             }
 
-            Task.WaitAll(resumingTasks.ToArray());
+            Parallel.ForEach(gameSessionsToResume, 
+                async gs => await RouletteGameManager.ResumeResultingAsync(gs));
         }
 
         private static async void MessageProcessAsync(object sender, MessageEventArgs e)
@@ -313,7 +314,7 @@ namespace ChapubelichBot.Init
                 group.IsAvailable = isChatAvailableToSend;
                 saveChangesRequired = true;
             }
-            
+
             var user = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
             if (user != null && group.Users.All(u => u.UserId != user.UserId))
             {
