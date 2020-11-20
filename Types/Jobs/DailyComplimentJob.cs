@@ -68,15 +68,8 @@ namespace ChapubelichBot.Types.Jobs
                 Console.WriteLine(userCompliments[mUser]);
             // -------------------------------------------
 
-            List<Task> sendingMessageTasks = new List<Task>();
-
-            foreach (var userCompliment in userCompliments)
-            {
-                Task sendMessageTask = client.TrySendTextMessageAsync(userCompliment.Key, $"❤️Твой комплимент дня❤️\n{userCompliment.Value}");
-                sendingMessageTasks.Add(sendMessageTask);
-            }
-
-            Task.WaitAll(sendingMessageTasks.ToArray());
+            Parallel.ForEach(userCompliments, async uc =>
+                await client.TrySendTextMessageAsync(uc.Key, $"❤️Твой комплимент дня❤️\n{uc.Value}"));
         }
     }
 }
