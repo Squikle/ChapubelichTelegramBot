@@ -1,7 +1,6 @@
 ﻿using ChapubelichBot.Types.Abstractions;
-using ChapubelichBot.Database.Models;
 
-namespace ChapubelichBot.Types.Games.RouletteGame
+namespace ChapubelichBot.Database.Models
 {
     public class RouletteNumbersBetToken : RouletteBetToken
     {

@@ -1,6 +1,5 @@
 ﻿using ChapubelichBot.Database.Models;
 using ChapubelichBot.Types.Enums;
-using ChapubelichBot.Types.Games.RouletteGame;
 
 namespace ChapubelichBot.Types.Abstractions
 {

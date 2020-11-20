@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using ChapubelichBot.Types.Games.RouletteGame;
 
 namespace ChapubelichBot.Database.Models
 {
