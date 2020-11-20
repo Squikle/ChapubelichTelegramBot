@@ -51,7 +51,10 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
             foreach (var gameSessionResult in lastGameSessions)
             {
-                answer.Append($"{gameSessionResult} {gameSessionResult.ToRouletteColor().ToEmoji()}\n");
+                string gameSessionResultString = gameSessionResult.ToString();
+                if (gameSessionResultString.Length < 2)
+                    gameSessionResultString += "  ";
+                answer.Append($"{gameSessionResultString} {gameSessionResult.ToRouletteColor().ToEmoji()}\n");
             }
 
             await client.TrySendTextMessageAsync(message.Chat.Id, answer.ToString(),
