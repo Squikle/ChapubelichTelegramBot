@@ -57,7 +57,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     Resulting = false,
                     ColorBetTokens = new List<RouletteColorBetToken>(),
                     NumberBetTokens = new List<RouletteNumbersBetToken>(),
-                    LastActivity = DateTime.Now,
+                    LastActivity = DateTime.UtcNow,
                     ResultNumber = GetRandomResultNumber()
                 };
                 dbContext.RouletteGameSessions.Add(gameSession);
@@ -68,8 +68,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 Task sendingMessage = _client.TrySendTextMessageAsync(message.Chat.Id,
                     "Игра уже запущена!",
                     replyToMessageId: gameSession.GameMessageId);
-                gameSession.LastActivity = DateTime.Now;
-                dbContext.SaveChanges();
+                UpdateLastActivity(gameSession, dbContext);
                 await sendingMessage;
                 return;
             }
@@ -783,7 +782,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
 
         private static void UpdateLastActivity(RouletteGameSession gameSession, ChapubelichdbContext dbContext)
         {
-            gameSession.LastActivity = DateTime.Now;
+            gameSession.LastActivity = DateTime.UtcNow;
             dbContext.SaveChanges();
         }
         private static async void CollectDeadSessions()
@@ -794,9 +793,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 int timeToSessionDispose = Bot.GetConfig().GetValue<int>("AppSettings:StopGameDelay");
 
                 deadSessions = dbContext.RouletteGameSessions
-                    .Where(gs => gs.LastActivity < DateTime.Now && !gs.Resulting)
+                    .Where(gs => gs.LastActivity < DateTime.UtcNow && !gs.Resulting)
                     .ToList()
-                    .Where(gs => gs.LastActivity.AddSeconds(timeToSessionDispose) < DateTime.Now)
+                    .Where(gs => gs.LastActivity.AddSeconds(timeToSessionDispose) < DateTime.UtcNow)
                     .ToList();
             }
 
