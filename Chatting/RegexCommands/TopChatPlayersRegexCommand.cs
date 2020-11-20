@@ -32,6 +32,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 usersToOutput = group.Users.Count;
 
             var topUsersNamed = group.Users
+                .OrderByDescending(u => u.Balance)
                 .Take(usersToOutput)
                 .AsParallel()
                 .Select(async tu =>
@@ -45,8 +46,25 @@ namespace ChapubelichBot.Chatting.RegexCommands
             StringBuilder answer = new StringBuilder();
             for (int i = 0; i < orderedTopUsers.Count; i++)
             {
-                if (topUsersNamed.ElementAt(i).Value != null)
-                    answer.Append($"{i + 1}. {orderedTopUsers.ElementAt(i).Value} - {orderedTopUsers.ElementAt(i).Key.Balance.ToMoneyFormat()} 💰\n");
+                if (topUsersNamed.ElementAt(i).Value == null)
+                    continue;
+
+                answer.Append($"{i + 1}. {orderedTopUsers.ElementAt(i).Value} - {orderedTopUsers.ElementAt(i).Key.Balance.ToMoneyFormat()}");
+                switch (i)
+                {
+                    case 0:
+                        answer.Append("🥇\n");
+                        break;
+                    case 1:
+                        answer.Append("🥈\n");
+                        break;
+                    case 2:
+                        answer.Append("🥉\n");
+                        break;
+                    default:
+                        answer.Append("\n");
+                        break;
+                }
             }
 
             await client.TrySendTextMessageAsync(message.Chat.Id, answer.ToString(),
