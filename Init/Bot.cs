@@ -42,6 +42,7 @@ namespace ChapubelichBot.Init
             _botGroupRegexCommands = new List<RegexCommand>()
             {
                 new TopChatPlayersRegexCommand(),
+                new PersonRollRegexCommand(),
             };
             _botCallbackMessages = new List<CallBackMessage>()
             {

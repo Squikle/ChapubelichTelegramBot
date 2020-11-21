@@ -3,6 +3,9 @@ using Quartz;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using ChapubelichBot.Init;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace ChapubelichBot.Types.Jobs
 {
@@ -23,6 +26,8 @@ namespace ChapubelichBot.Types.Jobs
             }
             db.Configurations.First().LastResetTime = DateTime.Now;
             await db.SaveChangesAsync();
+            string dbSchema = Bot.GetConfig().GetValue<string>("AppSettings:DatabaseSchema");
+            db.Database.ExecuteSqlRaw($"TRUNCATE TABLE \"{dbSchema}\".\"GroupDailyPerson\"");
         }
     }
 }
