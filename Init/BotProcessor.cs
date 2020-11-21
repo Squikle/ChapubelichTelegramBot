@@ -27,9 +27,9 @@ namespace ChapubelichBot.Init
         private static readonly int BotId = Client.GetMeAsync().Result.Id;
         public static void Start()
         {
-            DailyProcess();
             RouletteGameManager.Init(Client);
             RestoreData();
+            DailyProcess();
             Client.StartReceiving();
             Client.OnMessage += MessageProcessAsync;
             Client.OnCallbackQuery += CallbackProcess;
