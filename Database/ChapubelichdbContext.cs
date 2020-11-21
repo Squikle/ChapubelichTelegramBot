@@ -52,6 +52,15 @@ namespace ChapubelichBot.Database
                 .OwnsMany(gs => gs.ColorBetTokens);
             modelBuilder.Entity<RouletteGameSession>()
                 .OwnsMany(gs => gs.NumberBetTokens);
+
+            modelBuilder
+                .Entity<Group>()
+                .HasOne(g => g.GroupDailyPerson)
+                .WithOne(gpd => gpd.Group)
+                .HasForeignKey<GroupDailyPerson>(gpd => gpd.GroupId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<GroupDailyPerson>().HasOne(gdp => gdp.User);
         }
 
         public DbSet<User> Users { get; set; }
