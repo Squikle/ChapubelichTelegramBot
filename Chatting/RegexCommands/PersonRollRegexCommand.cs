@@ -38,8 +38,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             {
                 ChatMember alreadyRolledMember = await client.GetChatMemberAsync(group.GroupId, group.GroupDailyPerson.UserId);
                 await client.TrySendTextMessageAsync(message.Chat.Id,
-                    $"<a href=\"tg://user?id={group.GroupDailyPerson.UserId}\">{alreadyRolledMember.User.FirstName}</a> " +
-                    $"уже {group.GroupDailyPerson.RolledName} дня",
+                    $"{alreadyRolledMember.User.FirstName} уже {group.GroupDailyPerson.RolledName} дня",
                     parseMode: ParseMode.Html,
                     replyToMessageId: message.MessageId);
                 return;
