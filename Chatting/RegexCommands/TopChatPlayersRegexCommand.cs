@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -48,28 +49,24 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 .OrderByDescending(p => p.Key.Balance)
                 .ToList();
 
+            List<long> topThreeBalances = topUsersNamed.Select(tu => tu.Key.Balance).TakeTopValues(3).ToList();
             StringBuilder answer = new StringBuilder($"💰Топ {topUsersNamed.Count} богатеев чата💰\n");
             for (int i = 0; i < topUsersNamed.Count; i++)
             {
                 if (topUsersNamed.ElementAt(i).Value == null)
                     continue;
 
-                answer.Append($"{i + 1}. {topUsersNamed.ElementAt(i).Value} - {topUsersNamed.ElementAt(i).Key.Balance.ToMoneyFormat()}");
-                switch (i)
-                {
-                    case 0:
-                        answer.Append("🥇\n");
-                        break;
-                    case 1:
-                        answer.Append("🥈\n");
-                        break;
-                    case 2:
-                        answer.Append("🥉\n");
-                        break;
-                    default:
-                        answer.Append("\n");
-                        break;
-                }
+                var currUser = topUsersNamed.ElementAt(i);
+
+                answer.Append($"{i + 1}. {currUser.Value} - {currUser.Key.Balance.ToMoneyFormat()}");
+
+                if (topThreeBalances.Count > 0 && currUser.Key.Balance == topThreeBalances.ElementAt(0))
+                    answer.Append("🥇");
+                else if (topThreeBalances.Count > 1 && currUser.Key.Balance == topThreeBalances.ElementAt(1))
+                    answer.Append("🥈");
+                else if (topThreeBalances.Count > 2 && currUser.Key.Balance == topThreeBalances.ElementAt(2))
+                    answer.Append("🥉");
+                answer.Append("\n");
             }
 
             await client.TrySendTextMessageAsync(message.Chat.Id, answer.ToString(),
