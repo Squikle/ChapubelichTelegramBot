@@ -42,7 +42,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
             if (thief == null)
                 return;
-            if (thief.LastMoneyTheft.AddSeconds(config.GetValue<int>("AppSettings:TheftReloadDuration")) > DateTime.UtcNow)
+            if (thief.LastMoneyTheft.AddSeconds(config.GetValue<int>("AppSettings:TheftCoolDownDuration")) > DateTime.UtcNow)
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
