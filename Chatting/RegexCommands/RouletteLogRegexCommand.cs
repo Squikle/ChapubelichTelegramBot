@@ -18,7 +18,6 @@ namespace ChapubelichBot.Chatting.RegexCommands
         public override string Pattern => @"^\/? *(log|лог|история|игры|последние) *?(\d*)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            StringBuilder answer = new StringBuilder(35);
             await using var db = new ChapubelichdbContext();
             int[] lastGameSessions;
             if (message.Chat.Type == ChatType.Private)
@@ -58,6 +57,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             if (gameSessionsToOutput > lastGameSessions.Length)
                 gameSessionsToOutput = lastGameSessions.Length;
 
+            StringBuilder answer = new StringBuilder($"Результат последних {gameSessionsToOutput} игр:\n", 60);
             for (int i = lastGameSessions.Length - gameSessionsToOutput; i < lastGameSessions.Length; i++)
             {
                 /*string gameSessionResultString = gameSessionResult.ToString();
