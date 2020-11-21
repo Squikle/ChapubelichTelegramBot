@@ -1,20 +1,21 @@
 ﻿using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChapubelichBot.Database;
-using ChapubelichBot.Database.Models;
 using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Group = ChapubelichBot.Database.Models.Group;
 using User = ChapubelichBot.Database.Models.User;
 
 namespace ChapubelichBot.Chatting.RegexCommands
 {
     class RouletteLogRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/? *(log|лог|история|игры|последние)(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *(log|лог|история|игры|последние) *?(\d*)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             StringBuilder answer = new StringBuilder(35);
@@ -49,13 +50,21 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 }
             }
 
-            foreach (var gameSessionResult in lastGameSessions)
+            if (!int.TryParse(Regex.Match(message.Text, Pattern).Groups[2].Value, out int gameSessionsToOutput) 
+                || gameSessionsToOutput == 0 
+                || gameSessionsToOutput > 10)
+                gameSessionsToOutput = 10;
+
+            if (gameSessionsToOutput > lastGameSessions.Length)
+                gameSessionsToOutput = lastGameSessions.Length;
+
+            for (int i = lastGameSessions.Length - gameSessionsToOutput; i < lastGameSessions.Length; i++)
             {
                 /*string gameSessionResultString = gameSessionResult.ToString();
                 if (gameSessionResultString.Length < 2)
                     gameSessionResultString += "  ";
                 answer.Append($"{gameSessionResultString} {gameSessionResult.ToRouletteColor().ToEmoji()}\n");*/
-                answer.Append($"{gameSessionResult.ToRouletteColor().ToEmoji()} {gameSessionResult}\n");
+                answer.Append($"{lastGameSessions[i].ToRouletteColor().ToEmoji()} {lastGameSessions[i]}\n");
             }
 
             await client.TrySendTextMessageAsync(message.Chat.Id, answer.ToString(),
