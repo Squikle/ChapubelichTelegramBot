@@ -328,8 +328,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             UpdateLastActivity(gameSession);
             dbContext.SaveChanges();
 
-            var user = dbContext.Users.FirstOrDefault(x => x.UserId == callbackQuery.From.Id);
-
+            User user = dbContext.Users.FirstOrDefault(x => x.UserId == callbackQuery.From.Id);
 
             if (user == null)
                 return;
@@ -377,6 +376,16 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             if (user == null)
                 return;
 
+            if (user.Balance == 0)
+            {
+                await _client.TrySendTextMessageAsync(
+                    gameSession.ChatId,
+                    $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
+                    replyToMessageId: message.MessageId,
+                    parseMode: ParseMode.Html);
+                return;
+            }
+
             Match matchString = Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase);
 
             long maxBetSum = Bot.GetConfig().GetValue<long>("AppSettings:MaxBetSum");
@@ -389,59 +398,63 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     replyToMessageId: message.MessageId);
                 return;
             }
-
-            if (!int.TryParse(matchString.Groups[2].Value, out int firstNumber) || firstNumber > RouletteGameManager.TableSize)
-            {
-                await _client.TrySendTextMessageAsync(
-                    gameSession.ChatId,
-                    "Некорректная ставка",
-                    replyToMessageId: message.MessageId);
-                return;
-            }
-
-            int[] userBets;
-            if (!Int32.TryParse(matchString.Groups[4].Value, out int secondNumber))
-                userBets = GetBetsByNumbers(firstNumber);
+            
+            int[] userBet;
+            if (!string.IsNullOrEmpty(matchString.Groups[4].Value))
+                userBet = matchString.Groups[4].Value[0] == 'ч' ? GetEvenBet() : GetOddBet();
             else
             {
-                int rangeSize = secondNumber - firstNumber + 1;
-
-                if (firstNumber >= secondNumber || secondNumber > RouletteGameManager.TableSize || secondNumber == 0)
-                    return;
-
-                // Верификация ставки
-                string errorVerificationMessage = null;
-                if (!(rangeSize >= 2 && rangeSize <= 4) && (rangeSize != 6 && rangeSize != 12 && rangeSize != 18))
+                if (!int.TryParse(matchString.Groups[2].Value, out int firstNumber) ||
+                    firstNumber > RouletteGameManager.TableSize)
                 {
-                    errorVerificationMessage = "Можно ставить только на последовательности из 2,3,4,6,12,18 чисел";
-                }
-                else if (rangeSize == 12 && firstNumber != 1 && firstNumber != 13 && firstNumber != 25)
-                {
-                    errorVerificationMessage = "На дюжину можно ставить только 1-12, 13-24, 25-36";
-                }
-                else if (rangeSize == 18 && firstNumber != 1 && firstNumber != 19)
-                {
-                    errorVerificationMessage = "На выше/ниже можно ставить только 1-18, 19-36";
-                }
-                if (errorVerificationMessage != null)
-                {
-                    await _client.TrySendTextMessageAsync(gameSession.ChatId,
-                        errorVerificationMessage,
+                    await _client.TrySendTextMessageAsync(
+                        gameSession.ChatId,
+                        "Некорректная ставка",
                         replyToMessageId: message.MessageId);
                     return;
                 }
 
-                userBets = GetBetsByNumbers(firstNumber, secondNumber);
-            }
+                if (!Int32.TryParse(matchString.Groups[3].Value, out int secondNumber))
+                    userBet = GetBetsByNumbers(firstNumber);
+                else
+                {
+                    int rangeSize = secondNumber - firstNumber + 1;
 
-            if (user.Balance == 0)
-            {
-                await _client.TrySendTextMessageAsync(
-                    gameSession.ChatId,
-                    $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
-                    replyToMessageId: message.MessageId,
-                    parseMode: ParseMode.Html);
-                return;
+                    if (firstNumber >= secondNumber || secondNumber > RouletteGameManager.TableSize ||
+                        secondNumber == 0)
+                    {
+                        await _client.TrySendTextMessageAsync(
+                            gameSession.ChatId,
+                            "Некорректная ставка",
+                            replyToMessageId: message.MessageId);
+                        return;
+                    }
+
+                    // Верификация ставки
+                    string errorVerificationMessage = null;
+                    if (!(rangeSize >= 2 && rangeSize <= 4) && (rangeSize != 6 && rangeSize != 12 && rangeSize != 18))
+                    {
+                        errorVerificationMessage = "Можно ставить только на последовательности из 2,3,4,6,12,18 чисел";
+                    }
+                    else if (rangeSize == 12 && firstNumber != 1 && firstNumber != 13 && firstNumber != 25)
+                    {
+                        errorVerificationMessage = "На дюжину можно ставить только 1-12, 13-24, 25-36";
+                    }
+                    else if (rangeSize == 18 && firstNumber != 1 && firstNumber != 19)
+                    {
+                        errorVerificationMessage = "На выше/ниже можно ставить только 1-18, 19-36";
+                    }
+
+                    if (errorVerificationMessage != null)
+                    {
+                        await _client.TrySendTextMessageAsync(gameSession.ChatId,
+                            errorVerificationMessage,
+                            replyToMessageId: message.MessageId);
+                        return;
+                    }
+
+                    userBet = GetBetsByNumbers(firstNumber, secondNumber);
+                }
             }
 
             string allInAlertMessage = string.Empty;
@@ -451,7 +464,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 playerBetSum = user.Balance;
             }
 
-            string answerMessage = PlaceBetNumber(gameSession, userBets, user, message.From.FirstName, playerBetSum, dbContext);
+            string answerMessage = PlaceBetNumber(gameSession, userBet, user, message.From.FirstName, playerBetSum, dbContext);
 
             await _client.TrySendTextMessageAsync(
                 gameSession.ChatId,
@@ -459,7 +472,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 replyToMessageId: message.MessageId,
                 parseMode: ParseMode.Html);
 
-            if (!string.IsNullOrEmpty(Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase).Groups[5].Value))
+            if (!string.IsNullOrEmpty(matchString.Groups[5].Value))
                 await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
         public static async Task RollRequest(CallbackQuery callbackQuery)
@@ -957,27 +970,9 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             switch (queryData)
             {
                 case "rouletteBetEven":
-                    userBet = new int[(TableSize - 1) / 2];
-                    for (int i = 0, j = 1; i < userBet.Length; j++)
-                    {
-                        if (j % 2 == 0)
-                        {
-                            userBet[i] = j;
-                            i++;
-                        }
-                    }
-                    return userBet;
+                    return GetEvenBet();
                 case "rouletteBetOdd":
-                    userBet = new int[(TableSize - 1) / 2];
-                    for (int i = 0, j = 1; i < userBet.Length; j++)
-                    {
-                        if (j % 2 != 0)
-                        {
-                            userBet[i] = j;
-                            i++;
-                        }
-                    }
-                    return userBet;
+                    return GetOddBet();
 
                 case "rouletteBetFirstHalf":
                     return GetBetsByNumbers(1, (TableSize - 1) / 2);
@@ -1020,6 +1015,35 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             }
 
             return null;
+        }
+
+        private static int[] GetEvenBet()
+        {
+            int[] userBet = new int[(TableSize - 1) / 2];
+            for (int i = 0, j = 1; i < userBet.Length; j++)
+            {
+                if (j % 2 == 0)
+                {
+                    userBet[i] = j;
+                    i++;
+                }
+            }
+
+            return userBet;
+        }
+        private static int[] GetOddBet()
+        {
+            int[] userBet = new int[(TableSize - 1) / 2];
+            for (int i = 0, j = 1; i < userBet.Length; j++)
+            {
+                if (j % 2 != 0)
+                {
+                    userBet[i] = j;
+                    i++;
+                }
+            }
+
+            return userBet;
         }
     }
 }

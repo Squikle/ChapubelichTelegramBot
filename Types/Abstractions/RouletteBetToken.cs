@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using ChapubelichBot.Database.Models;
+﻿using ChapubelichBot.Database.Models;
 using ChapubelichBot.Types.Enums;
 
 namespace ChapubelichBot.Types.Abstractions
