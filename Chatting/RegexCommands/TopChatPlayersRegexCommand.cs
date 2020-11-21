@@ -28,7 +28,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
             if (group == null)
                 return;
 
-            if (!int.TryParse(Regex.Match(message.Text, Pattern).Groups[2].Value, out int usersToOutput) || usersToOutput == 0)
+            if (!int.TryParse(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[2].Value, out int usersToOutput) || usersToOutput == 0)
                 usersToOutput = 10;
 
             int maxTopChatOutput = Bot.GetConfig().GetValue<int>("AppSettings:MaxTopChatOutput");
