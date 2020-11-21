@@ -49,7 +49,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 }
             }
 
-            if (!int.TryParse(Regex.Match(message.Text, Pattern).Groups[2].Value, out int gameSessionsToOutput) 
+            if (!int.TryParse(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[2].Value, out int gameSessionsToOutput) 
                 || gameSessionsToOutput == 0 
                 || gameSessionsToOutput > 10)
                 gameSessionsToOutput = 10;
