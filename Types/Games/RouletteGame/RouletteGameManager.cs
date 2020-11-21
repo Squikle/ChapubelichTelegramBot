@@ -60,8 +60,11 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     LastActivity = DateTime.UtcNow,
                     ResultNumber = GetRandomResultNumber()
                 };
-                dbContext.RouletteGameSessions.Add(gameSession);
-                dbContext.SaveChanges();
+                if (!dbContext.RouletteGameSessions.Contains(gameSession))
+                {
+                    dbContext.RouletteGameSessions.Add(gameSession);
+                    dbContext.SaveChanges();
+                }
             }
             else
             {
@@ -98,9 +101,13 @@ namespace ChapubelichBot.Types.Games.RouletteGame
             
             // Удаление сообщений и отправка результатов
             string result = await Summarize(gameSession);
-
             dbContext.SaveChanges();
-            dbContext.Remove(gameSession);
+
+            if (dbContext.RouletteGameSessions.Contains(gameSession))
+            {
+                dbContext.Remove(gameSession);
+                dbContext.SaveChanges();
+            }
 
             Chat chat = await getChatTypeTask;
 
@@ -686,8 +693,11 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 }
             }
 
-            dbContext.Remove(gameSession);
-            dbContext.SaveChanges();
+            if (dbContext.RouletteGameSessions.Contains(gameSession))
+            {
+                dbContext.Remove(gameSession);
+                dbContext.SaveChanges();
+            }
 
             Task deletingAnimationMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
 
@@ -834,8 +844,11 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                     ParseMode.Html,
                     replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
 
-                dbContext.RouletteGameSessions.Remove(gs);
-                dbContext.SaveChanges();
+                if (dbContext.RouletteGameSessions.Contains(gs))
+                {
+                    dbContext.RouletteGameSessions.Remove(gs);
+                    dbContext.SaveChanges();
+                }
 
                 if (deletingMessage != null)
                     await deletingMessage;
