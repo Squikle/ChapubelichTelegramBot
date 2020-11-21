@@ -12,7 +12,8 @@
     "TheftReloadDuration": 300,
     "FullTheftChance": 45,
     "PartialTheftChance": 30,
-    "TheftSumCoefficient": 5
+    "TheftSumCoefficient": 5,
+    "MaxTopChatOutput": 20
   },
   "Logger": {
     "DirectoryPath": "ChapubelichLogs",
@@ -30,6 +31,7 @@
     "_TheftReloadDuration": "Default: 300 = 5min",
     "_FullTheftChance": "chance to theft full value for 1% (int percents) Default: 40 = 40%",
     "_PartialTheftChance": "chance to theft pertial value for 1% (int percents) Default: 30 = 20%",
-    "_TheftSumCoefficient": "how much the size of the theft sum affects the chance of theft. On 30 it almost doesn't affect: Default: 5 = decreasing by 2 times"
+    "_TheftSumCoefficient": "how much the size of the theft sum affects the chance of theft. On 30 it almost doesn't affect: Default: 5 = decreasing by 2 times",
+    "MaxTopChatOutput": "how much users can top contain Default: 20"
   }
 }

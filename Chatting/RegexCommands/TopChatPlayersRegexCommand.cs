@@ -4,9 +4,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChapubelichBot.Database;
+using ChapubelichBot.Init;
 using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Group = ChapubelichBot.Database.Models.Group;
@@ -27,6 +29,10 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
             if (!int.TryParse(Regex.Match(message.Text, Pattern).Groups[2].Value, out int usersToOutput) || usersToOutput == 0)
                 usersToOutput = 10;
+
+            int MaxTopChatOutput = Bot.GetConfig().GetValue<int>("AppSettings:MaxTopChatOutput");
+            if (usersToOutput > MaxTopChatOutput)
+                usersToOutput = MaxTopChatOutput;
 
             if (usersToOutput > group.Users.Count)
                 usersToOutput = group.Users.Count;
