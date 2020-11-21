@@ -14,7 +14,8 @@
     "PartialTheftChance": 30,
     "TheftSumCoefficient": 5,
     "MaxTopChatOutput": 20,
-    "MaxDailyPersonNameLenght": 30
+    "MaxDailyPersonNameLenght": 30,
+    "Mute": null
   },
   "Logger": {
     "DirectoryPath": "ChapubelichLogs",
@@ -34,6 +35,7 @@
     "_PartialTheftChance": "chance to theft pertial value for 1% (int percents) Default: 30 = 20%",
     "_TheftSumCoefficient": "how much the size of the theft sum affects the chance of theft. On 30 it almost doesn't affect: Default: 5 = decreasing by 2 times",
     "_MaxTopChatOutput": "how much users can top contain Default: 20",
-    "_MaxDailyPersonNameLenght": "max lenght of name string of daily person in group Default: 30"
+    "_MaxDailyPersonNameLenght": "max lenght of name string of daily person in group Default: 30",
+    "_Mute": "will the bot send messages quietly (yes|no|none) Default: yes"
   }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ChapubelichBot.Init;
+using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -12,15 +14,17 @@ namespace ChapubelichBot.Types.Extensions
 {
     internal static class ChapubelichBotApiExtensions
     {
+        private static bool? Muted => Bot.GetConfig().GetValue<bool?>("AppSettings:Mute");
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             Message message;
             try
             {
+                bool muted = Muted != null ? Muted == true : disableNotification;
                 message = await client.SendTextMessageAsync(
                     chatId, text, parseMode,
                     disableWebPagePreview,
-                    disableNotification, replyToMessageId,
+                    muted, replyToMessageId,
                     replyMarkup, cancellationToken);
             }
             catch (Exception e)
@@ -36,13 +40,94 @@ namespace ChapubelichBot.Types.Extensions
             Message message;
             try
             {
+                bool muted = Muted != null ? Muted == true : disableNotification;
                 message = await client.SendStickerAsync(
-                    chatId, sticker, disableNotification, 
+                    chatId, sticker, muted, 
                     replyToMessageId, replyMarkup, cancellationToken);
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Не удалось отправить стикер. ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
+                return null;
+            }
+
+            return message;
+        }
+        public static async Task<Message> TrySendPhotoAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile photo, string caption = null, ParseMode parseMode = ParseMode.Default, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
+        {
+            Message message;
+            try
+            {
+                bool muted = Muted != null ? Muted == true : disableNotification;
+                message = await client.SendPhotoAsync(chatId, photo, caption, parseMode, muted, replyToMessageId, replyMarkup, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Не удалось отправить фото ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
+                return null;
+            }
+
+            return message;
+        }
+        public static async Task<Message> TrySendVideoAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile video, int duration = 0, int width = 0, int height = 0, string caption = null, ParseMode parseMode = ParseMode.Default, bool supportsStreaming = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, InputMedia thumb = null)
+        {
+            Message message;
+            try
+            {
+                bool muted = Muted != null ? Muted == true : disableNotification;
+                message = await client.SendVideoAsync(chatId, video, duration, width, height, caption, parseMode, supportsStreaming, muted, replyToMessageId, replyMarkup, cancellationToken, thumb);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Не удалось отправить видео ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
+                return null;
+            }
+
+            return message;
+        }
+        public static async Task<Message> TrySendAudioAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile audio, string caption = null, ParseMode parseMode = ParseMode.Default, int duration = 0, string performer = null, string title = null, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, InputMedia thumb = null)
+        {
+            Message message;
+            try
+            {
+                bool muted = Muted != null ? Muted == true : disableNotification;
+                message = await client.SendAudioAsync(chatId, audio, caption, parseMode, duration, performer, title, muted, replyToMessageId, replyMarkup, cancellationToken, thumb);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Не удалось отправить аудио ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
+                return null;
+            }
+
+            return message;
+        }
+        public static async Task<Message> TrySendAnimationAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile animation, int duration = 0, int width = 0, int height = 0, InputMedia thumb = null, string caption = null, ParseMode parseMode = ParseMode.Default, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
+        {
+            Message message;
+            try
+            {
+                bool muted = Muted != null ? Muted == true : disableNotification;
+                message = await client.SendAnimationAsync(chatId, animation, duration, width, height, thumb, caption, parseMode, muted, replyToMessageId, replyMarkup, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Не удалось отправить анимацию ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
+                return null;
+            }
+
+            return message;
+        }
+        public static async Task<Message> TrySendPollAsync(this ITelegramBotClient client, ChatId chatId, string question, IEnumerable<string> options, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, bool? isAnonymous = null, PollType? type = null, bool? allowsMultipleAnswers = null, int? correctOptionId = null, bool? isClosed = null, string explanation = null, ParseMode explanationParseMode = ParseMode.Default, int? openPeriod = null, DateTime? closeDate = null)
+        {
+            Message message;
+            try
+            {
+                bool muted = Muted != null ? Muted == true : disableNotification;
+                message = await client.SendPollAsync(chatId, question, options, muted, replyToMessageId, replyMarkup, cancellationToken, isAnonymous, type, allowsMultipleAnswers, correctOptionId, isClosed, explanation, explanationParseMode, openPeriod, closeDate);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Не удалось отправить голосование ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
@@ -75,81 +160,6 @@ namespace ChapubelichBot.Types.Extensions
             catch (Exception e)
             {
                 Console.WriteLine($"Не удалось редактировать разметку сообщения. ChatId: {chatId}, MessageId: {messageId} \nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
-                return null;
-            }
-
-            return message;
-        }
-        public static async Task<Message> TrySendAnimationAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile animation, int duration = 0, int width = 0, int height = 0, InputMedia thumb = null, string caption = null, ParseMode parseMode = ParseMode.Default, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
-        {
-            Message message;
-            try
-            {
-                message = await client.SendAnimationAsync(chatId, animation, duration, width, height, thumb, caption, parseMode, disableNotification, replyToMessageId, replyMarkup, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Не удалось отправить анимацию ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
-                return null;
-            }
-
-            return message;
-        }
-        public static async Task<Message> TrySendPhotoAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile photo, string caption = null, ParseMode parseMode = ParseMode.Default, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
-        {
-            Message message;
-            try
-            {
-                message = await client.SendPhotoAsync(chatId, photo, caption, parseMode, disableNotification, replyToMessageId, replyMarkup, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Не удалось отправить фото ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
-                return null;
-            }
-
-            return message;
-        }
-        public static async Task<Message> TrySendVideoAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile video, int duration = 0, int width = 0, int height = 0, string caption = null, ParseMode parseMode = ParseMode.Default, bool supportsStreaming = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, InputMedia thumb = null)
-        {
-            Message message;
-            try
-            {
-                message = await client.SendVideoAsync(chatId, video, duration, width, height, caption, parseMode, supportsStreaming, disableNotification, replyToMessageId, replyMarkup, cancellationToken, thumb);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Не удалось отправить видео ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
-                return null;
-            }
-
-            return message;
-        }
-        public static async Task<Message> TrySendAudioAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile audio, string caption = null, ParseMode parseMode = ParseMode.Default, int duration = 0, string performer = null, string title = null, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, InputMedia thumb = null)
-        {
-            Message message;
-            try
-            {
-                message = await client.SendAudioAsync(chatId, audio, caption, parseMode, duration, performer, title, disableNotification, replyToMessageId, replyMarkup, cancellationToken, thumb);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Не удалось отправить аудио ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
-                return null;
-            }
-
-            return message;
-        }
-        public static async Task<Message> TrySendPollAsync(this ITelegramBotClient client, ChatId chatId, string question, IEnumerable<string> options, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default, bool? isAnonymous = null, PollType? type = null, bool? allowsMultipleAnswers = null, int? correctOptionId = null, bool? isClosed = null, string explanation = null, ParseMode explanationParseMode = ParseMode.Default, int? openPeriod = null, DateTime? closeDate = null)
-        {
-            Message message;
-            try
-            {
-                message = await client.SendPollAsync(chatId, question, options, disableNotification, replyToMessageId, replyMarkup, cancellationToken, isAnonymous, type, allowsMultipleAnswers, correctOptionId, isClosed, explanation, explanationParseMode, openPeriod, closeDate);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Не удалось отправить голосование ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
