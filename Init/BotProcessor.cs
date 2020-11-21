@@ -98,7 +98,7 @@ namespace ChapubelichBot.Init
         }
         private static async void RestoreData()
         {
-            IQueryable<RouletteGameSession> gameSessionsToResume;
+            List<RouletteGameSession> gameSessionsToResume;
             await using var db = new ChapubelichdbContext();
             {
                  gameSessionsToResume =
@@ -107,7 +107,8 @@ namespace ChapubelichBot.Init
                         .ThenInclude(bt => bt.User)
                         .Include(gs => gs.NumberBetTokens)
                         .ThenInclude(bt => bt.User)
-                        .Where(gs => gs.Resulting);
+                        .Where(gs => gs.Resulting)
+                        .ToList();
             }
 
             Parallel.ForEach(gameSessionsToResume, 
