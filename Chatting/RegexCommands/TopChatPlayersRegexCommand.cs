@@ -33,29 +33,28 @@ namespace ChapubelichBot.Chatting.RegexCommands
             int maxTopChatOutput = Bot.GetConfig().GetValue<int>("AppSettings:MaxTopChatOutput");
             if (usersToOutput > maxTopChatOutput)
                 usersToOutput = maxTopChatOutput;
-
             if (usersToOutput > group.Users.Count)
                 usersToOutput = group.Users.Count;
 
-            var topUsersNamed = group.Users
+            List<KeyValuePair<User, string>> topUsersNamed = group.Users
                 .OrderByDescending(u => u.Balance)
                 .Take(usersToOutput)
                 .AsParallel()
-                .Select(async tu =>
+                .Select(tu =>
             {
-                ChatMember member = await client.GetChatMemberAsync(message.Chat.Id, tu.UserId);
+                ChatMember member = client.GetChatMemberAsync(message.Chat.Id, tu.UserId).Result;
                 return new KeyValuePair<User, string>(tu, member?.User?.FirstName);
-            }).ToDictionary(k => k.Result.Key, v => v.Result.Value);
+            })
+                .OrderByDescending(p => p.Key.Balance)
+                .ToList();
 
-            var orderedTopUsers = topUsersNamed.OrderByDescending(k => k.Key.Balance).ToList();
-
-            StringBuilder answer = new StringBuilder($"💰Топ {orderedTopUsers.Count} богатеев чата💰\n");
-            for (int i = 0; i < orderedTopUsers.Count; i++)
+            StringBuilder answer = new StringBuilder($"💰Топ {topUsersNamed.Count} богатеев чата💰\n");
+            for (int i = 0; i < topUsersNamed.Count; i++)
             {
                 if (topUsersNamed.ElementAt(i).Value == null)
                     continue;
 
-                answer.Append($"{i + 1}. {orderedTopUsers.ElementAt(i).Value} - {orderedTopUsers.ElementAt(i).Key.Balance.ToMoneyFormat()}");
+                answer.Append($"{i + 1}. {topUsersNamed.ElementAt(i).Value} - {topUsersNamed.ElementAt(i).Key.Balance.ToMoneyFormat()}");
                 switch (i)
                 {
                     case 0:
