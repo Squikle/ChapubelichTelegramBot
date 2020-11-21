@@ -60,12 +60,15 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
                 answer.Append($"{i + 1}. {currUser.Value} - {currUser.Key.Balance.ToMoneyFormat()}");
 
-                if (topThreeBalances.Count > 0 && currUser.Key.Balance == topThreeBalances.ElementAt(0))
-                    answer.Append("🥇");
-                else if (topThreeBalances.Count > 1 && currUser.Key.Balance == topThreeBalances.ElementAt(1))
-                    answer.Append("🥈");
-                else if (topThreeBalances.Count > 2 && currUser.Key.Balance == topThreeBalances.ElementAt(2))
-                    answer.Append("🥉");
+                if (currUser.Key.Balance > topThreeBalances.ElementAtOrDefault(3) || currUser.Key.Balance > 0)
+                {
+                    if (currUser.Key.Balance == topThreeBalances.ElementAt(0))
+                        answer.Append("🥇");
+                    else if (currUser.Key.Balance == topThreeBalances.ElementAt(1))
+                        answer.Append("🥈");
+                    else if (currUser.Key.Balance == topThreeBalances.ElementAt(2))
+                        answer.Append("🥉");
+                }
                 answer.Append("\n");
             }
 
