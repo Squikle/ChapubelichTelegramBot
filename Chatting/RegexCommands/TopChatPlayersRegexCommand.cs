@@ -30,9 +30,9 @@ namespace ChapubelichBot.Chatting.RegexCommands
             if (!int.TryParse(Regex.Match(message.Text, Pattern).Groups[2].Value, out int usersToOutput) || usersToOutput == 0)
                 usersToOutput = 10;
 
-            int MaxTopChatOutput = Bot.GetConfig().GetValue<int>("AppSettings:MaxTopChatOutput");
-            if (usersToOutput > MaxTopChatOutput)
-                usersToOutput = MaxTopChatOutput;
+            int maxTopChatOutput = Bot.GetConfig().GetValue<int>("AppSettings:MaxTopChatOutput");
+            if (usersToOutput > maxTopChatOutput)
+                usersToOutput = maxTopChatOutput;
 
             if (usersToOutput > group.Users.Count)
                 usersToOutput = group.Users.Count;
