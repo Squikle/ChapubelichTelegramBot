@@ -31,6 +31,23 @@ namespace ChapubelichBot.Types.Extensions
 
             return message;
         }
+        public static async Task<Message> TrySendStickerAsync(this ITelegramBotClient client, ChatId chatId, InputOnlineFile sticker, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
+        {
+            Message message;
+            try
+            {
+                message = await client.SendStickerAsync(
+                    chatId, sticker, disableNotification, 
+                    replyToMessageId, replyMarkup, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Не удалось отправить стикер. ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
+                return null;
+            }
+
+            return message;
+        }
         public static async Task<Message> TryEditMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, InlineKeyboardMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             Message message;
