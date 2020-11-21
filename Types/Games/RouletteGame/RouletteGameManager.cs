@@ -314,7 +314,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 replyToMessageId: message.MessageId,
                 parseMode: ParseMode.Html);
 
-            if (!string.IsNullOrEmpty(matchString.Groups[9].Value))
+            if (!string.IsNullOrEmpty(matchString.Groups[3].Value))
                 await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
         public static async Task BetNumbersRequest(CallbackQuery callbackQuery)

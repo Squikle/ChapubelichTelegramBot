@@ -10,10 +10,10 @@ namespace ChapubelichBot.Chatting.RegexCommands
 {
     class RouletteColorBetRegexCommand : RegexCommand
     {
-        public override string Pattern => @"^\/?(\d+) *(к(расный)?|ч(ерный)?|з(еленый)?|r(ed)?|b(lack)?|g(reen)?) *(го|ролл|погнали|крути|roll|go)?(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/?(\d+) *(к(?:расный)?|ч(?:ерный)?|з(?:еленый)?|r(?:ed)?|b(?:lack)?|g(?:reen)?) *(го|г|ролл|погнали|крути|roll|go)?(?:@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            RouletteGameSession gameSession = null;
+            RouletteGameSession gameSession;
             await using (var db = new ChapubelichdbContext())
             {
                 gameSession = RouletteGameManager.GetGameSessionOrNull(message.Chat.Id, db);
