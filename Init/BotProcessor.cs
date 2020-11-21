@@ -305,13 +305,19 @@ namespace ChapubelichBot.Init
                 saveChangesRequired = true;
             }
 
-            var botMember = await gettingChatMember;
+            if (group.Name != message.Chat.Title)
+            {
+                group.Name = message.Chat.Title;
+                saveChangesRequired = true;
+            }
+
+            var chatMember = await gettingChatMember;
 
             bool isChatAvailableToSend = false;
-            if (botMember != null)
-                isChatAvailableToSend = (botMember.CanSendMessages ?? true)
-                                        && (botMember.CanSendMediaMessages ?? true)
-                                        && (botMember.IsMember ?? true);
+            if (chatMember != null)
+                isChatAvailableToSend = (chatMember.CanSendMessages ?? true)
+                                        && (chatMember.CanSendMediaMessages ?? true)
+                                        && (chatMember.IsMember ?? true);
 
             if (group.IsAvailable != isChatAvailableToSend)
             {
