@@ -758,7 +758,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 {
                     List<int> lastGameSessionsResults = user.LastGameSessions ??= new List<int>(1);
                     lastGameSessionsResults.Add(gameSession.ResultNumber);
-                    if (user.LastGameSessions.Count > 10)
+                    while (user.LastGameSessions.Count > 10)
                         user.LastGameSessions.RemoveAt(0);
                 }
             }
@@ -770,7 +770,7 @@ namespace ChapubelichBot.Types.Games.RouletteGame
                 {
                     List<int> lastGameSessionsResults = group.LastGameSessions ??= new List<int>(1);
                     lastGameSessionsResults.Add(gameSession.ResultNumber);
-                    if (group.LastGameSessions.Count > 10)
+                    while (group.LastGameSessions.Count > 10)
                         group.LastGameSessions.RemoveAt(0);
                 }
             }
