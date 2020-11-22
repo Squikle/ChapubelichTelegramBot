@@ -7,6 +7,7 @@ using ChapubelichBot.Types.Extensions;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace ChapubelichBot.CommandEntities.RegexCommands
 {
@@ -32,8 +33,9 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"Вы не можете передать больше {maxTransferSum} 💵 за раз",
-                    replyToMessageId: message.MessageId);
+                    $"Вы не можете передать больше <b>{maxTransferSum}</b> 💵 за раз",
+                    replyToMessageId: message.MessageId,
+                    parseMode: ParseMode.Html);
                 return;
             }
             if (transferSum == 0)
@@ -50,7 +52,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
                     $"Пользователь <a href=\"tg://user?id={markedUser.Id}\">{markedUser.FirstName}</a> еще не зарегестрировался\U0001F614",
-                    Telegram.Bot.Types.Enums.ParseMode.Html,
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
                 return;
             }
@@ -62,8 +64,8 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 transferFrom.Balance -= transferSum;
                 transferTo.Balance += transferSum;
 
-                string resultMessage = $"{transferSum.ToMoneyFormat()} 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
-                                       $"{markedUser.FirstName}</a>\nТеперь у {genderWord} {transferTo.Balance.ToMoneyFormat()}\U0001F4B0";
+                string resultMessage = $"<b>{transferSum.ToMoneyFormat()}</b> 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
+                                       $"{markedUser.FirstName}</a>\nТеперь у {genderWord} <b>{transferTo.Balance.ToMoneyFormat()}</b>\U0001F4B0";
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
                     resultMessage += $"\nПодпись: {attachedMessage}";
 
@@ -72,7 +74,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
                     resultMessage,
-                    Telegram.Bot.Types.Enums.ParseMode.Html,
+                    ParseMode.Html,
                     replyToMessageId: message.MessageId);
                 return;
             }
