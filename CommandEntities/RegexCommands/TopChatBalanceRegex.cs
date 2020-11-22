@@ -57,7 +57,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
                 var currUser = topUsersNamed.ElementAt(i);
 
-                answer.Append($"<b>{i + 1}.</b> {currUser.Value} - {currUser.Key.Balance.ToMoneyFormat()}");
+                answer.Append($"<b>{i + 1}.</b> <i>{currUser.Value}</i> - <b>{currUser.Key.Balance.ToMoneyFormat()}</b>");
 
                 if (currUser.Key.Balance > topThreeBalances.ElementAtOrDefault(3) || currUser.Key.Balance > 0)
                 {
