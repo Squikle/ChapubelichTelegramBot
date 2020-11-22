@@ -27,14 +27,12 @@ namespace ChapubelichBot.Types.GameManagers
         public static string Name => "\U0001F525Рулетка\U0001F525";
         public const int TableSize = 37;
         // Fields
-        private static ITelegramBotClient _client;
+        private static ITelegramBotClient Client => ChapubelichClient.GetClient();
         private static Timer _deadSessionsCollector;
 
         // C-tor
-        public static void Init(ITelegramBotClient client)
+        public static void Init()
         {
-            _client = client;
-
             int periodToCollect = (int)TimeSpan.FromMinutes(1).TotalMilliseconds;
             _deadSessionsCollector = new Timer(x => CollectDeadSessions(), null, periodToCollect, periodToCollect);
         }
@@ -67,7 +65,7 @@ namespace ChapubelichBot.Types.GameManagers
             }
             else
             {
-                Task sendingMessage = _client.TrySendTextMessageAsync(message.Chat.Id,
+                Task sendingMessage = Client.TrySendTextMessageAsync(message.Chat.Id,
                     "Игра уже запущена!",
                     replyToMessageId: gameSession.GameMessageId);
                 UpdateLastActivity(gameSession);
@@ -76,9 +74,9 @@ namespace ChapubelichBot.Types.GameManagers
                 return;
             }
 
-            int replyId = message.From.Id == _client.BotId ? 0 : message.MessageId;
+            int replyId = message.From.Id == Client.BotId ? 0 : message.MessageId;
 
-            var gameMessage = await _client.TrySendPhotoAsync(gameSession.ChatId,
+            var gameMessage = await Client.TrySendPhotoAsync(gameSession.ChatId,
                 "https://i.imgur.com/SN8DRoa.png",
                 caption: "Игра запущена. Ждем ваши ставки...\n" +
                          "Ты можешь поставить ставку по умолчанию на предложенные ниже варианты:",
@@ -93,7 +91,7 @@ namespace ChapubelichBot.Types.GameManagers
         }
         public static async Task ResumeResultingAsync(long chatId)
         {
-            Task<Chat> getChatTask = _client.GetChatAsync(chatId);
+            Task<Chat> getChatTask = Client.GetChatAsync(chatId);
 
             await using var dbContext = new ChapubelichdbContext();
 
@@ -120,13 +118,13 @@ namespace ChapubelichBot.Types.GameManagers
 
             Task deletingAnimationMessage = null;
             if (gameSession.AnimationMessageId != 0)
-                deletingAnimationMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
+                deletingAnimationMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
 
             Task deletingGameMessage = null;
             if (gameSession.AnimationMessageId != 0)
-                deletingGameMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
+                deletingGameMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
 
-            Task sendingResult = _client.TrySendTextMessageAsync(
+            Task sendingResult = Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 result,
                 ParseMode.Html,
@@ -156,12 +154,12 @@ namespace ChapubelichBot.Types.GameManagers
             string answerMessage = CancelBet(gameSession, user, callbackQuery.From.FirstName, dbContext);
             dbContext.SaveChanges();
 
-            Task sendingMessage = _client.TrySendTextMessageAsync(
+            Task sendingMessage = Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage,
                 parseMode: ParseMode.Html);
 
-            await _client.TryAnswerCallbackQueryAsync(callbackQuery.Id);
+            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id);
             await sendingMessage;
         }
         public static async Task BetCancelRequest(Message message)
@@ -182,7 +180,7 @@ namespace ChapubelichBot.Types.GameManagers
             string answerMessage = CancelBet(gameSession, user, message.From.FirstName, dbContext);
             dbContext.SaveChanges();
 
-            await _client.TrySendTextMessageAsync(
+            await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage,
                 replyToMessageId: message.MessageId,
@@ -206,7 +204,7 @@ namespace ChapubelichBot.Types.GameManagers
 
             if (user.Balance == 0)
             {
-                await _client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
+                await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
                     "Ты не можешь сделать ставку. У тебя нет денег😞");
                 return;
             }
@@ -238,11 +236,11 @@ namespace ChapubelichBot.Types.GameManagers
 
             string answerMessage = PlaceBetColor(gameSession, playerChoose, user, dbContext, callbackQuery.From.FirstName, playerBetSum);
 
-            Task sendingMessage = _client.TrySendTextMessageAsync(
+            Task sendingMessage = Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage,
                 parseMode: ParseMode.Html);
-            await _client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
+            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
             await sendingMessage;
         }
         public static async Task BetColorRequest(Message message, string pattern)
@@ -262,7 +260,7 @@ namespace ChapubelichBot.Types.GameManagers
 
             if (!long.TryParse(matchString.Groups[1].Value, out long playerBetSum) || playerBetSum > maxBetSum)
             {
-                await _client.TrySendTextMessageAsync(
+                await Client.TrySendTextMessageAsync(
                     gameSession.ChatId,
                     $"Вы не можете ставить больше {maxBetSum} 💵 за раз",
                     replyToMessageId: message.MessageId);
@@ -279,7 +277,7 @@ namespace ChapubelichBot.Types.GameManagers
 
             if (user.Balance == 0)
             {
-                await _client.TrySendTextMessageAsync(
+                await Client.TrySendTextMessageAsync(
                         gameSession.ChatId,
                     $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
                     replyToMessageId: message.MessageId,
@@ -307,7 +305,7 @@ namespace ChapubelichBot.Types.GameManagers
 
             string answerMessage = PlaceBetColor(gameSession, playerChoose, user, dbContext, message.From.FirstName, playerBetSum);
 
-            await _client.TrySendTextMessageAsync(
+            await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage + allInAlertMessage,
                 replyToMessageId: message.MessageId,
@@ -334,7 +332,7 @@ namespace ChapubelichBot.Types.GameManagers
 
             if (user.Balance == 0)
             {
-                await _client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
+                await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
                     "Ты не можешь сделать ставку. У тебя нет денег😞");
                 return;
             }
@@ -352,11 +350,11 @@ namespace ChapubelichBot.Types.GameManagers
 
             string answerMessage = PlaceBetNumber(gameSession, userBets, user, callbackQuery.From.FirstName, playerBetSum, dbContext);
 
-            Task sendingMessage = _client.TrySendTextMessageAsync(
+            Task sendingMessage = Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage,
                 parseMode: ParseMode.Html);
-            await _client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
+            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
             await sendingMessage;
         }
         public static async Task BetNumbersRequest(Message message, string pattern)
@@ -377,7 +375,7 @@ namespace ChapubelichBot.Types.GameManagers
 
             if (user.Balance == 0)
             {
-                await _client.TrySendTextMessageAsync(
+                await Client.TrySendTextMessageAsync(
                     gameSession.ChatId,
                     $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
                     replyToMessageId: message.MessageId,
@@ -391,7 +389,7 @@ namespace ChapubelichBot.Types.GameManagers
 
             if (!long.TryParse(matchString.Groups[1].Value, out long playerBetSum) || playerBetSum > maxBetSum)
             {
-                await _client.TrySendTextMessageAsync(
+                await Client.TrySendTextMessageAsync(
                     gameSession.ChatId,
                     $"Вы не можете ставить больше {maxBetSum} 💵 за раз",
                     replyToMessageId: message.MessageId);
@@ -406,7 +404,7 @@ namespace ChapubelichBot.Types.GameManagers
                 if (!int.TryParse(matchString.Groups[2].Value, out int firstNumber) ||
                     firstNumber > RouletteGameManager.TableSize)
                 {
-                    await _client.TrySendTextMessageAsync(
+                    await Client.TrySendTextMessageAsync(
                         gameSession.ChatId,
                         "Некорректная ставка",
                         replyToMessageId: message.MessageId);
@@ -422,7 +420,7 @@ namespace ChapubelichBot.Types.GameManagers
                     if (firstNumber >= secondNumber || secondNumber > RouletteGameManager.TableSize ||
                         secondNumber == 0)
                     {
-                        await _client.TrySendTextMessageAsync(
+                        await Client.TrySendTextMessageAsync(
                             gameSession.ChatId,
                             "Некорректная ставка",
                             replyToMessageId: message.MessageId);
@@ -446,7 +444,7 @@ namespace ChapubelichBot.Types.GameManagers
 
                     if (errorVerificationMessage != null)
                     {
-                        await _client.TrySendTextMessageAsync(gameSession.ChatId,
+                        await Client.TrySendTextMessageAsync(gameSession.ChatId,
                             errorVerificationMessage,
                             replyToMessageId: message.MessageId);
                         return;
@@ -465,7 +463,7 @@ namespace ChapubelichBot.Types.GameManagers
 
             string answerMessage = PlaceBetNumber(gameSession, userBet, user, message.From.FirstName, playerBetSum, dbContext);
 
-            await _client.TrySendTextMessageAsync(
+            await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage + allInAlertMessage,
                 replyToMessageId: message.MessageId,
@@ -490,13 +488,13 @@ namespace ChapubelichBot.Types.GameManagers
                 && gameSession.NumberBetTokens
                     .All(x => x.UserId != callbackQuery.From.Id))
             {
-                await _client.TryAnswerCallbackQueryAsync(
+                await Client.TryAnswerCallbackQueryAsync(
                 callbackQuery.Id,
                 "Сделай ставку, чтобы крутить барабан");
                 return;
             }
 
-            Task answeringCallbackQuery = _client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "✅");
+            Task answeringCallbackQuery = Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "✅");
             await ResultAsync(gameSession, dbContext, callbackQuery.Message.Chat.Type);
             await answeringCallbackQuery;
         }
@@ -515,7 +513,7 @@ namespace ChapubelichBot.Types.GameManagers
                     .All(x => x.UserId != message.From.Id)
                 && gameSession.NumberBetTokens
                     .All(x => x.UserId != message.From.Id))
-                await _client.TrySendTextMessageAsync(
+                await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 "Сделай ставку, чтобы крутить барабан",
                 replyToMessageId: message.MessageId,
@@ -556,7 +554,7 @@ namespace ChapubelichBot.Types.GameManagers
                 transactionResult += $"Ставка <a href=\"tg://user?id={userId}\">{message.From.FirstName}</a>:"
                                      + UserBetsToStringAsync(gameSession, userId);
 
-            await _client.TrySendTextMessageAsync(
+            await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 transactionResult,
                 replyToMessageId: message.MessageId,
@@ -604,7 +602,7 @@ namespace ChapubelichBot.Types.GameManagers
                     User user = token.User;
                     if (user != null)
                     {
-                        ChatMember chatMember = await _client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
+                        ChatMember chatMember = await Client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
                         if (chatMember != null)
                         {
                             string userFirstName = chatMember.User.FirstName;
@@ -625,7 +623,7 @@ namespace ChapubelichBot.Types.GameManagers
                     User user = token.User;
                     if (user != null)
                     {
-                        ChatMember chatMember = await _client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
+                        ChatMember chatMember = await Client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
                         if (chatMember != null)
                         {
                             string userFirstName = chatMember.User.FirstName;
@@ -643,7 +641,7 @@ namespace ChapubelichBot.Types.GameManagers
             gameSession.Resulting = true;
             dbContext.SaveChanges();
 
-            Message animationMessage = await _client.TrySendAnimationAsync(gameSession.ChatId,
+            Message animationMessage = await Client.TrySendAnimationAsync(gameSession.ChatId,
                 GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
 
             if (animationMessage != null)
@@ -669,11 +667,11 @@ namespace ChapubelichBot.Types.GameManagers
                 dbContext.SaveChanges();
             }
 
-            Task deletingAnimationMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
+            Task deletingAnimationMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
 
-            Task deletingGameMessage = _client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
+            Task deletingGameMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
 
-            Task sendingResult = _client.TrySendTextMessageAsync(
+            Task sendingResult = Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 result,
                 ParseMode.Html,
@@ -833,8 +831,8 @@ namespace ChapubelichBot.Types.GameManagers
                 }
                 Task deletingMessage = null;
                 if (gs.GameMessageId != 0)
-                    deletingMessage = _client.TryDeleteMessageAsync(gs.ChatId, gs.GameMessageId);
-                Task sendingMessage = _client.TrySendTextMessageAsync(
+                    deletingMessage = Client.TryDeleteMessageAsync(gs.ChatId, gs.GameMessageId);
+                Task sendingMessage = Client.TrySendTextMessageAsync(
                     gs.ChatId,
                     "Игровая сессия отменена из-за отсутствия активности" + returnedBets,
                     ParseMode.Html,

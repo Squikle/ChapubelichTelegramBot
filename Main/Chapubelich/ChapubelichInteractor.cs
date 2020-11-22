@@ -20,7 +20,7 @@ namespace ChapubelichBot.Main.Chapubelich
         private static readonly IConfiguration Config = ChapubelichClient.GetConfig();
         public static void Start()
         {
-            RouletteGameManager.Init(Client);
+            RouletteGameManager.Init();
             RestoreData();
             DailyProcess();
             Client.StartReceiving();
