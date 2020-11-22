@@ -57,18 +57,15 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
             if (gameSessionsToOutput > lastGameSessions.Length)
                 gameSessionsToOutput = lastGameSessions.Length;
 
-            StringBuilder answer = new StringBuilder($"Результат последних {gameSessionsToOutput} игр:\n", 60);
+            StringBuilder answer = new StringBuilder($"Результат последних <b>{gameSessionsToOutput}</b> игр:\n", 60);
             for (int i = lastGameSessions.Length - gameSessionsToOutput; i < lastGameSessions.Length; i++)
             {
-                /*string gameSessionResultString = gameSessionResult.ToString();
-                if (gameSessionResultString.Length < 2)
-                    gameSessionResultString += "  ";
-                answer.Append($"{gameSessionResultString} {gameSessionResult.ToRouletteColor().ToEmoji()}\n");*/
-                answer.Append($"{lastGameSessions[i].ToRouletteColor().ToEmoji()} {lastGameSessions[i]}\n");
+                answer.Append($"{lastGameSessions[i].ToRouletteColor().ToEmoji()} <b>{lastGameSessions[i]}</b>\n");
             }
 
             await client.TrySendTextMessageAsync(message.Chat.Id, answer.ToString(),
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId,
+                parseMode: ParseMode.Html);
         }
     }
 }
