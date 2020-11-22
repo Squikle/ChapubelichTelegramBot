@@ -70,12 +70,13 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             string rolledUserFirstName = member.User.FirstName;
 
+            Task sendingSticker = client.TrySendStickerAsync(message.Chat.Id,
+                GetRandomSticker());
             Task sendingTaskMessage = client.TrySendTextMessageAsync(message.Chat.Id, 
                 $"🎉 <i><a href=\"tg://user?id={member.User.Id}\">{rolledUserFirstName}</a></i> <b>{regexName}</b> дня 🎉",
                 parseMode: ParseMode.Html,
                 replyToMessageId: message.MessageId);
-            Task sendingSticker = client.TrySendStickerAsync(message.Chat.Id,
-                GetRandomSticker());
+            
 
             group.GroupDailyPerson = new GroupDailyPerson
             {
@@ -85,8 +86,8 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             };
             db.SaveChanges();
 
-            await sendingTaskMessage;
             await sendingSticker;
+            await sendingTaskMessage;
         }
 
         private InputOnlineFile GetRandomSticker()
