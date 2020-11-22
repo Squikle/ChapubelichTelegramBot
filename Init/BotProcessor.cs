@@ -102,17 +102,17 @@ namespace ChapubelichBot.Init
             List<RouletteGameSession> gameSessionsToResume;
             await using var db = new ChapubelichdbContext();
             {
-                 gameSessionsToResume =
-                    db.RouletteGameSessions
-                        .Include(gs => gs.ColorBetTokens)
-                        .ThenInclude(bt => bt.User)
-                        .Include(gs => gs.NumberBetTokens)
-                        .ThenInclude(bt => bt.User)
-                        .Where(gs => gs.Resulting)
-                        .ToList();
+                gameSessionsToResume =
+                   db.RouletteGameSessions
+                       .Include(gs => gs.ColorBetTokens)
+                       .ThenInclude(bt => bt.User)
+                       .Include(gs => gs.NumberBetTokens)
+                       .ThenInclude(bt => bt.User)
+                       .Where(gs => gs.Resulting)
+                       .ToList();
             }
 
-            Parallel.ForEach(gameSessionsToResume, 
+            Parallel.ForEach(gameSessionsToResume,
                 async gs => await RouletteGameManager.ResumeResultingAsync(gs.ChatId));
         }
 
@@ -133,7 +133,7 @@ namespace ChapubelichBot.Init
                 e.Message.From.Id, e.Message.From.Username,
                 e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.MessageId, e.Message.Text);
 
-             if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
+            if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
 
             if (await AdminMessageProcessAsync(e.Message))
@@ -144,14 +144,14 @@ namespace ChapubelichBot.Init
                 if (groupOfMessage != null)
                 {
                     bool userIsRegistered = IsMemberRegistered(groupOfMessage, e.Message.From);
-                    GroupMessageProcessAsync(e.Message, userIsRegistered);
+                    await GroupMessageProcessAsync(e.Message, userIsRegistered);
                 }
                 else
                 {
                     bool userIsRegistered = IsUserRegistered(e.Message.From);
-                    PrivateMessageProcessAsync(e.Message, userIsRegistered);
+                    await PrivateMessageProcessAsync(e.Message, userIsRegistered);
                 }
-            } 
+            }
         }
         private static async void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {
@@ -217,10 +217,11 @@ namespace ChapubelichBot.Init
             }
             return false;
         }
-        private static async void PrivateMessageProcessAsync(Message message, bool isUserRegistered)
+
+        private static async Task<bool> PrivateMessageProcessAsync(Message message, bool isUserRegistered)
         {
             if (message.Type != MessageType.Text)
-                return;
+                return false;
 
             bool repeatedRegisterRequest = false;
             if (isUserRegistered)
@@ -229,14 +230,14 @@ namespace ChapubelichBot.Init
                     if (privateCommand.Contains(message.Text, privateChat: true))
                     {
                         await privateCommand.ExecuteAsync(message, Client);
-                        return;
+                        return true;
                     }
 
                 foreach (var regexCommand in Bot.BotRegexCommandsList)
                     if (regexCommand.Contains(message.Text))
                     {
                         await regexCommand.ExecuteAsync(message, Client);
-                        return;
+                        return true;
                     }
             }
 
@@ -245,8 +246,9 @@ namespace ChapubelichBot.Init
                 if (!isUserRegistered)
                 {
                     await Bot.StartCommand.ExecuteAsync(message, Client);
-                    return;
+                    return true;
                 }
+
                 repeatedRegisterRequest = true;
             }
             else if (Bot.RegistrationCommand.Contains(message.Text, privateChat: true))
@@ -254,35 +256,39 @@ namespace ChapubelichBot.Init
                 if (!isUserRegistered)
                 {
                     await Bot.RegistrationCommand.ExecuteAsync(message, Client);
-                    return;
+                    return true;
                 }
+
                 repeatedRegisterRequest = true;
             }
 
             if (repeatedRegisterRequest)
             {
                 await Client.TrySendTextMessageAsync(
-                message.Chat.Id,
-                "Ты уже зарегестрирован👍",
-                replyMarkup: ReplyKeyboards.MainMarkup);
+                    message.Chat.Id,
+                    "Ты уже зарегестрирован👍",
+                    replyMarkup: ReplyKeyboards.MainMarkup);
 
-                return;
+                return true;
             }
 
             if (!isUserRegistered)
             {
                 await SendRegistrationAlertAsync(message);
+                return true;
             }
-            else await Client.TrySendTextMessageAsync(
+
+            await Client.TrySendTextMessageAsync(
                 message.Chat.Id,
                 "Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода👇)",
                 replyMarkup: ReplyKeyboards.MainMarkup,
                 replyToMessageId: message.MessageId);
+            return true;
         }
-        private static async void GroupMessageProcessAsync(Message message, bool isUserRegistered)
+        private static async Task<bool> GroupMessageProcessAsync(Message message, bool isUserRegistered)
         {
             if (message.Type != MessageType.Text)
-                return;
+                return false;
 
             foreach (var groupCommand in Bot.BotGroupRegexCommandsList)
             {
@@ -292,6 +298,8 @@ namespace ChapubelichBot.Init
                         await groupCommand.ExecuteAsync(message, Client);
                     else
                         await SendRegistrationAlertAsync(message);
+
+                    return true;
                 }
             }
 
@@ -302,7 +310,11 @@ namespace ChapubelichBot.Init
                         await regexCommand.ExecuteAsync(message, Client);
                     else
                         await SendRegistrationAlertAsync(message);
+
+                return true;
             }
+
+            return false;
         }
 
         private static async Task<Group> UpdateGroup(Message message)
