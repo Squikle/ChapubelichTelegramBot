@@ -19,10 +19,25 @@ namespace ChapubelichBot.Init
             if (_client != null)
                 return _client;
 
+            // Обработчики ----------------------------------------------------
+            AdminMessageProcessor = new AdminMessageProcessor();
+
+            _botMessageProccessors = new List<MessageProcessor>
+            {
+                new PrivateMessageProcessor(),
+                new GroupMessageProcessor()
+            };
+            _botCallbackMessageProcessors = new List<CallbackMessageProcessor>
+            {
+                new CommonCallbackMessageProcessor(),
+            };
+
+            // Команды ----------------------------------------------------
             StartCommand = new StartCommand();
             RegistrationCommand = new RegistrationCommand();
             GenderCallbackMessage = new GenderCallbackMessage();
-            _botPrivateCommands = new List<Command>()
+
+            _botPrivateCommands = new List<Command>
             {
                 new HelloCommand(),
 
@@ -38,12 +53,12 @@ namespace ChapubelichBot.Init
                 new GamesCommand(),
                 new RouletteStartCommand(),
             };
-            _botGroupRegexCommands = new List<RegexCommand>()
+            _botGroupRegexCommands = new List<RegexCommand>
             {
                 new TopChatPlayersRegexCommand(),
                 new PersonRollRegexCommand(),
             };
-            _botCallbackMessages = new List<CallBackMessage>()
+            _botCallbackMessages = new List<CallBackMessage>
             {
                 new DefaultBetChangeCallbackMessage(),
                 new RouletteStartCallbackMessage(),
@@ -52,7 +67,7 @@ namespace ChapubelichBot.Init
                 new RouletteRollCallbackMessage(),
                 new RouletteBetCancelCallbackMessage(),
             };
-            _botRegexCommands = new List<RegexCommand>()
+            _botRegexCommands = new List<RegexCommand>
             {
                 new RouletteColorBetRegexCommand(),
                 new RouletteStartRegexCommand(),
@@ -70,12 +85,12 @@ namespace ChapubelichBot.Init
 
                 new LeetTranslateRegexCommand(),
             };
-            _botAdminRegexCommands = new List<RegexCommand>()
+            _botAdminRegexCommands = new List<RegexCommand>
             {
                 new SendAllRegexCommand(),
                 new EchoRegexCommand(),
             };
-            _botAdminCommands = new List<Command>()
+            _botAdminCommands = new List<Command>
             {
                 new SetShutdownCommand(),
                 new CancelShutdownCommand(),
@@ -95,22 +110,26 @@ namespace ChapubelichBot.Init
         public static IConfiguration GetKeys()
             => new ConfigurationBuilder().AddJsonFile("./Init/Config/Keys.json").Build();
             
-        public static StartCommand                      StartCommand { get; private set; }
-        public static RegistrationCommand               RegistrationCommand { get; private set; }
-        public static GenderCallbackMessage             GenderCallbackMessage { get; private set; }
+        public static MessageProcessor                          AdminMessageProcessor { get; private set; }
+        public static IReadOnlyList<MessageProcessor>           BotMessageProcessorsList => _botMessageProccessors.AsReadOnly();
+        private static List<MessageProcessor>                   _botMessageProccessors;
+        public static IReadOnlyList<CallbackMessageProcessor>   BotCallbackMessageProcessorsList =>_botCallbackMessageProcessors.AsReadOnly();
+        private static List<CallbackMessageProcessor>           _botCallbackMessageProcessors;
 
-
-        private static List<Command>                    _botPrivateCommands;
-        private static List<Command>                    _botAdminCommands;
-        private static List<RegexCommand>               _botGroupRegexCommands;
-        private static List<RegexCommand>               _botRegexCommands;
-        private static List<RegexCommand>               _botAdminRegexCommands;
-        private static List<CallBackMessage>            _botCallbackMessages;
-        public static IReadOnlyList<Command>            BotPrivateCommandsList => _botPrivateCommands.AsReadOnly();
-        public static IReadOnlyList<Command>            BotAdminCommandsList => _botAdminCommands.AsReadOnly();
-        public static IReadOnlyList<RegexCommand>       BotGroupRegexCommandsList => _botGroupRegexCommands.AsReadOnly();
-        public static IReadOnlyList<RegexCommand>       BotRegexCommandsList => _botRegexCommands.AsReadOnly();
-        public static IReadOnlyList<RegexCommand>       BotAdminRegexCommandsList => _botAdminRegexCommands.AsReadOnly();
-        public static IReadOnlyList<CallBackMessage>    CallBackMessagesList => _botCallbackMessages.AsReadOnly();
+        public static Command                                   StartCommand { get; private set; }
+        public static Command                                   RegistrationCommand { get; private set; }
+        public static CallBackMessage                           GenderCallbackMessage { get; private set; }
+        public static IReadOnlyList<Command>                    BotPrivateCommandsList => _botPrivateCommands.AsReadOnly();
+        private static List<Command>                            _botPrivateCommands;
+        public static IReadOnlyList<Command>                    BotAdminCommandsList => _botAdminCommands.AsReadOnly();
+        private static List<Command>                            _botAdminCommands;
+        public static IReadOnlyList<RegexCommand>               BotGroupRegexCommandsList => _botGroupRegexCommands.AsReadOnly();
+        private static List<RegexCommand>                       _botGroupRegexCommands;
+        public static IReadOnlyList<RegexCommand>               BotRegexCommandsList => _botRegexCommands.AsReadOnly();
+        private static List<RegexCommand>                       _botRegexCommands;
+        public static IReadOnlyList<RegexCommand>               BotAdminRegexCommandsList => _botAdminRegexCommands.AsReadOnly();
+        private static List<RegexCommand>                       _botAdminRegexCommands;
+        public static IReadOnlyList<CallBackMessage>            CallBackMessagesList => _botCallbackMessages.AsReadOnly();
+        private static List<CallBackMessage>                    _botCallbackMessages;
     }
 }

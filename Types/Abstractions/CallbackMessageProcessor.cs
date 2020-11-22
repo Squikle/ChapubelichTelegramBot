@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using ChapubelichBot.Database;
 using ChapubelichBot.Database.Models;
-using ChapubelichBot.Init;
 using ChapubelichBot.Types.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
@@ -11,29 +10,17 @@ using Telegram.Bot.Types.Enums;
 
 namespace ChapubelichBot.Types.Abstractions
 {
-    public abstract class MessageProcessor
+    public abstract class CallbackMessageProcessor
     {
-        public abstract Task<bool> Execute(Message message, ITelegramBotClient client);
-
-        protected static async Task SendRegistrationAlertAsync(Message message, ITelegramBotClient client)
+        public abstract Task<bool> Execute(CallbackQuery callbackQuery, ITelegramBotClient client);
+        protected abstract bool IsResponsiveForChatType(ChatType chatType);
+        protected abstract Task<bool> ProcessCallBackMessage(CallbackQuery callBackQuery, bool isUserRegistered, ITelegramBotClient client);
+        protected static async Task SendRegistrationAlertAsync(CallbackQuery callbackQuery, ITelegramBotClient client)
         {
-            if (message.Chat.Type == ChatType.Private)
-            {
-                await client.TrySendTextMessageAsync(
-                    message.Chat.Id,
-                    "Упс, кажется тебя нет в базе данных. Пожалуйста, пройди процесс регистрации: ",
-                    replyToMessageId: message.MessageId);
-                await Bot.RegistrationCommand.ExecuteAsync(message, client);
-            }
-            else if (message.Chat.Type == ChatType.Group ||
-                     message.Chat.Type == ChatType.Supergroup)
-            {
-                await client.TrySendTextMessageAsync(
-                    message.Chat.Id,
-                    "Кажется, вы не зарегистрированы. Для регистрации обратитесь к боту в личные сообщения 💌",
-                    replyToMessageId: message.MessageId
-                );
-            }
+            await client.TryAnswerCallbackQueryAsync(
+                callbackQuery.Id,
+                "Пожалуйста, пройдите процесс регистрации.",
+                showAlert: true);
         }
         protected static async Task<Group> UpdateGroup(Message message, ITelegramBotClient client)
         {
@@ -111,9 +98,9 @@ namespace ChapubelichBot.Types.Abstractions
         {
             return group.Users.Any(x => x.UserId == user.Id);
         }
-        protected bool GlobalIgnored(Message message)
+        protected bool GlobalIgnored(CallbackQuery callbackQuery)
         {
-            return message.ForwardFrom != null;
+            return callbackQuery.Data == null;
         }
     }
 }
