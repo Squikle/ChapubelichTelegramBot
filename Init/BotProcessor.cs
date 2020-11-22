@@ -118,7 +118,7 @@ namespace ChapubelichBot.Init
 
         private static async void MessageProcessAsync(object sender, MessageEventArgs e)
         {
-            if (e.Message?.Text == null || e.Message.ForwardFrom != null)
+            if (e.Message.ForwardFrom != null)
                 return;
 
             Group groupOfMessage = null;
@@ -133,39 +133,25 @@ namespace ChapubelichBot.Init
                 e.Message.From.Id, e.Message.From.Username,
                 e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.MessageId, e.Message.Text);
 
-            if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
+             if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
 
-            if (e.Message.From.Id == 243857110)
-            {
-                foreach (var adminRegexCommand in Bot.BotAdminRegexCommandsList)
-                    if (e.Message.Text != null && adminRegexCommand.Contains(e.Message.Text)
-                        || e.Message.Caption != null && adminRegexCommand.Contains(e.Message.Caption))
-                    {
-                        await adminRegexCommand.ExecuteAsync(e.Message, Client);
-                        return;
-                    }
+            if (await AdminMessageProcessAsync(e.Message))
+                return;
 
-                foreach (var adminCommand in Bot.BotAdminCommandsList)
+            if (e.Message.Type == MessageType.Text)
+            {
+                if (groupOfMessage != null)
                 {
-                    if (adminCommand.Contains(e.Message.Text, privateChat: true))
-                    {
-                        await adminCommand.ExecuteAsync(e.Message, Client);
-                        return;
-                    }
+                    bool userIsRegistered = IsMemberRegistered(groupOfMessage, e.Message.From);
+                    GroupMessageProcessAsync(e.Message, userIsRegistered);
                 }
-            }
-
-            if (groupOfMessage != null)
-            {
-                bool userIsRegistered = IsMemberRegistered(groupOfMessage, e.Message.From);
-                GroupMessageProcessAsync(e.Message, userIsRegistered);
-            }
-            else
-            {
-                bool userIsRegistered = IsUserRegistered(e.Message.From);
-                PrivateMessageProcessAsync(e.Message, userIsRegistered);
-            }
+                else
+                {
+                    bool userIsRegistered = IsUserRegistered(e.Message.From);
+                    PrivateMessageProcessAsync(e.Message, userIsRegistered);
+                }
+            } 
         }
         private static async void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {
@@ -203,11 +189,41 @@ namespace ChapubelichBot.Init
             if (Bot.GenderCallbackMessage.Contains(e.CallbackQuery))
                 await Bot.GenderCallbackMessage.ExecuteAsync(e.CallbackQuery, Client);
         }
-
-        private static async void PrivateMessageProcessAsync(Message message, bool userIsRegistered)
+        private static async Task<bool> AdminMessageProcessAsync(Message message)
         {
+            if (message.From.Id == 243857110)
+            {
+                foreach (var adminRegexCommand in Bot.BotAdminRegexCommandsList)
+                {
+                    if (message.Text != null && adminRegexCommand.Contains(message.Text)
+                        || message.Caption != null && adminRegexCommand.Contains(message.Caption))
+                    {
+                        await adminRegexCommand.ExecuteAsync(message, Client);
+                        return true;
+                    }
+                }
+
+                if (message.Type == MessageType.Text)
+                {
+                    foreach (var adminCommand in Bot.BotAdminCommandsList)
+                    {
+                        if (adminCommand.Contains(message.Text, privateChat: true))
+                        {
+                            await adminCommand.ExecuteAsync(message, Client);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        private static async void PrivateMessageProcessAsync(Message message, bool isUserRegistered)
+        {
+            if (message.Type != MessageType.Text)
+                return;
+
             bool repeatedRegisterRequest = false;
-            if (userIsRegistered)
+            if (isUserRegistered)
             {
                 foreach (var privateCommand in Bot.BotPrivateCommandsList)
                     if (privateCommand.Contains(message.Text, privateChat: true))
@@ -226,7 +242,7 @@ namespace ChapubelichBot.Init
 
             if (Bot.StartCommand.Contains(message.Text, privateChat: true))
             {
-                if (!userIsRegistered)
+                if (!isUserRegistered)
                 {
                     await Bot.StartCommand.ExecuteAsync(message, Client);
                     return;
@@ -235,7 +251,7 @@ namespace ChapubelichBot.Init
             }
             else if (Bot.RegistrationCommand.Contains(message.Text, privateChat: true))
             {
-                if (!userIsRegistered)
+                if (!isUserRegistered)
                 {
                     await Bot.RegistrationCommand.ExecuteAsync(message, Client);
                     return;
@@ -253,7 +269,7 @@ namespace ChapubelichBot.Init
                 return;
             }
 
-            if (!userIsRegistered)
+            if (!isUserRegistered)
             {
                 await SendRegistrationAlertAsync(message);
             }
@@ -263,13 +279,16 @@ namespace ChapubelichBot.Init
                 replyMarkup: ReplyKeyboards.MainMarkup,
                 replyToMessageId: message.MessageId);
         }
-        private static async void GroupMessageProcessAsync(Message message, bool userIsRegistered)
+        private static async void GroupMessageProcessAsync(Message message, bool isUserRegistered)
         {
+            if (message.Type != MessageType.Text)
+                return;
+
             foreach (var groupCommand in Bot.BotGroupRegexCommandsList)
             {
                 if (groupCommand.Contains(message.Text))
                 {
-                    if (userIsRegistered)
+                    if (isUserRegistered)
                         await groupCommand.ExecuteAsync(message, Client);
                     else
                         await SendRegistrationAlertAsync(message);
@@ -279,7 +298,7 @@ namespace ChapubelichBot.Init
             foreach (var regexCommand in Bot.BotRegexCommandsList)
             {
                 if (regexCommand.Contains(message.Text))
-                    if (userIsRegistered)
+                    if (isUserRegistered)
                         await regexCommand.ExecuteAsync(message, Client);
                     else
                         await SendRegistrationAlertAsync(message);
@@ -312,13 +331,13 @@ namespace ChapubelichBot.Init
                 saveChangesRequired = true;
             }
 
-            var chatMember = await gettingChatMember;
+            var botAsChatMember = await gettingChatMember;
 
             bool isChatAvailableToSend = false;
-            if (chatMember != null)
-                isChatAvailableToSend = (chatMember.CanSendMessages ?? true)
-                                        && (chatMember.CanSendMediaMessages ?? true)
-                                        && (chatMember.IsMember ?? true);
+            if (botAsChatMember != null)
+                isChatAvailableToSend = (botAsChatMember.CanSendMessages ?? true)
+                                        && (botAsChatMember.CanSendMediaMessages ?? true)
+                                        && (botAsChatMember.IsMember ?? true);
 
             if (group.IsAvailable != isChatAvailableToSend)
             {
@@ -326,11 +345,23 @@ namespace ChapubelichBot.Init
                 saveChangesRequired = true;
             }
 
-            var user = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
-            if (user != null && group.Users.All(u => u.UserId != user.UserId))
+            if (message.Type == MessageType.ChatMemberLeft)
             {
-                group.Users.Add(user);
-                saveChangesRequired = true;
+                Database.Models.User leftUser = group.Users.FirstOrDefault(x => x.UserId == message.LeftChatMember.Id);
+                if (leftUser != null && group.Users.Contains(leftUser))
+                {
+                    group.Users.Remove(leftUser);
+                    saveChangesRequired = true;
+                }
+            }
+            else
+            {
+                var senderUser = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
+                if (senderUser != null && group.Users.All(u => u.UserId != senderUser.UserId))
+                {
+                    group.Users.Add(senderUser);
+                    saveChangesRequired = true;
+                }
             }
 
             if (saveChangesRequired)
