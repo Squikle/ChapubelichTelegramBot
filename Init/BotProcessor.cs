@@ -40,7 +40,8 @@ namespace ChapubelichBot.Init
             RouletteGameManager.Terminate();
             Client.OnMessage -= MessageProcessAsync;
             Client.OnCallbackQuery -= CallbackProcess;
-            Client.StopReceiving();
+            if (Client.IsReceiving)
+                Client.StopReceiving();
             Console.WriteLine("StopReceiving...");
         }
 
