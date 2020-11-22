@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ChapubelichBot.Init;
+using ChapubelichBot.Main.Chapubelich;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -14,7 +14,7 @@ namespace ChapubelichBot.Types.Extensions
 {
     internal static class ChapubelichBotApiExtensions
     {
-        private static bool? Muted => Bot.GetConfig().GetValue<bool?>("AppSettings:Mute");
+        private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             Message message;

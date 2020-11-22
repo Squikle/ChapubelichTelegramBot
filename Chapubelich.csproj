@@ -24,16 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Init\AppSettings.json">
+    <None Update="Main\Config\BotConfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Init\BotConfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Init\Config\BotConfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Init\Config\Keys.json">
+    <None Update="Main\Config\Keys.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

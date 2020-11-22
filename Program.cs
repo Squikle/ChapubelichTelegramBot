@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using ChapubelichBot.Init;
+using ChapubelichBot.Main.Chapubelich;
 using Microsoft.Extensions.Configuration;
 
 namespace ChapubelichBot
@@ -10,21 +10,21 @@ namespace ChapubelichBot
     {
         static void Main()
         {
-            var config = Bot.GetConfig();
-            string path = Path.Combine(@"./Init/Config", config.GetValue<string>("Logger:DirectoryPath"), config.GetValue<string>("Logger:FileName"));
+            var config = ChapubelichClient.GetConfig();
+            string path = Path.Combine(@"./Main/Data", config.GetValue<string>("Logger:DirectoryPath"), config.GetValue<string>("Logger:FileName"));
             Console.WriteLine($"Default log path is: {path}"); 
             AppDomain.CurrentDomain.UnhandledException += ExceptionManage;
-            BotProcessor.Start();
+            ChapubelichInteractor.Start();
             //var me = messageManager.client.GetMeAsync();
             //Console.Title = messageManager.client.GetMeAsync().Result.Username;
             Thread.Sleep(int.MaxValue);
         }
         private static void ExceptionManage(object sender, UnhandledExceptionEventArgs e)
         {   
-            BotProcessor.Stop();
-            var config = Bot.GetConfig();
-            string path = Path.Combine(@"./Init/Config", config.GetValue<string>("Logger:DirectoryPath"), config.GetValue<string>("Logger:FileName"));
-            ExceptionLogger exceptionLogger = new ExceptionLogger((Exception)e.ExceptionObject);
+            ChapubelichInteractor.Stop();
+            var config = ChapubelichClient.GetConfig();
+            string path = Path.Combine(@"./Main/Data", config.GetValue<string>("Logger:DirectoryPath"), config.GetValue<string>("Logger:FileName"));
+            ChapubelichExceptionLogger exceptionLogger = new ChapubelichExceptionLogger((Exception)e.ExceptionObject);
             exceptionLogger.WriteData(path);
         }
     }

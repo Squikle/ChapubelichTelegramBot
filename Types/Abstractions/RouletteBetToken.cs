@@ -1,4 +1,4 @@
-﻿using ChapubelichBot.Database.Models;
+﻿using ChapubelichBot.Types.Entities;
 using ChapubelichBot.Types.Enums;
 
 namespace ChapubelichBot.Types.Abstractions

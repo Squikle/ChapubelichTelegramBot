@@ -1,4 +1,4 @@
-﻿using ChapubelichBot.Types.Games.RouletteGame;
+﻿using ChapubelichBot.Types.GameManagers;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ChapubelichBot.Types.Statics
