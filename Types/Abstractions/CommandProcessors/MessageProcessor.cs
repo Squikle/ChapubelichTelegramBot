@@ -78,23 +78,11 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
                 saveChangesRequired = true;
             }
 
-            if (message.Type == MessageType.ChatMemberLeft)
+            var senderUser = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
+            if (senderUser != null && group.Users.All(u => u.UserId != senderUser.UserId))
             {
-                User leftUser = group.Users.FirstOrDefault(x => x.UserId == message.LeftChatMember.Id);
-                if (leftUser != null && group.Users.Contains(leftUser))
-                {
-                    group.Users.Remove(leftUser);
-                    saveChangesRequired = true;
-                }
-            }
-            else
-            {
-                var senderUser = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
-                if (senderUser != null && group.Users.All(u => u.UserId != senderUser.UserId))
-                {
-                    group.Users.Add(senderUser);
-                    saveChangesRequired = true;
-                }
+                group.Users.Add(senderUser);
+                saveChangesRequired = true;
             }
 
             if (saveChangesRequired)

@@ -29,7 +29,8 @@ namespace ChapubelichBot.Main.Chapubelich
             _botMessageProccessors = new List<MessageProcessor>
             {
                 new PrivateMessageProcessor(),
-                new GroupMessageProcessor()
+                new GroupMessageProcessor(),
+                new UserLeftMessageProcessor()
             };
             _botCallbackMessageProcessors = new List<CallbackMessageProcessor>
             {
