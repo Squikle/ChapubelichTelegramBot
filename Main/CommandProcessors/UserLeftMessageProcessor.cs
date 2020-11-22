@@ -19,7 +19,7 @@ namespace ChapubelichBot.Main.CommandProcessors
                 return true;
             if (IsResponsiveForMessageType(message.Type) && IsResponsiveForChatType(message.Chat.Type))
             {
-                return await ProcessMessage(message, client);
+                return await ProcessMessage(message);
             }
             return false;
         }
@@ -33,7 +33,7 @@ namespace ChapubelichBot.Main.CommandProcessors
             return chatType == ChatType.Group || chatType == ChatType.Supergroup;
         }
 
-        protected async Task<bool> ProcessMessage(Message message, ITelegramBotClient client)
+        protected async Task<bool> ProcessMessage(Message message)
         {
             await using var db = new ChapubelichdbContext();
             Group group = db.Groups.Include(g => g.Users).FirstOrDefault(g => message.Chat.Id == g.GroupId);
