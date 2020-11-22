@@ -306,12 +306,14 @@ namespace ChapubelichBot.Init
             foreach (var regexCommand in Bot.BotRegexCommandsList)
             {
                 if (regexCommand.Contains(message.Text))
+                {
                     if (isUserRegistered)
                         await regexCommand.ExecuteAsync(message, Client);
                     else
                         await SendRegistrationAlertAsync(message);
 
-                return true;
+                    return true;
+                } 
             }
 
             return false;
