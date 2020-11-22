@@ -29,7 +29,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
                     lastGameSessions = user.LastGameSessions.ToArray();
                 else 
                 {
-                    await client.TrySendTextMessageAsync(message.Chat.Id, "История игр пуста😞",
+                    await client.TrySendTextMessageAsync(message.Chat.Id, "История игр пуста 😞",
                     replyToMessageId: message.MessageId);
                     return;
                 }
@@ -43,7 +43,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
                     lastGameSessions = group.LastGameSessions.ToArray();
                 else
                 {
-                    await client.TrySendTextMessageAsync(message.Chat.Id, "История игр пуста😞",
+                    await client.TrySendTextMessageAsync(message.Chat.Id, "История игр пуста 😞",
                         replyToMessageId: message.MessageId); 
                     return;
                 }
@@ -60,7 +60,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
             StringBuilder answer = new StringBuilder($"Результат последних <b>{gameSessionsToOutput}</b> игр:\n", 60);
             for (int i = lastGameSessions.Length - gameSessionsToOutput; i < lastGameSessions.Length; i++)
             {
-                answer.Append($"{lastGameSessions[i].ToRouletteColor().ToEmoji()} <b>{lastGameSessions[i]}</b>\n");
+                answer.Append($"{lastGameSessions[i].ToRouletteColor().ToEmoji()} <i>{lastGameSessions[i]}</i>\n");
             }
 
             await client.TrySendTextMessageAsync(message.Chat.Id, answer.ToString(),

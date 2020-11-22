@@ -31,7 +31,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"Пользователь <a href=\"tg://user?id={markedUser.Id}\">{markedUser.FirstName}</a> еще не зарегестрировался😔",
+                    $"Пользователь <i><a href=\"tg://user?id={markedUser.Id}\">{markedUser.FirstName}</a></i> еще не зарегестрировался 😔",
                     Telegram.Bot.Types.Enums.ParseMode.Html,
                     replyToMessageId: message.MessageId);
                 return;
@@ -45,7 +45,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    "Ты воруешь слишком часто🥺",
+                    "Ты воруешь слишком часто 🥺",
                     replyToMessageId: message.MessageId);
                 return;
             }
@@ -60,7 +60,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    "Не надо так много воровать🥺",
+                    "Не надо так много воровать 🥺",
                     replyToMessageId: message.MessageId);
                 return;
             }
@@ -87,18 +87,18 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             if (randCase > 99)
                 randCase = 99;
 
-            string resultMessage = String.Empty;
+            string resultMessage;
 
             if (randCase < fullChance)
             {
                 if (theftFrom.Balance >= theftSum)
                 {
                     resultMessage = 
-                        $"<a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a> украл <b>{theftSum.ToMoneyFormat()}</b> 💵" +
-                        $" у <a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a>" +
-                        $"\nТеперь у {message.From.FirstName} <b>{(thief.Balance + theftSum).ToMoneyFormat()}</b> 💰";
+                        $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> украл <b>{theftSum.ToMoneyFormat()}</b> 💵" +
+                        $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
+                        $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance + theftSum).ToMoneyFormat()}</b> 💰";
                     if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                        resultMessage += $"\nПодпись: {attachedMessage}";
+                        resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
 
 
                     theftFrom.Balance -= theftSum;
@@ -107,12 +107,12 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 else
                 {
                     resultMessage = 
-                        $"<a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
-                        $" у <a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a>" +
-                        $"\nНо у {(theftFrom.Gender ? "него" : "неё")} было всего <b>{theftFrom.Balance.ToMoneyFormat()}</b> 💰" +
-                        $"\nТеперь у {message.From.FirstName} <b>{(thief.Balance + theftFrom.Balance).ToMoneyFormat()}</b> 💰";
+                        $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
+                        $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
+                        $"\nНо у <i>{(theftFrom.Gender ? "него" : "неё")}</i> было всего <b>{theftFrom.Balance.ToMoneyFormat()}</b> 💰" +
+                        $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance + theftFrom.Balance).ToMoneyFormat()}</b> 💰";
                     if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                        resultMessage += $"\nПодпись: {attachedMessage}";
+                        resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
 
                     theftFrom.Balance -= theftFrom.Balance;
                     thief.Balance += theftFrom.Balance;
@@ -126,12 +126,12 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 if (theftFrom.Balance >= reducedTheftSum)
                 {
                     resultMessage =
-                        $"<a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
-                        $" у <a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a>" +
+                        $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
+                        $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
                         $"\nНо получилось украсть только <b>{reducedTheftSum}</b> 💵" +
-                        $"\nТеперь у {message.From.FirstName} <b>{(thief.Balance + reducedTheftSum).ToMoneyFormat()}</b> 💰";
+                        $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance + reducedTheftSum).ToMoneyFormat()}</b> 💰";
                     if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                        resultMessage += $"\nПодпись: {attachedMessage}";
+                        resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
 
                     theftFrom.Balance -= reducedTheftSum;
                     thief.Balance += reducedTheftSum;
@@ -139,12 +139,12 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 else
                 {
                     resultMessage = 
-                        $"<a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
-                        $" у <a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a>" +
-                        $"\nНо у {(theftFrom.Gender ? "него" : "неё")} было всего <b>{theftFrom.Balance.ToMoneyFormat()}</b> 💰" +
-                        $"\nТеперь у {message.From.FirstName} <b>{(thief.Balance + theftFrom.Balance).ToMoneyFormat()}</b> 💰";
+                        $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
+                        $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
+                        $"\nНо у <i>{(theftFrom.Gender ? "него" : "неё")}</i> было всего <b>{theftFrom.Balance.ToMoneyFormat()}</b> 💰" +
+                        $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance + theftFrom.Balance).ToMoneyFormat()}</b> 💰";
                     if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                        resultMessage += $"\nПодпись: {attachedMessage}";
+                        resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
 
                     theftFrom.Balance -= theftFrom.Balance;
                     thief.Balance += theftFrom.Balance;
@@ -153,11 +153,11 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             else
             {
                 resultMessage =
-                    $"<a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
-                    $" у <a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a>" +
-                    $"\nНо у {message.From.FirstName} ничего не получилось 😇";
+                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
+                    $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
+                    $"\nНо у <i>{message.From.FirstName}</i> ничего не получилось 😇";
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"\n{message.From.FirstName} хотел сказать: {attachedMessage}";
+                    resultMessage += $"\n<i>{message.From.FirstName}</i> хотел сказать: <i>\"{attachedMessage}\"</i>";
             }
 
             if (string.IsNullOrEmpty(resultMessage))

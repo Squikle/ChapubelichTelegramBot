@@ -23,11 +23,11 @@ namespace ChapubelichBot.CommandEntities.Commands
             string gender = user.Gender ? "мужской" : "женский";
 
             string answerMessage = 
-                $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, твой профиль:\n" +
-                $"Пол: {gender}\n" +
-                $"Баланс: {user.Balance.ToMoneyFormat()}\n" +
-                $"Id: {user.UserId}\n" +
-                $"Ставка по умолчанию: {user.DefaultBet}";
+                $"<i><a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a></i>, твой профиль:\n" +
+                $"Пол: <b>{gender}</b>\n" +
+                $"Баланс: <b>{user.Balance.ToMoneyFormat()}</b>\n" +
+                $"Id: <b>{user.UserId}</b>\n" +
+                $"Ставка по умолчанию: <b>{user.DefaultBet}</b>";
 
             await client.TrySendTextMessageAsync(message.From.Id, answerMessage, 
                 replyToMessageId: message.MessageId, 

@@ -33,7 +33,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"Вы не можете передать больше <b>{maxTransferSum}</b> 💵 за раз",
+                    $"Ты не можешь передать больше <b>{maxTransferSum}</b> 💵 за раз",
                     replyToMessageId: message.MessageId,
                     parseMode: ParseMode.Html);
                 return;
@@ -51,7 +51,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    $"Пользователь <a href=\"tg://user?id={markedUser.Id}\">{markedUser.FirstName}</a> еще не зарегестрировался\U0001F614",
+                    $"Пользователь <i><a href=\"tg://user?id={markedUser.Id}\">{markedUser.FirstName}</a></i> еще не зарегестрировался 😔",
                     ParseMode.Html,
                     replyToMessageId: message.MessageId);
                 return;
@@ -64,10 +64,10 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 transferFrom.Balance -= transferSum;
                 transferTo.Balance += transferSum;
 
-                string resultMessage = $"<b>{transferSum.ToMoneyFormat()}</b> 💵 переданы пользователю <a href=\"tg://user?id={transferTo.UserId}\">" +
-                                       $"{markedUser.FirstName}</a>\nТеперь у {genderWord} <b>{transferTo.Balance.ToMoneyFormat()}</b>\U0001F4B0";
+                string resultMessage = $"<b>{transferSum.ToMoneyFormat()}</b> 💵 переданы пользователю <i><a href=\"tg://user?id={transferTo.UserId}\">{markedUser.FirstName}</a></i>" +
+                                       $"\nТеперь у <i>{genderWord}</i> <b>{transferTo.Balance.ToMoneyFormat()}</b> 💰";
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"\nПодпись: {attachedMessage}";
+                    resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
 
                 db.SaveChanges();
 
@@ -81,7 +81,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,
-                "У тебя недостаточно средств для перевода средств😔",
+                "У тебя недостаточно средств для перевода средств 😔",
                 replyToMessageId: message.MessageId);
         }
     }

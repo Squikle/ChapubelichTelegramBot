@@ -205,7 +205,7 @@ namespace ChapubelichBot.Types.GameManagers
             if (user.Balance == 0)
             {
                 await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
-                    "Ты не можешь сделать ставку. У тебя нет денег😞");
+                    "Ты не можешь сделать ставку. У тебя нет денег 😞");
                 return;
             }
 
@@ -262,8 +262,9 @@ namespace ChapubelichBot.Types.GameManagers
             {
                 await Client.TrySendTextMessageAsync(
                     gameSession.ChatId,
-                    $"Вы не можете ставить больше {maxBetSum} 💵 за раз",
-                    replyToMessageId: message.MessageId);
+                    $"Ты не можешь ставить больше <b>{maxBetSum}</b> 💵 за раз",
+                    replyToMessageId: message.MessageId,
+                    parseMode: ParseMode.Html);
                 return;
             }
             if (playerBetSum == 0)
@@ -279,7 +280,7 @@ namespace ChapubelichBot.Types.GameManagers
             {
                 await Client.TrySendTextMessageAsync(
                         gameSession.ChatId,
-                    $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
+                    $"<i><a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a></i>, ты не можешь сделать ставку. У тебя нет денег 😞",
                     replyToMessageId: message.MessageId,
                     parseMode: ParseMode.Html);
                 return;
@@ -333,7 +334,7 @@ namespace ChapubelichBot.Types.GameManagers
             if (user.Balance == 0)
             {
                 await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id,
-                    "Ты не можешь сделать ставку. У тебя нет денег😞");
+                    "Ты не можешь сделать ставку. У тебя нет денег 😞");
                 return;
             }
 
@@ -377,7 +378,7 @@ namespace ChapubelichBot.Types.GameManagers
             {
                 await Client.TrySendTextMessageAsync(
                     gameSession.ChatId,
-                    $"<a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a>, ты не можешь сделать ставку. У тебя нет денег😞",
+                    $"<i><a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a></i>, ты не можешь сделать ставку. У тебя нет денег 😞",
                     replyToMessageId: message.MessageId,
                     parseMode: ParseMode.Html);
                 return;
@@ -391,8 +392,9 @@ namespace ChapubelichBot.Types.GameManagers
             {
                 await Client.TrySendTextMessageAsync(
                     gameSession.ChatId,
-                    $"Вы не можете ставить больше {maxBetSum} 💵 за раз",
-                    replyToMessageId: message.MessageId);
+                    $"Ты не можешь ставить больше <i>{maxBetSum}</i> 💵 за раз",
+                    replyToMessageId: message.MessageId,
+                    parseMode: ParseMode.Html);
                 return;
             }
             
@@ -431,22 +433,23 @@ namespace ChapubelichBot.Types.GameManagers
                     string errorVerificationMessage = null;
                     if (!(rangeSize >= 2 && rangeSize <= 4) && (rangeSize != 6 && rangeSize != 12 && rangeSize != 18))
                     {
-                        errorVerificationMessage = "Можно ставить только на последовательности из 2,3,4,6,12,18 чисел";
+                        errorVerificationMessage = "Можно ставить только на последовательности из <b>2,3,4,6,12,18</b> чисел";
                     }
                     else if (rangeSize == 12 && firstNumber != 1 && firstNumber != 13 && firstNumber != 25)
                     {
-                        errorVerificationMessage = "На дюжину можно ставить только 1-12, 13-24, 25-36";
+                        errorVerificationMessage = "На дюжину можно ставить только <b>1-12</b>, <b>13-24</b>, <b>25-36</b>";
                     }
                     else if (rangeSize == 18 && firstNumber != 1 && firstNumber != 19)
                     {
-                        errorVerificationMessage = "На выше/ниже можно ставить только 1-18, 19-36";
+                        errorVerificationMessage = "На выше/ниже можно ставить только <b>1-18</b>, <b>19-36</b>";
                     }
 
                     if (errorVerificationMessage != null)
                     {
                         await Client.TrySendTextMessageAsync(gameSession.ChatId,
                             errorVerificationMessage,
-                            replyToMessageId: message.MessageId);
+                            replyToMessageId: message.MessageId,
+                            parseMode: ParseMode.Html);
                         return;
                     }
 
@@ -516,8 +519,7 @@ namespace ChapubelichBot.Types.GameManagers
                 await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 "Сделай ставку, чтобы крутить барабан",
-                replyToMessageId: message.MessageId,
-                parseMode: ParseMode.Html);
+                replyToMessageId: message.MessageId);
             else
                 await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
@@ -549,9 +551,9 @@ namespace ChapubelichBot.Types.GameManagers
 
             string transactionResult = string.Empty;
             if (!userHasTokens)
-                transactionResult += $"<a href=\"tg://user?id={userId}\">{message.From.FirstName}</a>, у тебя нет активных ставок";
+                transactionResult += $"<i><a href=\"tg://user?id={userId}\">{message.From.FirstName}</a></i>, у тебя нет активных ставок";
             else
-                transactionResult += $"Ставка <a href=\"tg://user?id={userId}\">{message.From.FirstName}</a>:"
+                transactionResult += $"Ставка <i><a href=\"tg://user?id={userId}\">{message.From.FirstName}</a></i>:"
                                      + UserBetsToStringAsync(gameSession, userId);
 
             await Client.TrySendTextMessageAsync(
@@ -577,7 +579,7 @@ namespace ChapubelichBot.Types.GameManagers
         private static async Task<string> Summarize(RouletteGameSession gameSession)
         {
             StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
-            result.Append($"{gameSession.ResultNumber} {gameSession.ResultNumber.ToRouletteColor().ToEmoji()}");
+            result.Append($"<i>{gameSession.ResultNumber}</i> {gameSession.ResultNumber.ToRouletteColor().ToEmoji()}");
 
             List<RouletteColorBetToken> colorWinTokens = GetColorWinTokens(gameSession);
             List<RouletteColorBetToken> colorLooseTokens = GetColorLooseTokens(gameSession);
@@ -607,7 +609,7 @@ namespace ChapubelichBot.Types.GameManagers
                         {
                             string userFirstName = chatMember.User.FirstName;
                             result.Append(
-                                $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
+                                $"\n<b>·</b><i><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a></i>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
                         }
                         user.Balance += gainSum + token.BetSum;
                     }
@@ -617,7 +619,7 @@ namespace ChapubelichBot.Types.GameManagers
             // Определение проигравших
             if (allLooseTokens.Any())
             {
-                result.Append("\n\U0001F614<b>Проиграли:</b>");
+                result.Append("\n😔<b>Проиграли:</b>");
                 foreach (var token in allLooseTokens.GroupByUsers())
                 {
                     User user = token.User;
@@ -628,7 +630,7 @@ namespace ChapubelichBot.Types.GameManagers
                         {
                             string userFirstName = chatMember.User.FirstName;
                             result.Append(
-                                $"\n<b>·</b><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a>: <b>-{token.BetSum.ToMoneyFormat()}</b>💵");
+                                $"\n<b>·</b><i><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a></i>: <b>-{token.BetSum.ToMoneyFormat()}</b>💵");
                         }
                     }
                 }
@@ -713,25 +715,25 @@ namespace ChapubelichBot.Types.GameManagers
                 {
                     int firstnumber = token.ChoosenNumbers[0];
                     int secondNumber = token.ChoosenNumbers[^1];
-                    resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: ({firstnumber} - {secondNumber})");
+                    resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: (<i>{firstnumber} - {secondNumber}</i>)");
                 }
                 else
                 {
                     if (token.ChoosenNumbers == null || token.ChoosenNumbers.Length <= 1)
                         return resultList;
 
-                    resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: ({token.ChoosenNumbers[0]}");
+                    resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: (<i>{token.ChoosenNumbers[0]}");
 
                     for (int i = 1; i < token.ChoosenNumbers.Length; i++)
                     {
                         resultList.Append($", {token.ChoosenNumbers[i]}");
                     }
-                    resultList.Append(")");
+                    resultList.Append(")</i>");
                 }
             }
             foreach (var token in oneNumberUserTokens)
             {
-                resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: ({token.ChoosenNumbers[0]} {token.ChoosenNumbers[0].ToRouletteColor().ToEmoji()})");
+                resultList.Append($"\n<b>{token.BetSum.ToMoneyFormat()}</b>: (<i>{token.ChoosenNumbers[0]}</i> {token.ChoosenNumbers[0].ToRouletteColor().ToEmoji()})");
             }
 
             return resultList;
@@ -827,7 +829,7 @@ namespace ChapubelichBot.Types.GameManagers
                         if (user != null)
                             user.Balance += bet.BetSum;
                     }
-                    returnedBets += "\nСтавки были возвращены👍";
+                    returnedBets += "\nСтавки были возвращены 👍";
                 }
                 Task deletingMessage = null;
                 if (gs.GameMessageId != 0)
@@ -871,7 +873,7 @@ namespace ChapubelichBot.Types.GameManagers
             user.Balance -= betSum;
             dbContext.SaveChanges();
 
-            return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, ставка принята. Твоя суммарная ставка:"
+            return $"<i><a href=\"tg://user?id={user.UserId}\">{firstName}</a></i>, ставка принята. Твоя суммарная ставка:"
                    + UserBetsToStringAsync(gameSession, user.UserId);
         }
         private static string PlaceBetNumber(RouletteGameSession gameSession, int[] userBets, User user, string firstName, long betSum, ChapubelichdbContext dbContext)
@@ -894,7 +896,7 @@ namespace ChapubelichBot.Types.GameManagers
             user.Balance -= betSum;
             dbContext.SaveChanges();
 
-            return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, ставка принята. Твоя суммарная ставка:"
+            return $"<i><a href=\"tg://user?id={user.UserId}\">{firstName}</a></i>, ставка принята. Твоя суммарная ставка:"
                    + UserBetsToStringAsync(gameSession, user.UserId);
         }
         private static string CancelBet(RouletteGameSession gameSession, User user, string firstName, ChapubelichdbContext dbContext)
@@ -917,9 +919,9 @@ namespace ChapubelichBot.Types.GameManagers
                 gameSession.ColorBetTokens.RemoveAll(x => x.UserId == user.UserId);
                 gameSession.NumberBetTokens.RemoveAll(x => x.UserId == user.UserId);
                 dbContext.SaveChanges();
-                return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, твоя ставка отменена \U0001F44D";
+                return $"<i><a href=\"tg://user?id={user.UserId}\">{firstName}</a></i>, твоя ставка отменена \U0001F44D";
             }
-            return $"<a href=\"tg://user?id={user.UserId}\">{firstName}</a>, у тебя нет активных ставок";
+            return $"<i><a href=\"tg://user?id={user.UserId}\">{firstName}</a></i>, у тебя нет активных ставок";
         }
 
         private static InputOnlineFile GetRandomAnimationLink()

@@ -124,7 +124,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             if (answer.Length > 4000)
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id,
-                "Сообщение слишком длинное😔",
+                "Сообщение слишком длинное 😔",
                 replyToMessageId: message.MessageId);
                 return;
             }

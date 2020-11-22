@@ -69,7 +69,7 @@ namespace ChapubelichBot.Types.ScheduledJobs
             // -------------------------------------------
 
             Parallel.ForEach(userCompliments, async uc =>
-                await client.TrySendTextMessageAsync(uc.Key, $"❤️Твой комплимент дня❤️\n{uc.Value}"));
+                await client.TrySendTextMessageAsync(uc.Key, $"🎉Твой комплимент дня🎉\n{uc.Value}"));
         }
     }
 }

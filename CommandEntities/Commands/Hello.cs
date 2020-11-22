@@ -11,7 +11,7 @@ namespace ChapubelichBot.CommandEntities.Commands
         public override string Name => "/hello";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await client.TrySendTextMessageAsync(message.Chat.Id, "Привет!😄", replyToMessageId: message.MessageId);
+            await client.TrySendTextMessageAsync(message.Chat.Id, "Привет! 😄", replyToMessageId: message.MessageId);
         }
     }
 }

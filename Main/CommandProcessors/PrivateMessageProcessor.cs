@@ -75,7 +75,7 @@ namespace ChapubelichBot.Main.CommandProcessors
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
-                    "Ты уже зарегестрирован👍",
+                    "Ты уже зарегестрирован 👍",
                     replyMarkup: ReplyKeyboards.MainMarkup);
 
                 return true;
@@ -89,7 +89,7 @@ namespace ChapubelichBot.Main.CommandProcessors
 
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,
-                "Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода👇)",
+                "Я тебя не понял :С Воспользуйся меню. (Если его нет - нажми на соответствующую кнопку на поле ввода 👇)",
                 replyMarkup: ReplyKeyboards.MainMarkup,
                 replyToMessageId: message.MessageId);
             return true;

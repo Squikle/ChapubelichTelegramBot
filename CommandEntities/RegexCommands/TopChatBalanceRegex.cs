@@ -49,7 +49,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 .ToList();
 
             List<long> topThreeBalances = topUsersNamed.Select(tu => tu.Key.Balance).TakeTopValues(3).ToList();
-            StringBuilder answer = new StringBuilder($"💰Топ <b>{topUsersNamed.Count}</b> богатеев чата💰\n");
+            StringBuilder answer = new StringBuilder($"💰 Топ <b>{topUsersNamed.Count}</b> богатеев чата 💰\n");
             for (int i = 0; i < topUsersNamed.Count; i++)
             {
                 if (topUsersNamed.ElementAt(i).Value == null)

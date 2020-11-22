@@ -37,7 +37,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 ChatMember alreadyRolledMember = await client.GetChatMemberAsync(group.GroupId, group.GroupDailyPerson.UserId);
                 await client.TrySendTextMessageAsync(message.Chat.Id,
-                    $"{alreadyRolledMember.User.FirstName} уже <b>{group.GroupDailyPerson.RolledName}</b> дня",
+                    $"<i>{alreadyRolledMember.User.FirstName}</i> уже <b>{group.GroupDailyPerson.RolledName}</b> дня",
                     parseMode: ParseMode.Html,
                     replyToMessageId: message.MessageId);
                 return;
@@ -48,7 +48,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             if (regexName.Length > maxDailyPersonNameLenght)
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id, 
-                    $"Кличка не может быть длиннее {maxDailyPersonNameLenght} символов",
+                    $"Кличка не может быть длиннее <b>{maxDailyPersonNameLenght}</b> символов",
                     replyToMessageId: message.MessageId);
                 return;
             }
@@ -71,7 +71,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             string rolledUserFirstName = member.User.FirstName;
 
             Task sendingTaskMessage = client.TrySendTextMessageAsync(message.Chat.Id, 
-                $"🎉 <a href=\"tg://user?id={member.User.Id}\">{rolledUserFirstName}</a> <b>{regexName}</b> дня 🎉",
+                $"🎉 <i><a href=\"tg://user?id={member.User.Id}\">{rolledUserFirstName}</a></i> <b>{regexName}</b> дня 🎉",
                 parseMode: ParseMode.Html,
                 replyToMessageId: message.MessageId);
             Task sendingSticker = client.TrySendStickerAsync(message.Chat.Id,

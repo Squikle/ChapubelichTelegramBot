@@ -19,8 +19,8 @@ namespace ChapubelichBot.Main.Chapubelich
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
-            string connectionString = Bot.GetKeys().GetConnectionString("ReleaseConnection");
-            string schema = Bot.GetConfig().GetValue<string>("AppSettings:DatabaseSchema");
+            string connectionString = ChapubelichClient.GetKeys().GetConnectionString("ReleaseConnection");
+            string schema = ChapubelichClient.GetConfig().GetValue<string>("AppSettings:DatabaseSchema");
 
             optionsBuilder.UseNpgsql(connectionString,
                 x => x.MigrationsHistoryTable("__MigrationsHistory", schema));
