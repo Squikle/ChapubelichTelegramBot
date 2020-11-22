@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Group = ChapubelichBot.Database.Models.Group;
 using User = ChapubelichBot.Database.Models.User;
 
@@ -49,7 +50,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
                 .ToList();
 
             List<long> topThreeBalances = topUsersNamed.Select(tu => tu.Key.Balance).TakeTopValues(3).ToList();
-            StringBuilder answer = new StringBuilder($"💰Топ {topUsersNamed.Count} богатеев чата💰\n");
+            StringBuilder answer = new StringBuilder($"💰Топ <b>{topUsersNamed.Count}</b> богатеев чата💰\n");
             for (int i = 0; i < topUsersNamed.Count; i++)
             {
                 if (topUsersNamed.ElementAt(i).Value == null)
@@ -57,7 +58,7 @@ namespace ChapubelichBot.Chatting.RegexCommands
 
                 var currUser = topUsersNamed.ElementAt(i);
 
-                answer.Append($"{i + 1}. {currUser.Value} - {currUser.Key.Balance.ToMoneyFormat()}");
+                answer.Append($"<b>{i + 1}.</b> {currUser.Value} - {currUser.Key.Balance.ToMoneyFormat()}");
 
                 if (currUser.Key.Balance > topThreeBalances.ElementAtOrDefault(3) || currUser.Key.Balance > 0)
                 {
@@ -72,7 +73,8 @@ namespace ChapubelichBot.Chatting.RegexCommands
             }
 
             await client.TrySendTextMessageAsync(message.Chat.Id, answer.ToString(),
-                replyToMessageId: message.MessageId);
+                replyToMessageId: message.MessageId, 
+                parseMode: ParseMode.Html);
         }
     }
 }
