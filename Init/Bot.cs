@@ -22,7 +22,6 @@ namespace ChapubelichBot.Init
             StartCommand = new StartCommand();
             RegistrationCommand = new RegistrationCommand();
             GenderCallbackMessage = new GenderCallbackMessage();
-
             _botPrivateCommands = new List<Command>()
             {
                 new HelloCommand(),
@@ -96,10 +95,10 @@ namespace ChapubelichBot.Init
         public static IConfiguration GetKeys()
             => new ConfigurationBuilder().AddJsonFile("./Init/Config/Keys.json").Build();
             
+        public static StartCommand                      StartCommand { get; private set; }
+        public static RegistrationCommand               RegistrationCommand { get; private set; }
+        public static GenderCallbackMessage             GenderCallbackMessage { get; private set; }
 
-        public static StartCommand                      StartCommand;
-        public static RegistrationCommand               RegistrationCommand;
-        public static GenderCallbackMessage             GenderCallbackMessage;
 
         private static List<Command>                    _botPrivateCommands;
         private static List<Command>                    _botAdminCommands;
