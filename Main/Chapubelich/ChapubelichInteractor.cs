@@ -112,20 +112,23 @@ namespace ChapubelichBot.Main.Chapubelich
 
         private static async void MessageProcessAsync(object sender, MessageEventArgs e)
         {
-            Console.WriteLine("{0:HH:mm:ss}: {1} {2}| {3} ({4} | {5}): [{6}] {7}", e.Message.Date, e.Message.Type,
-                e.Message.From.Id, e.Message.From.Username,
-                e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.MessageId, e.Message.Text);
-
-            if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
-                return;
-
-            foreach (var messageProcessor in ChapubelichClient.BotMessageProcessorsList)
+            await Task.Run(async () =>
             {
-                if (await ChapubelichClient.AdminMessageProcessor.Execute(e.Message, Client))
+                Console.WriteLine("{0:HH:mm:ss}: {1} {2}| {3} ({4} | {5}): [{6}] {7}", e.Message.Date, e.Message.Type,
+                    e.Message.From.Id, e.Message.From.Username,
+                    e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.MessageId, e.Message.Text);
+
+                if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                     return;
-                if (await messageProcessor.Execute(e.Message, Client))
-                    return;
-            }
+
+                foreach (var messageProcessor in ChapubelichClient.BotMessageProcessorsList)
+                {
+                    if (await ChapubelichClient.AdminMessageProcessor.Execute(e.Message, Client))
+                        return;
+                    if (await messageProcessor.Execute(e.Message, Client))
+                        return;
+                }
+            });
         }
         private static async void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {

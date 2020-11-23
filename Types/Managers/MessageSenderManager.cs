@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
+using ChapubelichBot.Types.Entities.Messages;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -14,10 +15,9 @@ namespace ChapubelichBot.Types.Managers
 {
     static class MessageSenderManager
     {
+        private static RelevantChats _relevantChats;
         private static Timer _timer;
-        private static bool _available;
-        private static int _sendedMessages;
-        private static int _millisecondsInterval;
+        /*private static int _millisecondsInterval;
         public static int Interval
         {
             get => _millisecondsInterval;
@@ -26,31 +26,31 @@ namespace ChapubelichBot.Types.Managers
                 _millisecondsInterval = value;
                 _timer.Change(value, value);
             }
-        }
+        }*/
 
         public static int MaxMessagesPerSecond { get; set; }
 
         public static void Init(int millisecondsInterval, int maxMessagesPerSecond)
         {
-            _millisecondsInterval = millisecondsInterval;
+            /*_millisecondsInterval = millisecondsInterval;
             _timer = new Timer(t =>
             {
                 _available = true;
                 _sendedMessages = 0;
             }, null, 0, millisecondsInterval);
-            _available = true;
+            _available = true;*/
             MaxMessagesPerSecond = maxMessagesPerSecond;
+            _relevantChats = new RelevantChats();
         }
 
-        private static void MessageSended()
+        private static void MessageSended(ChatId chatId)
         {
-            Console.WriteLine(_sendedMessages);
-            _sendedMessages++;
-            if (_sendedMessages >= MaxMessagesPerSecond)
-            {
-                _available = false;
-                Console.WriteLine(_available);
-            }
+            if (!_relevantChats.Contains(chatId))
+                _relevantChats.Add(chatId);
+            else 
+                _relevantChats.Get(chatId).MessagesSended += 1;
+
+            Console.WriteLine(_relevantChats.Get(chatId)?.MessagesSended);
         }
 
         private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
@@ -59,19 +59,20 @@ namespace ChapubelichBot.Types.Managers
             Message message;
             try
             {
-                while (!_available)
+                while (!_relevantChats.CanSendMessageToChat(chatId))
                     Thread.Sleep(100);
+                MessageSended(chatId);
                 bool muted = Muted != null ? Muted == true : disableNotification;
-                MessageSended();
                 message = await client.SendTextMessageAsync(
-                    chatId, text + " " + _sendedMessages, parseMode,
+                    chatId, text + " " + _relevantChats.Get(chatId).MessagesSended, parseMode,
                     disableWebPagePreview,
                     muted, replyToMessageId,
                     replyMarkup, cancellationToken);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.GetType()}\nСообщение ошибки: {e.Message}\nСтек вызовов:\n{e.StackTrace}");
+                Console.WriteLine(
+                    $"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.GetType()}\nСообщение ошибки: {e.Message}\nСтек вызовов:\n{e.StackTrace}");
                 return null;
             }
 
