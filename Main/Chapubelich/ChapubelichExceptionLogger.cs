@@ -8,16 +8,18 @@ namespace ChapubelichBot.Main.Chapubelich
     class ChapubelichExceptionLogger
     {
         public string Time { get; set; }
-        public string Source { get; set; }
+        public string Type { get; set; }
         public string Message { get; set; }
+        public string Source { get; set; }
         public string CallStack { get; set; }
         public ChapubelichExceptionLogger InnerExeption { get; set; }
 
         public ChapubelichExceptionLogger(Exception ex)
         {   
             Time = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
-            Source = ex.Source;
+            Type = ex.GetType().ToString();
             Message = ex.Message;
+            Source = ex.Source;
             CallStack = ex.StackTrace;
             if (ex.InnerException != null)
                 InnerExeption = new ChapubelichExceptionLogger(ex.InnerException);
