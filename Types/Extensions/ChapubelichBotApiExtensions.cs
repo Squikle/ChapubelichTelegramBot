@@ -18,18 +18,59 @@ namespace ChapubelichBot.Types.Extensions
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             Message message;
+            bool muted = Muted != null ? Muted == true : disableNotification;
             try
             {
-                bool muted = Muted != null ? Muted == true : disableNotification;
                 message = await client.SendTextMessageAsync(
                     chatId, text, parseMode,
                     disableWebPagePreview,
                     muted, replyToMessageId,
                     replyMarkup, cancellationToken);
+                if (message == null && replyToMessageId != 0)
+                    message = await client.SendTextMessageAsync(
+                        chatId, text, parseMode,
+                        disableWebPagePreview,
+                        muted, replyToMessageId,
+                        replyMarkup, cancellationToken);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
+                
+
+                if (replyToMessageId != 0)
+                {
+                    Console.WriteLine(
+                        "Не удалось отправить сообщение с ответом. Попробую еще раз без ответа");
+                    message = await client.SendTextMessageAsync(
+                        chatId, text, parseMode,
+                        disableWebPagePreview,
+                        muted, 0,
+                        replyMarkup, cancellationToken);
+                    return message;
+                }
+
+                Console.WriteLine(
+                    $"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
+
+                return null;
+            }
+
+            return message;
+        }
+
+        public static async Task<Message> TryForwardMessageAsync(this ITelegramBotClient client, ChatId chatId, ChatId fromChatId, int messageId, bool disableNotification = false, CancellationToken cancellationToken = default)
+        {
+            Message message;
+            try
+            {
+                bool muted = Muted != null ? Muted == true : disableNotification;
+                message = await client.ForwardMessageAsync(
+                    chatId, fromChatId, messageId,
+                    muted, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Не удалось переслать сообщение. ChatId: {chatId}\nОшибка: {e.Message}\nСтек вызовов: {e.StackTrace}");
                 return null;
             }
 
