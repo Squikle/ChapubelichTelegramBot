@@ -72,7 +72,7 @@ namespace ChapubelichBot.Types.Managers
             try
             {
                 message = await client.SendTextMessageAsync(
-                    chatId, text + " gl: " + _globalSendedMessages + " lm: " + _relevantChats.Get(chatId).LastMinuteMessagesSended + " ls: " + _relevantChats.Get(chatId).LastSecondMessagesSended, parseMode,
+                    chatId, text, parseMode,
                     disableWebPagePreview,
                     muted, replyToMessageId,
                     replyMarkup, cancellationToken);
