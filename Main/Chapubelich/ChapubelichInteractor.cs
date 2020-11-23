@@ -21,7 +21,7 @@ namespace ChapubelichBot.Main.Chapubelich
         public static void Start()
         {
             RouletteGameManager.Init();
-            MessageSenderManager.Init(1000, 2);
+            MessageSenderManager.Init(1000, 25);
             RestoreData();
             DailyProcess();
             Client.StartReceiving();

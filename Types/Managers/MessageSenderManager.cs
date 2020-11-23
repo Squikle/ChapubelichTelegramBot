@@ -17,7 +17,9 @@ namespace ChapubelichBot.Types.Managers
     {
         private static RelevantChats _relevantChats;
         private static Timer _timer;
-        /*private static int _millisecondsInterval;
+        private static int _millisecondsInterval;
+        private static bool _globalAvailable;
+        private static object _locker = new object();
         public static int Interval
         {
             get => _millisecondsInterval;
@@ -26,45 +28,51 @@ namespace ChapubelichBot.Types.Managers
                 _millisecondsInterval = value;
                 _timer.Change(value, value);
             }
-        }*/
-
+        }
+        private static int _globalSendedMessages; 
         public static int MaxMessagesPerSecond { get; set; }
 
         public static void Init(int millisecondsInterval, int maxMessagesPerSecond)
         {
-            /*_millisecondsInterval = millisecondsInterval;
+            _millisecondsInterval = millisecondsInterval;
             _timer = new Timer(t =>
             {
-                _available = true;
-                _sendedMessages = 0;
+                lock (_locker)
+                {
+                    _globalAvailable = true;
+                    _globalSendedMessages = 0;
+                }
             }, null, 0, millisecondsInterval);
-            _available = true;*/
             MaxMessagesPerSecond = maxMessagesPerSecond;
-            _relevantChats = new RelevantChats();
+            _globalAvailable = true;
+            _relevantChats = new RelevantChats(20, 1);
         }
 
         private static void MessageSended(ChatId chatId)
         {
-            if (!_relevantChats.Contains(chatId))
-                _relevantChats.Add(chatId);
-            else 
-                _relevantChats.Get(chatId).MessagesSended += 1;
+            _relevantChats.MessageSended(chatId);
 
-            Console.WriteLine(_relevantChats.Get(chatId)?.MessagesSended);
+            lock (_locker)
+            {
+                if (_globalSendedMessages >= MaxMessagesPerSecond)
+                    _globalAvailable = false;
+                else 
+                    _globalSendedMessages++;
+            }
         }
 
         private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             Message message;
+            while (!_relevantChats.CanSendMessageToChat(chatId) || !_globalAvailable)
+                Thread.Sleep(100);
+            bool muted = Muted != null ? Muted == true : disableNotification;
+            MessageSended(chatId);
             try
             {
-                while (!_relevantChats.CanSendMessageToChat(chatId))
-                    Thread.Sleep(100);
-                MessageSended(chatId);
-                bool muted = Muted != null ? Muted == true : disableNotification;
                 message = await client.SendTextMessageAsync(
-                    chatId, text + " " + _relevantChats.Get(chatId).MessagesSended, parseMode,
+                    chatId, text + " gl: " + _globalSendedMessages + " lm: " + _relevantChats.Get(chatId).LastMinuteMessagesSended + " ls: " + _relevantChats.Get(chatId).LastSecondMessagesSended, parseMode,
                     disableWebPagePreview,
                     muted, replyToMessageId,
                     replyMarkup, cancellationToken);
