@@ -20,7 +20,7 @@ using Telegram.Bot.Types.InputFiles;
 using Group = ChapubelichBot.Types.Entities.Group;
 using User = ChapubelichBot.Types.Entities.User;
 
-namespace ChapubelichBot.Types.GameManagers
+namespace ChapubelichBot.Types.Managers
 {
     public static class RouletteGameManager
     {

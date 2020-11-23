@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.GameManagers;
+using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.ScheduledJobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +21,7 @@ namespace ChapubelichBot.Main.Chapubelich
         public static void Start()
         {
             RouletteGameManager.Init();
+            MessageSenderManager.Init(1000, 2);
             RestoreData();
             DailyProcess();
             Client.StartReceiving();

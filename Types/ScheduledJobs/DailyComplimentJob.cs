@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.Extensions;
+using ChapubelichBot.Types.Managers;
 using Quartz;
 using Telegram.Bot;
 

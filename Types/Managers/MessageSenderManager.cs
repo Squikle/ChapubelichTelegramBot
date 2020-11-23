@@ -1,16 +1,70 @@
-﻿namespace ChapubelichBot.Types.Extensions
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using ChapubelichBot.Main.Chapubelich;
+using Microsoft.Extensions.Configuration;
+using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
+
+namespace ChapubelichBot.Types.Managers
 {
-    internal static class ChapubelichBotApiExtensions
+    static class MessageSenderManager
     {
-        /*private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
+        private static Timer _timer;
+        private static bool _available;
+        private static int _sendedMessages;
+        private static int _millisecondsInterval;
+        public static int Interval
+        {
+            get => _millisecondsInterval;
+            set
+            {
+                _millisecondsInterval = value;
+                _timer.Change(value, value);
+            }
+        }
+
+        public static int MaxMessagesPerSecond { get; set; }
+
+        public static void Init(int millisecondsInterval, int maxMessagesPerSecond)
+        {
+            _millisecondsInterval = millisecondsInterval;
+            _timer = new Timer(t =>
+            {
+                _available = true;
+                _sendedMessages = 0;
+            }, null, 0, millisecondsInterval);
+            _available = true;
+            MaxMessagesPerSecond = maxMessagesPerSecond;
+        }
+
+        private static void MessageSended()
+        {
+            Console.WriteLine(_sendedMessages);
+            _sendedMessages++;
+            if (_sendedMessages >= MaxMessagesPerSecond)
+            {
+                _available = false;
+                Console.WriteLine(_available);
+            }
+        }
+
+        private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             Message message;
             try
             {
+                while (!_available)
+                    Thread.Sleep(100);
                 bool muted = Muted != null ? Muted == true : disableNotification;
+                MessageSended();
                 message = await client.SendTextMessageAsync(
-                    chatId, text, parseMode,
+                    chatId, text + " " + _sendedMessages, parseMode,
                     disableWebPagePreview,
                     muted, replyToMessageId,
                     replyMarkup, cancellationToken);
@@ -30,7 +84,7 @@
             {
                 bool muted = Muted != null ? Muted == true : disableNotification;
                 message = await client.SendStickerAsync(
-                    chatId, sticker, muted, 
+                    chatId, sticker, muted,
                     replyToMessageId, replyMarkup, cancellationToken);
             }
             catch (Exception e)
@@ -161,7 +215,7 @@
             }
             catch (Exception e)
             {
-               Console.WriteLine($"Не удалось удалить сообщение. ChatId: {chatId}\nОшибка: {e.GetType()}\nСообщение ошибки: {e.Message}\nСтек вызовов: {e.StackTrace}");
+                Console.WriteLine($"Не удалось удалить сообщение. ChatId: {chatId}\nОшибка: {e.GetType()}\nСообщение ошибки: {e.Message}\nСтек вызовов: {e.StackTrace}");
             }
         }
         public static async Task TryAnswerCallbackQueryAsync(this ITelegramBotClient client, string callbackQueryId, string text = null, bool showAlert = false, string url = null, int cacheTime = 0, CancellationToken cancellationToken = default)
@@ -174,6 +228,6 @@
             {
                 Console.WriteLine($"Не удалось удалить сообщение. callbackQueryId: {callbackQueryId}\nОшибка: {e.GetType()}\nСообщение ошибки: {e.Message}\nСтек вызовов: {e.StackTrace}");
             }
-        }*/
+        }
     }
 }
