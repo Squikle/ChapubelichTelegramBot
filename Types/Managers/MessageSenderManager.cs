@@ -37,7 +37,7 @@ namespace ChapubelichBot.Types.Managers
             _millisecondsInterval = millisecondsInterval;
             _timer = new Timer(t =>
             {
-                lock (_locker)
+                lock (_locker)   
                 {
                     _globalAvailable = true;
                     _globalSendedMessages = 0;
@@ -45,13 +45,13 @@ namespace ChapubelichBot.Types.Managers
             }, null, 0, millisecondsInterval);
             MaxMessagesPerSecond = maxMessagesPerSecond;
             _globalAvailable = true;
-            _relevantChats = new RelevantChats(20, 1);
+            _relevantChats = new RelevantChats(8, 1);
         }
 
         private static void MessageSended(ChatId chatId)
         {
             _relevantChats.MessageSended(chatId);
-
+            
             lock (_locker)
             {
                 if (_globalSendedMessages >= MaxMessagesPerSecond)
@@ -65,10 +65,11 @@ namespace ChapubelichBot.Types.Managers
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             Message message;
-            while (!_relevantChats.CanSendMessageToChat(chatId) || !_globalAvailable)
-                Thread.Sleep(100);
-            bool muted = Muted != null ? Muted == true : disableNotification;
+            while (!_relevantChats.AvailableToSend(chatId) || !_globalAvailable)
+                await Task.Delay(50);
+
             MessageSended(chatId);
+            bool muted = Muted != null ? Muted == true : disableNotification;
             try
             {
                 message = await client.SendTextMessageAsync(

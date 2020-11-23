@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace ChapubelichBot.Types.Entities.Messages
 {
@@ -8,6 +9,7 @@ namespace ChapubelichBot.Types.Entities.Messages
         public int LastMinuteMessagesSended { get; set; }
         public DateTime FirstMessageSendedTime { get; set; }
         public DateTime LastMessageSendedTime { get; set; }
+        private Mutex _mutex = new Mutex();
 
         public RelevantChat()
         {
@@ -15,6 +17,24 @@ namespace ChapubelichBot.Types.Entities.Messages
             LastSecondMessagesSended = 1;
             FirstMessageSendedTime = DateTime.Now;
             LastMessageSendedTime = DateTime.Now;
+        }
+
+        public RelevantChat MessageSended()
+        {
+            _mutex.WaitOne();
+            LastMinuteMessagesSended++;
+            LastSecondMessagesSended++;
+            LastMessageSendedTime = DateTime.Now;
+            _mutex.ReleaseMutex();
+
+            return this;
+        }
+
+        public void Reset()
+        {
+            _mutex.WaitOne();
+            LastSecondMessagesSended = 0;
+            _mutex.ReleaseMutex();
         }
     }
 }

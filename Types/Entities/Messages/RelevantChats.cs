@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using ChapubelichBot.Types.Extensions;
 using Telegram.Bot.Types;
 
 namespace ChapubelichBot.Types.Entities.Messages
@@ -12,59 +11,33 @@ namespace ChapubelichBot.Types.Entities.Messages
         public int LimitOfMessagesPerSecond { get; set; }
         public RelevantChats(int limitOfMessagesPerMinute, int limitOfMessagesPerSecond)
         {
-            _relevantChats = new ConcurrentDictionary<long, RelevantChat>();
+            _relevantChats = new ConcurrentDictionary<long, RelevantChat>(10, 10);
             LimitOfMessagesPerMinute = limitOfMessagesPerMinute;
             LimitOfMessagesPerSecond = limitOfMessagesPerSecond;
         }
-        public void Add(ChatId chatId)
+        public RelevantChat GetChat(ChatId chatId)
         {
-            _relevantChats[chatId.Identifier] = new RelevantChat();
-        }
-        public RelevantChat Get(ChatId chatId)
-        {
-            if (!_relevantChats.ContainsKey(chatId.Identifier))
+            if (!_relevantChats.TryGetValue(chatId.Identifier, out RelevantChat chat))
                 return default;
-            var chat = _relevantChats[chatId.Identifier];
-            if (DateTimeOffset.Now - chat.FirstMessageSendedTime >= new TimeSpan(0, 0, 1, 0))
+            if (DateTime.Now - chat.FirstMessageSendedTime >= new TimeSpan(0, 0, 1, 1))
             {
-                _relevantChats.Remove(chatId.Identifier);
+                _relevantChats.TryRemove(chatId.Identifier, out _);
                 return default;
             }
-            if (DateTimeOffset.Now - chat.LastMessageSendedTime >= new TimeSpan(0, 0, 0, 1))
+
+            if (DateTime.Now - chat.LastMessageSendedTime >= new TimeSpan(0, 0, 0, 1, 1))
                 chat.LastSecondMessagesSended = 0;
-            return _relevantChats[chatId.Identifier];
+            return chat;
         }
-        public bool Contains(ChatId chatId)
+        public bool AvailableToSend(ChatId chatId)
         {
-            return Get(chatId) != null;
-        }
-        public RelevantChat this[ChatId chatId]
-        {
-            get => Get(chatId);
-            set
-            {
-                if (value == null) throw new ArgumentNullException(nameof(value));
-                Add(chatId);
-            }
-        }
-        public bool CanSendMessageToChat(ChatId chatId)
-        {
-            RelevantChat relevantChat = Get(chatId);
-            return 
-                relevantChat == null || relevantChat.LastSecondMessagesSended < LimitOfMessagesPerSecond 
-                                       && relevantChat.LastMinuteMessagesSended < LimitOfMessagesPerMinute;
+            RelevantChat relevantChat = GetChat(chatId);
+            return relevantChat == null || relevantChat.LastSecondMessagesSended < LimitOfMessagesPerSecond
+                    && relevantChat.LastMinuteMessagesSended < LimitOfMessagesPerMinute;
         }
         public void MessageSended(ChatId chatId)
         {
-            RelevantChat relevantChat = Get(chatId);
-            if (relevantChat == null)
-                Add(chatId);
-            else
-            {
-                relevantChat.LastMinuteMessagesSended += 1;
-                relevantChat.LastSecondMessagesSended += 1;
-                relevantChat.LastMessageSendedTime = DateTime.Now;
-            }
+            _relevantChats.AddOrUpdate(chatId.Identifier, a => new RelevantChat(), (l, chat) => chat.MessageSended());
         }
     }
 }
