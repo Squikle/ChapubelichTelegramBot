@@ -20,7 +20,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 {
     class PersonRollRegex : RegexCommand
     {
-        public override string Pattern => @"^\/? ?(.*[^ ]) ?дня(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? ?(.*[^ ]) ?дня\??(@ChapubelichBot)?$";
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
@@ -36,10 +36,11 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             if (group.GroupDailyPerson != null)
             {
                 ChatMember alreadyRolledMember = await client.GetChatMemberAsync(group.GroupId, group.GroupDailyPerson.UserId);
+                int replyMessageId = group.GroupDailyPerson.RollMessageId ?? 0;
                 await client.TrySendTextMessageAsync(message.Chat.Id,
-                    $"<i>{alreadyRolledMember.User.FirstName}</i> уже <b>{group.GroupDailyPerson.RolledName}</b> дня",
+                    $"<i>{alreadyRolledMember.User.FirstName}</i> уже <b>\"{group.GroupDailyPerson.RolledName}\"</b> дня",
                     parseMode: ParseMode.Html,
-                    replyToMessageId: message.MessageId);
+                    replyToMessageId: replyMessageId);
                 return;
             }
             string regexName = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
@@ -70,24 +71,23 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             string rolledUserFirstName = member.User.FirstName;
 
-            Task sendingSticker = client.TrySendStickerAsync(message.Chat.Id,
-                GetRandomSticker());
-            Task sendingTaskMessage = client.TrySendTextMessageAsync(message.Chat.Id, 
-                $"🎉 <i><a href=\"tg://user?id={member.User.Id}\">{rolledUserFirstName}</a></i> <b>{regexName}</b> дня 🎉",
+            Message answerMessage = await client.TrySendTextMessageAsync(message.Chat.Id,
+                $"🎉 <i><a href=\"tg://user?id={member.User.Id}\">{rolledUserFirstName}</a></i> <b>\"{regexName}\"</b> дня 🎉",
                 parseMode: ParseMode.Html,
                 replyToMessageId: message.MessageId);
-            
+            Task sendingSticker = client.TrySendStickerAsync(message.Chat.Id,
+                GetRandomSticker());
 
             group.GroupDailyPerson = new GroupDailyPerson
             {
                 User = rolledUser,
                 RolledName = regexName,
+                RollMessageId = answerMessage?.MessageId,
                 Group = group
             };
             db.SaveChanges();
 
             await sendingSticker;
-            await sendingTaskMessage;
         }
 
         private InputOnlineFile GetRandomSticker()

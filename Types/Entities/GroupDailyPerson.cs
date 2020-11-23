@@ -8,6 +8,7 @@ namespace ChapubelichBot.Types.Entities
         public int UserId { get; set; }
         [Key]
         public long GroupId { get; set; }
+        public int? RollMessageId { get; set; }
 
         public User User;
         public Group Group;
