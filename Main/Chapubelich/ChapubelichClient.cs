@@ -94,6 +94,7 @@ namespace ChapubelichBot.Main.Chapubelich
             {
                 new SendAllRegex(),
                 new EchoRegex(),
+                new TestFeatureRegex()
             };
             _botAdminCommands = new List<Command>
             {
