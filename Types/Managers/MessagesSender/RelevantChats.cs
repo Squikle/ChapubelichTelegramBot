@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
+using ChapubelichBot.Types.Managers.MessagesSender;
 using Telegram.Bot.Types;
 
 namespace ChapubelichBot.Types.Entities.Messages
 {
     class RelevantChats
     {
+
+
         private readonly Dictionary<long, RelevantChat> _relevantChats;
         public int LimitOfMessagesPerMinute { get; set; }
         public int LimitOfMessagesPerSecond { get; set; }

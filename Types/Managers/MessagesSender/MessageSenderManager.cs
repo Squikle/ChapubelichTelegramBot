@@ -15,6 +15,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
 {
     static class MessageSenderManager
     {
+
         private static readonly int _globalMessagesPerInterval = 30;
         private static readonly int _globalMessagesInterval = 1000;
 
@@ -59,7 +60,9 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
         private static bool AvailableToSend(ChatId chatId)
         {
             lock (_locker)
-                return _relevantChats.AvailableToSend(chatId) || _globalAvailable;
+            {
+                return _relevantChats.AvailableToSend(chatId) && _globalAvailable;
+            }
         }
 
         private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
