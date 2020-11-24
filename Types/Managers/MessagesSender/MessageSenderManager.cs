@@ -81,7 +81,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             catch (Exception e)
             {
                 // TODO ограничить повторные отправления
-                if (replyToMessageId != 0)
+                /*if (replyToMessageId != 0)
                 {
                     Console.WriteLine(
                         "Не удалось отправить сообщение с ответом. Попробую еще раз без ответа");
@@ -91,7 +91,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
                         muted, 0,
                         replyMarkup, cancellationToken);
                     return message;
-                }
+                }*/
 
                 Console.WriteLine(
                     $"Не удалось отправить сообщение. ChatId: {chatId}\nОшибка: {e.GetType()}\nСообщение ошибки: {e.Message}Стек вызовов: {e.StackTrace}");
