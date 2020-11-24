@@ -10,6 +10,7 @@ using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Entities;
 using ChapubelichBot.Types.Enums;
 using ChapubelichBot.Types.Extensions;
+using ChapubelichBot.Types.Managers.MessagesSender;
 using ChapubelichBot.Types.Statics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +21,7 @@ using Telegram.Bot.Types.InputFiles;
 using Group = ChapubelichBot.Types.Entities.Group;
 using User = ChapubelichBot.Types.Entities.User;
 
-namespace ChapubelichBot.Types.GameManagers
+namespace ChapubelichBot.Types.Managers
 {
     public static class RouletteGameManager
     {

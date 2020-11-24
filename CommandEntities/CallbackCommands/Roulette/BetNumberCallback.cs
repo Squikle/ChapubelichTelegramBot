@@ -5,7 +5,7 @@ using ChapubelichBot.Types.Entities;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using ChapubelichBot.Types.Abstractions.Commands;
-using ChapubelichBot.Types.GameManagers;
+using ChapubelichBot.Types.Managers;
 
 namespace ChapubelichBot.CommandEntities.CallbackCommands.Roulette
 {

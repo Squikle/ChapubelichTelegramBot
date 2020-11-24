@@ -1,4 +1,4 @@
-﻿using ChapubelichBot.Types.GameManagers;
+﻿using ChapubelichBot.Types.Managers;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ChapubelichBot.Types.Statics

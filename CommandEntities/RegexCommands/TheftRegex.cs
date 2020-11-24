@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Extensions;
+using ChapubelichBot.Types.Managers;
+using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -157,7 +159,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                     $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
                     $"\nНо у <i>{message.From.FirstName}</i> ничего не получилось 😇";
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"\n<i>{message.From.FirstName}</i> хотел сказать: <i>\"{attachedMessage}\"</i>";
+                    resultMessage += $"\n<i>{(theftFrom.Gender ? "он</i> хотел" : "она</i> хотела")} сказать: <i>\"{attachedMessage}\"</i>";
             }
 
             if (string.IsNullOrEmpty(resultMessage))

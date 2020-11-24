@@ -6,6 +6,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ChapubelichBot.Types.Entities.User;
 using ChapubelichBot.Types.Abstractions.Commands;
+using ChapubelichBot.Types.Managers.MessagesSender;
 
 namespace ChapubelichBot.CommandEntities.Commands
 {

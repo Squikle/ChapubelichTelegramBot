@@ -2,7 +2,7 @@
 using System.Linq;
 using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Enums;
-using ChapubelichBot.Types.GameManagers;
+using ChapubelichBot.Types.Managers;
 
 namespace ChapubelichBot.Types.Extensions
 {

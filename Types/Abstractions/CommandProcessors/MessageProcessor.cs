@@ -2,12 +2,12 @@
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.Extensions;
+using ChapubelichBot.Types.Managers;
+using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using User = ChapubelichBot.Types.Entities.User;
 
 namespace ChapubelichBot.Types.Abstractions.CommandProcessors
 {

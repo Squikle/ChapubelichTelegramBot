@@ -108,7 +108,7 @@ namespace ChapubelichBot.Main.Chapubelich
 #else
             string apiKey = GetKeys().GetValue<string>("ApiKeys:ReleaseKey");
 #endif
-            _client = new TelegramBotClient(apiKey) { Timeout = TimeSpan.FromSeconds(10) };
+            _client = new TelegramBotClient(apiKey) { Timeout = TimeSpan.FromSeconds(300) };
             return _client;
         }
         public static IConfiguration GetConfig()

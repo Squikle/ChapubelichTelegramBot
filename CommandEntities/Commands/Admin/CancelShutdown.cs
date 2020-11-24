@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.Extensions;
+using ChapubelichBot.Types.Managers.MessagesSender;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
