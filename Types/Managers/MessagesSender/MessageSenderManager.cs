@@ -60,9 +60,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
         private static bool AvailableToSend(ChatId chatId)
         {
             lock (_locker)
-            {
                 return _relevantChats.AvailableToSend(chatId) && _globalAvailable;
-            }
         }
 
         private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
