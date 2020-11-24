@@ -58,10 +58,15 @@ namespace ChapubelichBot.Types.Managers
                     LastActivity = DateTime.UtcNow,
                     ResultNumber = GetRandomResultNumber()
                 };
-                if (!dbContext.RouletteGameSessions.Contains(gameSession))
+
+                dbContext.RouletteGameSessions.Add(gameSession);
+                try
                 {
-                    dbContext.RouletteGameSessions.Add(gameSession);
                     dbContext.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    return;
                 }
             }
             else
@@ -114,7 +119,14 @@ namespace ChapubelichBot.Types.Managers
             if (dbContext.RouletteGameSessions.Contains(gameSession))
             {
                 dbContext.Remove(gameSession);
-                dbContext.SaveChanges();
+                try
+                {
+                    dbContext.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    return;
+                }
             }
 
             Task deletingAnimationMessage = null;
@@ -667,7 +679,14 @@ namespace ChapubelichBot.Types.Managers
             if (dbContext.RouletteGameSessions.Contains(gameSession))
             {
                 dbContext.Remove(gameSession);
-                dbContext.SaveChanges();
+                try
+                {
+                    dbContext.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    return;
+                }
             }
 
             Task deletingAnimationMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
@@ -841,10 +860,14 @@ namespace ChapubelichBot.Types.Managers
                     ParseMode.Html,
                     replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
 
-                if (dbContext.RouletteGameSessions.Contains(gs))
+                dbContext.RouletteGameSessions.Remove(gs);
+                try
                 {
-                    dbContext.RouletteGameSessions.Remove(gs);
                     dbContext.SaveChanges();
+                }
+                catch (DbUpdateException)
+                {
+                    return;
                 }
 
                 if (deletingMessage != null)
