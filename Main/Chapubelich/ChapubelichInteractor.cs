@@ -21,8 +21,8 @@ namespace ChapubelichBot.Main.Chapubelich
         private static readonly IConfiguration Config = ChapubelichClient.GetConfig();
         public static void Start()
         {
-            RouletteGameManager.Init();
             MessageSenderManager.Init(20, 1);
+            RouletteGameManager.Init();
             RestoreData();
             DailyProcess();
             Client.StartReceiving();
@@ -32,6 +32,7 @@ namespace ChapubelichBot.Main.Chapubelich
         }
         public static void Stop()
         {
+            MessageSenderManager.Terminate();
             RouletteGameManager.Terminate();
             Client.OnMessage -= MessageProcessAsync;
             Client.OnCallbackQuery -= CallbackProcess;
