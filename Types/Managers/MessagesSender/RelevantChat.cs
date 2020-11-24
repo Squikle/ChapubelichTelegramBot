@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Threading;
 
-namespace ChapubelichBot.Types.Entities.Messages
+namespace ChapubelichBot.Types.Managers.MessagesSender
 {
     class RelevantChat
     {
