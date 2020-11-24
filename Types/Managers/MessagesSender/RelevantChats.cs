@@ -18,7 +18,6 @@ namespace ChapubelichBot.Types.Entities.Messages
         }
         public bool AvailableToSend(ChatId chatId)
         {
-            Console.WriteLine($"AvailableToSend {Thread.GetCurrentProcessorId()}");
             RelevantChat relevantChat = GetChat(chatId);
 
             return relevantChat == null || relevantChat.LastSecondMessagesSended < LimitOfMessagesPerSecond
@@ -26,7 +25,6 @@ namespace ChapubelichBot.Types.Entities.Messages
         }
         public void MessageSended(ChatId chatId)
         {
-            Console.WriteLine($"MessageSended {Thread.GetCurrentProcessorId()}");
             if (!_relevantChats.TryGetValue(chatId.Identifier, out RelevantChat chat))
                 _relevantChats.Add(chatId.Identifier, new RelevantChat());
             else
@@ -35,7 +33,6 @@ namespace ChapubelichBot.Types.Entities.Messages
 
         private RelevantChat GetChat(ChatId chatId)
         {
-            Console.WriteLine($"GetChat {Thread.GetCurrentProcessorId()}");
             if (!_relevantChats.TryGetValue(chatId.Identifier, out RelevantChat chat))
                 return default;
             if (DateTime.Now - chat.FirstMessageSendedTime >= new TimeSpan(0, 0, 1, 1))
