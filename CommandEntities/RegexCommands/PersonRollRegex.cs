@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
@@ -36,12 +37,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             if (group.GroupDailyPerson != null)
             {
-                ChatMember alreadyRolledMember = await client.GetChatMemberAsync(group.GroupId, group.GroupDailyPerson.UserId);
-                int replyMessageId = group.GroupDailyPerson.RollMessageId ?? 0;
-                await client.TrySendTextMessageAsync(message.Chat.Id,
-                    $"<i>{alreadyRolledMember.User.FirstName}</i> уже <b>\"{group.GroupDailyPerson.RolledName}\"</b> дня",
-                    parseMode: ParseMode.Html,
-                    replyToMessageId: replyMessageId);
+                await SendAlreadyExistMessage(client, group, message);
                 return;
             }
             string regexName = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
@@ -72,6 +68,21 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             string rolledUserFirstName = member.User.FirstName;
 
+            group.GroupDailyPerson = new GroupDailyPerson
+            {
+                User = rolledUser,
+                RolledName = regexName,
+                Group = group
+            };
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                return;
+            }
+
             Message answerMessage = await client.TrySendTextMessageAsync(message.Chat.Id,
                 $"🎉 <i><a href=\"tg://user?id={member.User.Id}\">{rolledUserFirstName}</a></i> <b>\"{regexName}\"</b> дня 🎉",
                 parseMode: ParseMode.Html,
@@ -79,15 +90,8 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             Task sendingSticker = client.TrySendStickerAsync(message.Chat.Id,
                 GetRandomSticker());
 
-            group.GroupDailyPerson = new GroupDailyPerson
-            {
-                User = rolledUser,
-                RolledName = regexName,
-                RollMessageId = answerMessage?.MessageId,
-                Group = group
-            };
+            group.GroupDailyPerson.RollMessageId = answerMessage?.MessageId;
             db.SaveChanges();
-
             await sendingSticker;
         }
 
@@ -111,6 +115,16 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             };
 
             return new InputOnlineFile(urls[rand.Next(0, urls.Length)]);
+        }
+
+        private async Task SendAlreadyExistMessage(ITelegramBotClient client, Group group, Message message)
+        {
+            ChatMember alreadyRolledMember = await client.GetChatMemberAsync(group.GroupId, group.GroupDailyPerson.UserId);
+            int replyMessageId = group.GroupDailyPerson.RollMessageId ?? 0;
+            await client.TrySendTextMessageAsync(message.Chat.Id,
+                $"<i>{alreadyRolledMember.User.FirstName}</i> уже <b>\"{group.GroupDailyPerson.RolledName}\"</b> дня",
+                parseMode: ParseMode.Html,
+                replyToMessageId: replyMessageId);
         }
     }
 }
