@@ -5,6 +5,7 @@ using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers;
+using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
