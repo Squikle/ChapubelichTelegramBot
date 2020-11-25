@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using ChapubelichBot.Types.Managers.MessagesSender;
 using Telegram.Bot.Types;
 
-namespace ChapubelichBot.Types.Entities.Messages
+namespace ChapubelichBot.Types.Managers.MessagesSender
 {
     class RelevantChats
     {
