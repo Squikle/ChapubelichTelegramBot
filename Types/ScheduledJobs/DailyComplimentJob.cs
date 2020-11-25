@@ -16,9 +16,9 @@ namespace ChapubelichBot.Types.ScheduledJobs
         public async Task Execute(IJobExecutionContext context)
         {
             ITelegramBotClient client = (ITelegramBotClient)context.JobDetail.JobDataMap["TelegramBotClient"];
-            await ExecuteManually(client);
+            await ExecuteManuallyAsync(client);
         }
-        public static async Task ExecuteManually(ITelegramBotClient client)
+        public static async Task ExecuteManuallyAsync(ITelegramBotClient client)
         {
             Console.WriteLine($"{DateTime.Now:HH:mm:ss} рассылаю комплименты...");
 
@@ -26,9 +26,9 @@ namespace ChapubelichBot.Types.ScheduledJobs
             string[] girlCompliments = null;
             User[] complimentingUsers;
 
-            await using (var db = new ChapubelichdbContext())
+            await using (var dbContext = new ChapubelichdbContext())
             {
-                var complimentingUsersDatabase = db.Users.Where(x => x.ComplimentSubscription && !x.Complimented);
+                var complimentingUsersDatabase = dbContext.Users.Where(x => x.ComplimentSubscription && !x.Complimented);
 
                 complimentingUsers = complimentingUsersDatabase.ToArray();
                 if (complimentingUsers.Length <= 0)
@@ -38,12 +38,12 @@ namespace ChapubelichBot.Types.ScheduledJobs
                 {
                     user.Complimented = true;
                 }
-                await db.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
 
                 if (complimentingUsers.Any(x => x.Gender))
-                    boyCompliments = db.BoyCompliments.Select(x => x.ComplimentText).ToArray();
+                    boyCompliments = dbContext.BoyCompliments.Select(x => x.ComplimentText).ToArray();
                 if (complimentingUsers.Any(x => x.Gender == false))
-                    girlCompliments = db.GirlCompliments.Select(x => x.ComplimentText).ToArray();
+                    girlCompliments = dbContext.GirlCompliments.Select(x => x.ComplimentText).ToArray();
             }
 
             Random rand = new Random();

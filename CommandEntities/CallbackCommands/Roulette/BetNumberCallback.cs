@@ -20,12 +20,12 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands.Roulette
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             RouletteGameSession gameSession = null;
-            await using (var db = new ChapubelichdbContext())
+            await using (var dbContext = new ChapubelichdbContext())
             {
-                gameSession = RouletteGameManager.GetGameSessionOrNull(query.Message.Chat.Id, db);
+                gameSession = await RouletteGameManager.GetGameSessionOrNullAsync(query.Message.Chat.Id, dbContext);
             }
             if (gameSession != null)
-                await RouletteGameManager.BetNumbersRequest(query);
+                await RouletteGameManager.BetNumbersRequestAsync(query);
         }
     }
 }

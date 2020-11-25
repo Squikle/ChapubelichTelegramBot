@@ -21,9 +21,9 @@ namespace ChapubelichBot.CommandEntities.Commands
             int configDailyReward = ChapubelichClient.GetConfig().GetValue<int>("AppSettings:DailyReward");
             int totalDailyReward = configDailyReward >= 1000 ? 1000 : configDailyReward;
 
-            await using (var db = new ChapubelichdbContext())
+            await using (var dbContext = new ChapubelichdbContext())
             {
-                user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+                user = dbContext.Users.FirstOrDefault(x => x.UserId == message.From.Id);
                 if (user == null)
                     return;
                 if (user.DailyRewarded)
@@ -39,7 +39,7 @@ namespace ChapubelichBot.CommandEntities.Commands
                 user.Balance += totalDailyReward;
                 user.DailyRewarded = true;
 
-                db.SaveChanges();
+                await dbContext.SaveChangesAsync();
             }
 
             await client.TrySendTextMessageAsync(

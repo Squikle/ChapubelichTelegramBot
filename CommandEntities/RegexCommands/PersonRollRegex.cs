@@ -26,18 +26,18 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await using var db = new ChapubelichdbContext();
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
 
-            Group group = db.Groups.Include(g => g.Users)
+            Group group = await dbContext.Groups.Include(g => g.Users)
                 .Include(g => g.GroupDailyPerson)
                 .ThenInclude(gpd => gpd.User)
-                .FirstOrDefault(g => g.GroupId == message.Chat.Id);
+                .FirstOrDefaultAsync(g => g.GroupId == message.Chat.Id);
             if (group == null)
                 return;
 
             if (group.GroupDailyPerson != null)
             {
-                await SendAlreadyExistMessage(client, group, message);
+                await SendAlreadyExistMessageAsync(client, group, message);
                 return;
             }
             string regexName = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
@@ -76,7 +76,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             };
             try
             {
-                db.SaveChanges();
+                await dbContext.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -91,7 +91,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 GetRandomSticker());
 
             group.GroupDailyPerson.RollMessageId = answerMessage?.MessageId;
-            db.SaveChanges();
+            await dbContext.SaveChangesAsync();
             await sendingSticker;
         }
 
@@ -117,7 +117,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             return new InputOnlineFile(urls[rand.Next(0, urls.Length)]);
         }
 
-        private async Task SendAlreadyExistMessage(ITelegramBotClient client, Group group, Message message)
+        private async Task SendAlreadyExistMessageAsync(ITelegramBotClient client, Group group, Message message)
         {
             ChatMember alreadyRolledMember = await client.GetChatMemberAsync(group.GroupId, group.GroupDailyPerson.UserId);
             int replyMessageId = group.GroupDailyPerson.RollMessageId ?? 0;

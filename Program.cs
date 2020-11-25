@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using Microsoft.Extensions.Configuration;
 
@@ -8,13 +9,13 @@ namespace ChapubelichBot
 {
     class Program
     {
-        static void Main()
+        static async Task Main()
         {
             var config = ChapubelichClient.GetConfig();
             string path = Path.Combine(@"./Main/Data", config.GetValue<string>("Logger:DirectoryPath"), config.GetValue<string>("Logger:FileName"));
             Console.WriteLine($"Default log path is: {path}"); 
             AppDomain.CurrentDomain.UnhandledException += ExceptionManage;
-            ChapubelichInteractor.Start();
+            await ChapubelichInteractor.StartAsync();
             //var me = messageManager.client.GetMeAsync();
             //Console.Title = messageManager.client.GetMeAsync().Result.Username;
             Thread.Sleep(int.MaxValue);

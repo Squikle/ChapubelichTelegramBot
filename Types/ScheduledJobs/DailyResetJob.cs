@@ -17,16 +17,16 @@ namespace ChapubelichBot.Types.ScheduledJobs
         public static async Task ExecuteManually()
         {
             Console.WriteLine($"{DateTime.Now} дневной сброс...");
-            await using ChapubelichdbContext db = new ChapubelichdbContext();
-            foreach (var user in db.Users)
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            foreach (var user in dbContext.Users)
             {
                 user.Complimented = false;
                 user.DailyRewarded = false;
             }
-            db.Configurations.First().LastResetTime = DateTime.Now;
-            await db.SaveChangesAsync();
+            (await dbContext.Configurations.FirstAsync()).LastResetTime = DateTime.Now;
+            await dbContext.SaveChangesAsync();
             string dbSchema = ChapubelichClient.GetConfig().GetValue<string>("AppSettings:DatabaseSchema");
-            db.Database.ExecuteSqlRaw($"TRUNCATE TABLE \"{dbSchema}\".\"GroupDailyPerson\"");
+            await dbContext.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE \"{dbSchema}\".\"GroupDailyPerson\"");
         }
     }
 }

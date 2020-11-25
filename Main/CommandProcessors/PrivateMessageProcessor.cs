@@ -12,14 +12,14 @@ namespace ChapubelichBot.Main.CommandProcessors
 {
     class PrivateMessageProcessor : MessageProcessor
     {
-        public override async Task<bool> Execute(Message message, ITelegramBotClient client)
+        public override async Task<bool> ExecuteAsync(Message message, ITelegramBotClient client)
         {
             if (GlobalIgnored(message))
                 return true;
             if (IsResponsiveForMessageType(message.Type) && IsResponsiveForChatType(message.Chat.Type))
             {
-                bool isUserRegistered = IsUserRegistered(message.From);
-                return await ProcessMessage(message, isUserRegistered, client);
+                bool isUserRegistered = await IsUserRegisteredAsync(message.From);
+                return await ProcessMessageAsync(message, isUserRegistered, client);
             }
             return false;
         }
@@ -31,7 +31,7 @@ namespace ChapubelichBot.Main.CommandProcessors
         {
             return chatType == ChatType.Private;
         }
-        protected async Task<bool> ProcessMessage(Message message, bool isUserRegistered, ITelegramBotClient client)
+        protected async Task<bool> ProcessMessageAsync(Message message, bool isUserRegistered, ITelegramBotClient client)
         {
             bool repeatedRegisterRequest = false;
             if (isUserRegistered)

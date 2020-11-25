@@ -6,6 +6,7 @@ using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using ChapubelichBot.Types.Statics;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ChapubelichBot.Types.Entities.User;
@@ -17,7 +18,7 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
         public override List<string> IncludingData => new List<string> { "DefaultBet25", "DefaultBet50", "DefaultBet100", "DefaultBet500" };
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
-            await using var db = new ChapubelichdbContext();
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             short defaultBet = 50;
 
             switch (query.Data)
@@ -36,12 +37,12 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
                     break;
             }
 
-            User senderUser = db.Users.FirstOrDefault(x => x.UserId == query.From.Id);
+            User senderUser = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == query.From.Id);
             if (senderUser == null)
                 return;
 
             senderUser.DefaultBet = defaultBet;
-            db.SaveChanges();
+            await dbContext.SaveChangesAsync();
             Task deletingMessage = client.TryDeleteMessageAsync(
                 query.Message.Chat.Id,
                 query.Message.MessageId);

@@ -9,14 +9,14 @@ namespace ChapubelichBot.Main.CommandProcessors
 {
     class AdminMessageProcessor : MessageProcessor
     {
-        public override async Task<bool> Execute(Message message, ITelegramBotClient client)
+        public override async Task<bool> ExecuteAsync(Message message, ITelegramBotClient client)
         {
             if (GlobalIgnored(message))
                 return true;
-            bool isUserRegistered = IsUserRegistered(message.From);
-            return await ProcessMessage(message, isUserRegistered, client);
+            bool isUserRegistered = await IsUserRegisteredAsync(message.From);
+            return await ProcessMessageAsync(message, isUserRegistered, client);
         }
-        protected async Task<bool> ProcessMessage(Message message, bool isUserRegistered, ITelegramBotClient client)
+        protected async Task<bool> ProcessMessageAsync(Message message, bool isUserRegistered, ITelegramBotClient client)
         {
             if (!isUserRegistered)
                 return true;

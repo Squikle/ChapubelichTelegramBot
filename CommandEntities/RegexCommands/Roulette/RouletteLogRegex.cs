@@ -7,6 +7,7 @@ using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -20,11 +21,11 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
         public override string Pattern => @"^\/? *(log|лог|история|игры|последние) *?(\d*)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await using var db = new ChapubelichdbContext();
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             int[] lastGameSessions;
             if (message.Chat.Type == ChatType.Private)
             {
-                User user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+                User user = dbContext.Users.FirstOrDefault(x => x.UserId == message.From.Id);
                 if (user == null)
                     return;
                 if (user.LastGameSessions != null)
@@ -38,7 +39,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
             }
             else
             {
-                Group group = db.Groups.FirstOrDefault(x => x.GroupId == message.Chat.Id);
+                Group group = await dbContext.Groups.FirstOrDefaultAsync(x => x.GroupId == message.Chat.Id);
                 if (group == null)
                     return;
                 if (group.LastGameSessions != null)

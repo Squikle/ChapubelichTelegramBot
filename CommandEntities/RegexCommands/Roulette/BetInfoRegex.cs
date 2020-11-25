@@ -13,13 +13,13 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
         public override string Pattern => @"^\/? *((мо(и|я))|(my))?\s*((ставк(и|а))|(bets?))(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            RouletteGameSession gameSession = null;
-            await using (var db = new ChapubelichdbContext())
+            RouletteGameSession gameSession;
+            await using (var dbContext = new ChapubelichdbContext())
             {
-                gameSession = RouletteGameManager.GetGameSessionOrNull(message.Chat.Id, db);
+                gameSession = await RouletteGameManager.GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
             }
             if (gameSession != null)
-                await RouletteGameManager.BetInfoRequest(message);
+                await RouletteGameManager.BetInfoRequestAsync(message);
         }
     }
 }

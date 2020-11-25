@@ -7,6 +7,7 @@ using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -25,9 +26,9 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 || markedUser.Id == client.BotId)
                 return;
 
-            await using var db = new ChapubelichdbContext();
-            var thief = db.Users.FirstOrDefault(x => x.UserId == message.From.Id); 
-            var theftFrom = db.Users.FirstOrDefault(x => x.UserId == markedUser.Id);
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            var thief = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id); 
+            var theftFrom = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == markedUser.Id);
 
             if (theftFrom == null)
             {
@@ -166,7 +167,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 return;
 
             thief.LastMoneyTheft = DateTime.UtcNow;
-            db.SaveChanges();
+            await dbContext.SaveChangesAsync();
             
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,

@@ -13,7 +13,7 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
 {
     public abstract class MessageProcessor
     {
-        public abstract Task<bool> Execute(Message message, ITelegramBotClient client);
+        public abstract Task<bool> ExecuteAsync(Message message, ITelegramBotClient client);
 
         protected static async Task SendRegistrationAlertAsync(Message message, ITelegramBotClient client)
         {
@@ -35,7 +35,7 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
                 );
             }
         }
-        protected static async Task<Group> UpdateGroup(Message message, ITelegramBotClient client)
+        protected static async Task<Group> UpdateGroupAsync(Message message, ITelegramBotClient client)
         {
             Telegram.Bot.Types.User bot = await client.GetMeAsync();
             if (bot == null)
@@ -44,8 +44,8 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
 
             bool saveChangesRequired = false;
 
-            await using var db = new ChapubelichdbContext();
-            Group group = db.Groups.Include(u => u.Users).FirstOrDefault(g => g.GroupId == message.Chat.Id);
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            Group group = await dbContext.Groups.Include(u => u.Users).FirstOrDefaultAsync(g => g.GroupId == message.Chat.Id);
             if (group == null)
             {
                 group = new Group
@@ -54,7 +54,7 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
                     Name = message.Chat.Title,
                     IsAvailable = true
                 };
-                db.Groups.Add(group);
+                await dbContext.Groups.AddAsync(group);
                 saveChangesRequired = true;
             }
 
@@ -78,7 +78,7 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
                 saveChangesRequired = true;
             }
 
-            var senderUser = db.Users.FirstOrDefault(u => u.UserId == message.From.Id);
+            var senderUser = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == message.From.Id);
             if (senderUser != null && group.Users.All(u => u.UserId != senderUser.UserId))
             {
                 group.Users.Add(senderUser);
@@ -86,14 +86,14 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
             }
 
             if (saveChangesRequired)
-                db.SaveChanges();
+                await dbContext.SaveChangesAsync();
 
             return group;
         }
-        protected bool IsUserRegistered(Telegram.Bot.Types.User user)
+        protected async Task<bool> IsUserRegisteredAsync(Telegram.Bot.Types.User user)
         {
-            using var db = new ChapubelichdbContext();
-            return db.Users.Any(x => x.UserId == user.Id);
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            return await dbContext.Users.AnyAsync(x => x.UserId == user.Id);
         }
         protected bool IsMemberRegistered(Telegram.Bot.Types.User user, Group group)
         {

@@ -16,9 +16,9 @@ namespace ChapubelichBot.CommandEntities.Commands
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             User user;
-            await using (var db = new ChapubelichdbContext())
+            await using (var dbContext = new ChapubelichdbContext())
             {
-                user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+                user = dbContext.Users.FirstOrDefault(x => x.UserId == message.From.Id);
             }
 
             if (user != null)

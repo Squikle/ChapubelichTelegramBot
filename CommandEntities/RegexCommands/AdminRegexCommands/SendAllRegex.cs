@@ -6,6 +6,7 @@ using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
@@ -24,9 +25,9 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.AdminRegexCommands
             string sendMessage = Regex.Match(messageText, Pattern).Groups[2].Value;
             List<int> usersToSendId;
 
-            await using (var db = new ChapubelichdbContext())
+            await using (var dbContext = new ChapubelichdbContext())
             {
-                usersToSendId = db.Users.Select(x => x.UserId).ToList();
+                usersToSendId = await dbContext.Users.Select(x => x.UserId).ToListAsync();
             }
 
             List<Task> sendingMessages = new List<Task>();

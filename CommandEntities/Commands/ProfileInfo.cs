@@ -6,6 +6,7 @@ using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using ChapubelichBot.Types.Statics;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -16,8 +17,8 @@ namespace ChapubelichBot.CommandEntities.Commands
         public override string Name => "👤 Мой профиль";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await using var db = new ChapubelichdbContext();
-            var user = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            var user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id);
 
             if (user == null)
                 return;

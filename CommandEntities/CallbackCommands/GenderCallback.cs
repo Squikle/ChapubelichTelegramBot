@@ -6,6 +6,7 @@ using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using ChapubelichBot.Types.Statics;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ChapubelichBot.Types.Entities.User;
@@ -18,22 +19,22 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
 
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
-            await using var db = new ChapubelichdbContext();
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             bool choosenGender = query.Data == "Male";
 
-            User senderUser = db.Users.FirstOrDefault(x => x.UserId == query.From.Id);
+            User senderUser = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == query.From.Id);
 
             Task deletingMessage = client.TryDeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId);
 
             if (senderUser != null)
-                await ChangeSettings(query, db, client, senderUser, choosenGender);
+                await ChangeSettingsAsync(query, dbContext, client, senderUser, choosenGender);
             else
-                await RegisterUser(query, db, client, choosenGender);
+                await RegisterUserAsync(query, dbContext, client, choosenGender);
 
             await deletingMessage;
         }
 
-        private async Task RegisterUser(CallbackQuery query, ChapubelichdbContext db, ITelegramBotClient client,
+        private async Task RegisterUserAsync(CallbackQuery query, ChapubelichdbContext dbContext, ITelegramBotClient client,
             bool choosenGender)
         {
             User senderUser = new User()
@@ -43,8 +44,8 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
                 UserId = query.From.Id
             };
 
-            await db.Users.AddAsync(senderUser);
-            db.SaveChanges();
+            await dbContext.Users.AddAsync(senderUser);
+            await dbContext.SaveChangesAsync();
             await client.TrySendTextMessageAsync(
                 query.Message.Chat.Id,
                 "Ты был успешно зарегестрирован!",
@@ -52,12 +53,12 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
             );
         }
 
-        private async Task ChangeSettings(CallbackQuery query, ChapubelichdbContext db, ITelegramBotClient client,
+        private async Task ChangeSettingsAsync(CallbackQuery query, ChapubelichdbContext dbContext, ITelegramBotClient client,
             User senderUser, bool choosenGender)
         {
 
             senderUser.Gender = choosenGender;
-            db.SaveChanges();
+            await dbContext.SaveChangesAsync();
             await client.TrySendTextMessageAsync(
                 query.Message.Chat.Id,
                 "Настройки успешно сохранены!",

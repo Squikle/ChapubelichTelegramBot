@@ -6,6 +6,7 @@ using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -45,9 +46,9 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             string attachedMessage = match.Groups[3].Value;
 
-            await using var db = new ChapubelichdbContext();
-            var transferTo = db.Users.FirstOrDefault(x => x.UserId == markedUser.Id);
-            var transferFrom = db.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            var transferTo = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == markedUser.Id);
+            var transferFrom = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id);
 
             if (transferTo == null)
             {
@@ -71,7 +72,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
                     resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
 
-                db.SaveChanges();
+                await dbContext.SaveChangesAsync();
 
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,

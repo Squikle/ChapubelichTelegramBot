@@ -13,13 +13,13 @@ namespace ChapubelichBot.Main.CommandProcessors
 {
     class UserLeftMessageProcessor : MessageProcessor
     {
-        public override async Task<bool> Execute(Message message, ITelegramBotClient client)
+        public override async Task<bool> ExecuteAsync(Message message, ITelegramBotClient client)
         {
             if (GlobalIgnored(message))
                 return true;
             if (IsResponsiveForMessageType(message.Type) && IsResponsiveForChatType(message.Chat.Type))
             {
-                return await ProcessMessage(message);
+                return await ProcessMessageAsync(message);
             }
             return false;
         }
@@ -33,15 +33,15 @@ namespace ChapubelichBot.Main.CommandProcessors
             return chatType == ChatType.Group || chatType == ChatType.Supergroup;
         }
 
-        protected async Task<bool> ProcessMessage(Message message)
+        protected async Task<bool> ProcessMessageAsync(Message message)
         {
-            await using var db = new ChapubelichdbContext();
-            Group group = db.Groups.Include(g => g.Users).FirstOrDefault(g => message.Chat.Id == g.GroupId);
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            Group group = await dbContext.Groups.Include(g => g.Users).FirstOrDefaultAsync(g => message.Chat.Id == g.GroupId);
             User leftUser = group?.Users.FirstOrDefault(x => x.UserId == message.LeftChatMember.Id);
             if (leftUser != null && group.Users.Contains(leftUser))
             {
                 group.Users.Remove(leftUser);
-                db.SaveChanges();
+                await dbContext.SaveChangesAsync();
             }
             return true;
         }

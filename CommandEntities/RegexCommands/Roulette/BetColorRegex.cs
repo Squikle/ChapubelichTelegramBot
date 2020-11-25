@@ -14,12 +14,12 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             RouletteGameSession gameSession;
-            await using (var db = new ChapubelichdbContext())
+            await using (var dbContext = new ChapubelichdbContext())
             {
-                gameSession = RouletteGameManager.GetGameSessionOrNull(message.Chat.Id, db);
+                gameSession = await RouletteGameManager.GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
             }
             if (gameSession != null)
-                await RouletteGameManager.BetColorRequest(message, Pattern);
+                await RouletteGameManager.BetColorRequestAsync(message, Pattern);
         }
     }
 }

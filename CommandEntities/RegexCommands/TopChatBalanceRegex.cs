@@ -23,9 +23,9 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
         public override string Pattern => @"^\/? *(топ|лучшие|best|top) *?(\d*)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await using var db = new ChapubelichdbContext();
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
 
-            Group group = db.Groups.Include(g => g.Users).FirstOrDefault(g => g.GroupId == message.Chat.Id);
+            Group group = await dbContext.Groups.Include(g => g.Users).FirstOrDefaultAsync(g => g.GroupId == message.Chat.Id);
             if (group == null)
                 return;
 

@@ -19,12 +19,12 @@ namespace ChapubelichBot.Main.Chapubelich
     {
         private static readonly ITelegramBotClient Client = ChapubelichClient.GetClient();
         private static readonly IConfiguration Config = ChapubelichClient.GetConfig();
-        public static void Start()
+        public static async Task StartAsync()
         {
             MessageSenderManager.Init(20, 1);
             RouletteGameManager.Init();
-            RestoreData();
-            DailyProcess();
+            await RestoreDataAsync();
+            await DailyProcessAsync();
             Client.StartReceiving();
             Client.OnMessage += MessageProcessAsync;
             Client.OnCallbackQuery += CallbackProcess;
@@ -41,7 +41,7 @@ namespace ChapubelichBot.Main.Chapubelich
             Console.WriteLine("StopReceiving...");
         }
 
-        private static async void DailyProcess()
+        private static async Task DailyProcessAsync()
         {
             IScheduler scheduler = await StdSchedulerFactory.GetDefaultScheduler();
             Task runScheduler = scheduler.Start();
@@ -77,9 +77,9 @@ namespace ChapubelichBot.Main.Chapubelich
             Task dailyResetTask = null;
             //reset data if not done before
             bool alreadyRestarted = false;
-            await using (var db = new ChapubelichdbContext())
+            await using (var dbContext = new ChapubelichdbContext())
             {
-                if (db.Configurations.First().LastResetTime > new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00))
+                if (dbContext.Configurations.First().LastResetTime > new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00))
                     alreadyRestarted = true;
             }
             if (!alreadyRestarted)
@@ -88,24 +88,25 @@ namespace ChapubelichBot.Main.Chapubelich
             //send compliments if not done before
             var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 00, 00);
             if (DateTime.Now > date)
-                await DailyComplimentJob.ExecuteManually(Client);
+                await DailyComplimentJob.ExecuteManuallyAsync(Client);
 
             if (dailyResetTask != null)
                 await dailyResetTask;
         }
-        private static async void RestoreData()
+        private static async Task RestoreDataAsync()
         {
             List<RouletteGameSession> gameSessionsToResume;
-            await using var db = new ChapubelichdbContext();
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             {
                 gameSessionsToResume =
-                   db.RouletteGameSessions
+                    await dbContext.RouletteGameSessions
                        .Include(gs => gs.ColorBetTokens)
                        .ThenInclude(bt => bt.User)
                        .Include(gs => gs.NumberBetTokens)
                        .ThenInclude(bt => bt.User)
                        .Where(gs => gs.Resulting)
-                       .ToList();
+                       .ToListAsync();
+                await Task.Delay(5000);
             }
 
             Parallel.ForEach(gameSessionsToResume,
@@ -123,9 +124,9 @@ namespace ChapubelichBot.Main.Chapubelich
 
             foreach (var messageProcessor in ChapubelichClient.BotMessageProcessorsList)
             {
-                if (await ChapubelichClient.AdminMessageProcessor.Execute(e.Message, Client))
+                if (await ChapubelichClient.AdminMessageProcessor.ExecuteAsync(e.Message, Client))
                     return;
-                if (await messageProcessor.Execute(e.Message, Client))
+                if (await messageProcessor.ExecuteAsync(e.Message, Client))
                     return;
             }
         }
@@ -133,7 +134,7 @@ namespace ChapubelichBot.Main.Chapubelich
         {
             foreach (var messageProcessor in ChapubelichClient.BotCallbackMessageProcessorsList)
             {
-                if (await messageProcessor.Execute(e.CallbackQuery, Client))
+                if (await messageProcessor.ExecuteAsync(e.CallbackQuery, Client))
                     return;
             }
         }

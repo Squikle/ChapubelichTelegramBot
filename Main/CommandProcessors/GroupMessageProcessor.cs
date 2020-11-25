@@ -10,17 +10,17 @@ namespace ChapubelichBot.Main.CommandProcessors
 {
     class GroupMessageProcessor : MessageProcessor
     {
-        public override async Task<bool> Execute(Message message, ITelegramBotClient client)
+        public override async Task<bool> ExecuteAsync(Message message, ITelegramBotClient client)
         {
             if (GlobalIgnored(message))
                 return true;
             if (IsResponsiveForMessageType(message.Type) && IsResponsiveForChatType(message.Chat.Type))
             {
-                Group group = await UpdateGroup(message, client);
+                Group group = await UpdateGroupAsync(message, client);
                 if (group == null)
                     return true;
                 bool isUserRegistered = IsMemberRegistered(message.From, group);
-                return await ProcessMessage(message, isUserRegistered, client);
+                return await ProcessMessageAsync(message, isUserRegistered, client);
             }
             return false;
         }
@@ -35,7 +35,7 @@ namespace ChapubelichBot.Main.CommandProcessors
             return chatType == ChatType.Group || chatType == ChatType.Supergroup;
         }
 
-        protected async Task<bool> ProcessMessage(Message message, bool isUserRegistered, ITelegramBotClient client)
+        protected async Task<bool> ProcessMessageAsync(Message message, bool isUserRegistered, ITelegramBotClient client)
         {
             if (message.Type != MessageType.Text)
                 return false;
