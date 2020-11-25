@@ -45,7 +45,14 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
             };
 
             await dbContext.Users.AddAsync(senderUser);
-            await dbContext.SaveChangesAsync();
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return;
+            }
             await client.TrySendTextMessageAsync(
                 query.Message.Chat.Id,
                 "Ты был успешно зарегестрирован!",
