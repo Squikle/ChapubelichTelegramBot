@@ -11,7 +11,7 @@ using User = ChapubelichBot.Types.Entities.User;
 
 namespace ChapubelichBot.Main.CommandProcessors
 {
-    class UserLeftMessageProcessor : MessageProcessor
+    class UserLeftMessageProcessor : TextMessageProcessor
     {
         public override async Task<bool> ExecuteAsync(Message message, ITelegramBotClient client)
         {

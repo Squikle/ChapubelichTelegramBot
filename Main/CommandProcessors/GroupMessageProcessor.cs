@@ -8,7 +8,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace ChapubelichBot.Main.CommandProcessors
 {
-    class GroupMessageProcessor : MessageProcessor
+    class GroupMessageProcessor : TextMessageProcessor
     {
         public override async Task<bool> ExecuteAsync(Message message, ITelegramBotClient client)
         {

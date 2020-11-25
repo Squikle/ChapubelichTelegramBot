@@ -26,7 +26,7 @@ namespace ChapubelichBot.Main.Chapubelich
             // Обработчики ----------------------------------------------------
             AdminMessageProcessor = new AdminMessageProcessor();
 
-            _botMessageProccessors = new List<MessageProcessor>
+            _botMessageProccessors = new List<TextMessageProcessor>
             {
                 new PrivateMessageProcessor(),
                 new GroupMessageProcessor(),
@@ -116,9 +116,9 @@ namespace ChapubelichBot.Main.Chapubelich
         public static IConfiguration GetKeys()
             => new ConfigurationBuilder().AddJsonFile("./Main/Config/Keys.json").Build();
             
-        public static MessageProcessor                          AdminMessageProcessor { get; private set; }
-        public static IReadOnlyList<MessageProcessor>           BotMessageProcessorsList => _botMessageProccessors.AsReadOnly();
-        private static List<MessageProcessor>                   _botMessageProccessors;
+        public static TextMessageProcessor                          AdminMessageProcessor { get; private set; }
+        public static IReadOnlyList<TextMessageProcessor>           BotMessageProcessorsList => _botMessageProccessors.AsReadOnly();
+        private static List<TextMessageProcessor>                   _botMessageProccessors;
         public static IReadOnlyList<CallbackMessageProcessor>   BotCallbackMessageProcessorsList =>_botCallbackMessageProcessors.AsReadOnly();
         private static List<CallbackMessageProcessor>           _botCallbackMessageProcessors;
 

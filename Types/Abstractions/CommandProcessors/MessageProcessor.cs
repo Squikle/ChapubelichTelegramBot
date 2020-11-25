@@ -2,39 +2,14 @@
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.Managers;
-using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace ChapubelichBot.Types.Abstractions.CommandProcessors
 {
     public abstract class MessageProcessor
     {
-        public abstract Task<bool> ExecuteAsync(Message message, ITelegramBotClient client);
-
-        protected static async Task SendRegistrationAlertAsync(Message message, ITelegramBotClient client)
-        {
-            if (message.Chat.Type == ChatType.Private)
-            {
-                await client.TrySendTextMessageAsync(
-                    message.Chat.Id,
-                    "Упс, кажется тебя нет в базе данных. Пожалуйста, пройди процесс регистрации: ",
-                    replyToMessageId: message.MessageId);
-                await ChapubelichClient.RegistrationCommand.ExecuteAsync(message, client);
-            }
-            else if (message.Chat.Type == ChatType.Group ||
-                     message.Chat.Type == ChatType.Supergroup)
-            {
-                await client.TrySendTextMessageAsync(
-                    message.Chat.Id,
-                    "Кажется, вы не зарегистрированы. Для регистрации обратитесь к боту в личные сообщения 💌",
-                    replyToMessageId: message.MessageId
-                );
-            }
-        }
         protected static async Task<Group> UpdateGroupAsync(Message message, ITelegramBotClient client)
         {
             Telegram.Bot.Types.User bot = await client.GetMeAsync();
@@ -55,7 +30,14 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
                     IsAvailable = true
                 };
                 await dbContext.Groups.AddAsync(group);
-                saveChangesRequired = true;
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    group = await dbContext.Groups.FirstOrDefaultAsync(g => g.GroupId == message.Chat.Id);
+                }
             }
 
             if (group.Name != message.Chat.Title)
@@ -98,10 +80,6 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
         protected bool IsMemberRegistered(Telegram.Bot.Types.User user, Group group)
         {
             return group.Users.Any(x => x.UserId == user.Id);
-        }
-        protected bool GlobalIgnored(Message message)
-        {
-            return message.ForwardFrom != null;
         }
     }
 }
