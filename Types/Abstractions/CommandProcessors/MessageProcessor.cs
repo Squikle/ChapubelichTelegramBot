@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities;
@@ -64,7 +65,15 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
             if (senderUser != null && group.Users.All(u => u.UserId != senderUser.UserId))
             {
                 group.Users.Add(senderUser);
-                saveChangesRequired = true;
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                    saveChangesRequired = false;
+                }
+                catch (DbUpdateException)
+                {
+                    Console.WriteLine("Повторное добавление юзера в группу");
+                }
             }
 
             if (saveChangesRequired)
