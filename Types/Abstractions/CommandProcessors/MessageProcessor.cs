@@ -37,6 +37,7 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
                 }
                 catch (DbUpdateException)
                 {
+                    Console.WriteLine("Повторное добавление группы");
                     group = await dbContext.Groups.FirstOrDefaultAsync(g => g.GroupId == message.Chat.Id);
                 }
             }

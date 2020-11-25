@@ -78,6 +78,8 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             }
             catch (DbUpdateException)
             {
+
+                Console.WriteLine("Повторное добавление юзера дня в группу");
                 return;
             }
 

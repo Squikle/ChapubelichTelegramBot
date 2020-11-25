@@ -66,6 +66,7 @@ namespace ChapubelichBot.Types.Managers
                 }
                 catch (DbUpdateException)
                 {
+                    Console.WriteLine("Повторное добавление сессии рулетки");
                     return;
                 }
             }
@@ -116,17 +117,15 @@ namespace ChapubelichBot.Types.Managers
             // Удаление сообщений и отправка результатов
             string result = await SummarizeAsync(gameSession);
 
-            if (await dbContext.RouletteGameSessions.ContainsAsync(gameSession))
+            dbContext.Remove(gameSession);
+            try
             {
-                dbContext.Remove(gameSession);
-                try
-                {
-                    await dbContext.SaveChangesAsync();
-                }
-                catch (DbUpdateException)
-                {
-                    return;
-                }
+                Console.WriteLine("Повторное удаление сессии рулетки");
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return;
             }
 
             Task deletingAnimationMessage = null;
@@ -676,17 +675,15 @@ namespace ChapubelichBot.Types.Managers
 
             await task;
 
-            if (await dbContext.RouletteGameSessions.ContainsAsync(gameSession))
+            dbContext.Remove(gameSession);
+            try
             {
-                dbContext.Remove(gameSession);
-                try
-                {
-                    await dbContext.SaveChangesAsync();
-                }
-                catch (DbUpdateException)
-                {
-                    return;
-                }
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                Console.WriteLine("Повторное удаление сессии рулетки");
+                return;
             }
 
             Task deletingAnimationMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);

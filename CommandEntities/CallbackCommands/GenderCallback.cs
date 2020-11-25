@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
@@ -51,6 +52,7 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
             }
             catch (DbUpdateException)
             {
+                Console.WriteLine("Повторное добавление юзера");
                 return;
             }
             await client.TrySendTextMessageAsync(
