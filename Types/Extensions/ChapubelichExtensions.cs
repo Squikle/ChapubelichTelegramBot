@@ -7,11 +7,6 @@ namespace ChapubelichBot.Types.Extensions
 {
     internal static class ChapubelichExtensions
     {
-        public static string ToMoneyFormat(this int moneySum)
-        {
-            return $"{moneySum:n0}";
-        }
-
         public static string ToMoneyFormat(this long moneySum)
         {
             return $"{moneySum:n0}";
@@ -20,11 +15,6 @@ namespace ChapubelichBot.Types.Extensions
         public static IEnumerable<T> TakeTopValues<T>(this IEnumerable<T> source, int count) where T : IComparable<T>
         {
             return source.OrderByDescending(x => x).Distinct().Take(count);
-        }
-
-        public static bool Remove<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> self, TKey key)
-        {
-            return ((IDictionary<TKey, TValue>) self).Remove(key);
         }
     }
 }
