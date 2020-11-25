@@ -35,7 +35,7 @@ namespace ChapubelichBot.Types.Managers
         public static void Init()
         {
             int periodToCollect = (int)TimeSpan.FromMinutes(1).TotalMilliseconds;
-            _deadSessionsCollector = new Timer(x => CollectDeadSessionsAsync(), null, periodToCollect, periodToCollect);
+            _deadSessionsCollector = new Timer(async _ => await CollectDeadSessionsAsync(), null, periodToCollect, periodToCollect);
         }
         public static void Terminate()
         {
