@@ -122,21 +122,17 @@ namespace ChapubelichBot.Main.Chapubelich
             if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
 
+            if (await ChapubelichClient.AdminMessageProcessor.ExecuteAsync(e.Message, Client))
+                return;
             foreach (var messageProcessor in ChapubelichClient.BotMessageProcessorsList)
-            {
-                if (await ChapubelichClient.AdminMessageProcessor.ExecuteAsync(e.Message, Client))
-                    return;
                 if (await messageProcessor.ExecuteAsync(e.Message, Client))
                     return;
-            }
         }
         private static async void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {
             foreach (var messageProcessor in ChapubelichClient.BotCallbackMessageProcessorsList)
-            {
-                if (await messageProcessor.ExecuteAsync(e.CallbackQuery, Client))
-                    return;
-            }
+            if (await messageProcessor.ExecuteAsync(e.CallbackQuery, Client))
+                return;
         }
     }
 }
