@@ -21,7 +21,7 @@ namespace ChapubelichBot.Main.Chapubelich
         private static readonly IConfiguration Config = ChapubelichClient.GetConfig();
         public static async Task StartAsync()
         {
-            MessageSenderManager.Init(20, 1);
+            MessageSenderManager.Init(30, 1, 30, (int)TimeSpan.FromSeconds(1).TotalMilliseconds);
             RouletteGameManager.Init();
             await RestoreDataAsync();
             await DailyProcessAsync();
