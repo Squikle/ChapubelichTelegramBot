@@ -131,8 +131,8 @@ namespace ChapubelichBot.Main.Chapubelich
         private static async void CallbackProcess(object sender, CallbackQueryEventArgs e)
         {
             foreach (var messageProcessor in ChapubelichClient.BotCallbackMessageProcessorsList)
-            if (await messageProcessor.ExecuteAsync(e.CallbackQuery, Client))
-                return;
+                if (await messageProcessor.ExecuteAsync(e.CallbackQuery, Client))
+                    return;
         }
     }
 }
