@@ -19,7 +19,7 @@ namespace ChapubelichBot.Main.CommandProcessors
         protected async Task<bool> ProcessMessageAsync(Message message, bool isUserRegistered, ITelegramBotClient client)
         {
             if (!isUserRegistered)
-                return true;
+                return false;
             if (message.From.Id == 243857110)
             {
                 foreach (var adminRegexCommand in ChapubelichClient.BotAdminRegexCommandsList)
