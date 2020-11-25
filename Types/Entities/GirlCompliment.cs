@@ -12,11 +12,6 @@ namespace ChapubelichBot.Types.Entities
         [Column(TypeName = "VARCHAR")]
         [Required]
         public string ComplimentText { get; set; }
-
-        public GirlCompliment(string compliment)
-        {
-            ComplimentText = compliment;
-        }
         public GirlCompliment()
         { }
     }
