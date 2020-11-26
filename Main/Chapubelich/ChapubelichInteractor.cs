@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ChapubelichBot.Types.Entities;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
+using ChapubelichBot.Types.Managers.MessagesSender.Limiters;
 using ChapubelichBot.Types.ScheduledJobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,7 @@ namespace ChapubelichBot.Main.Chapubelich
         private static readonly IConfiguration Config = ChapubelichClient.GetConfig();
         public static async Task StartAsync()
         {
-            MessageSenderManager.Init(30, 1, 30, (int)TimeSpan.FromSeconds(1).TotalMilliseconds);
+            MessageSenderManager.Init(new GlobalLimiter(30, 1), new ChatLimiter(30, 2));
             RouletteGameManager.Init();
             await RestoreDataAsync();
             await DailyProcessAsync();

@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
+using ChapubelichBot.Types.Managers.MessagesSender.Limiters;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -16,52 +17,27 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
 {
     static class MessageSenderManager
     {
-        private static int _globalLimitMessagesPerInterval;
-        private static int _globalLimitMessagesDelay;
+        private static int TryDelay => 250;
+        private static ChatLimiter _chatLimiter;
+        private static GlobalLimiter _globalLimiter;
 
-#pragma warning disable IDE0052, IDE0044
-        private static Timer _timer;
-        private static object _locker = new object();
-#pragma warning restore IDE0052, IDE0044
-
-        private static RelevantChats _relevantChats;
-        private static int _globalMessagesCounter;
-        private static bool _globalAvailable;
-
-        public static void Init(int chatLimitMessagesPerMinute, int chatLimitMessagesPerSecond, int globalLimitMessagesPerInterval, int globalLimitMessagesDelay)
+        public static void Init(GlobalLimiter globalLimiter, ChatLimiter chatLimiter)
         {
-            _globalLimitMessagesPerInterval = globalLimitMessagesPerInterval;
-            _globalLimitMessagesDelay = globalLimitMessagesDelay <= 0 ? 100 : globalLimitMessagesDelay;
-            _relevantChats = new RelevantChats(chatLimitMessagesPerMinute, chatLimitMessagesPerSecond);
-            _globalAvailable = true;
-            _timer = new Timer(t =>
-            {
-                lock (_locker)   
-                {
-                    _globalAvailable = true;
-                    _globalMessagesCounter = 0;
-                }
-            }, null, 0, _globalLimitMessagesDelay);
+            _chatLimiter = chatLimiter;
+            _globalLimiter = globalLimiter;
         }
         public static void Terminate()
-        {
-            _timer.Dispose();
+        {_globalLimiter.Dispose();
         }
 
         private static void RequestCreated(ChatId chatId)
         {
-            lock (_locker)
-            {
-                _relevantChats.MessageSended(chatId);
-                _globalMessagesCounter++;
-                if (_globalMessagesCounter >= _globalLimitMessagesPerInterval)
-                    _globalAvailable = false;
-            }
+            _chatLimiter.RequestCreated(chatId);
+            _globalLimiter.RequestCreated();
         }
         private static bool AvailableToSend(ChatId chatId)
         {
-            lock (_locker)
-                return _relevantChats.AvailableToSend(chatId) && _globalAvailable;
+            return _chatLimiter.IsAvailableToSend(chatId) && _globalLimiter.IsAvailableToSend();
         }
 
         private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
@@ -70,7 +46,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             bool muted = Muted != null ? Muted == true : disableNotification;
             Message message = null;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
@@ -87,7 +63,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
                     Console.WriteLine(
                         $"Не удалось отправить текстовое сообщение. ChatId: {chatId}\nОшибка: сообщение для ответа не найдено. Попробую отправить еще раз без ответа...");
                     while (!AvailableToSend(chatId))
-                        await Task.Delay(250);
+                        await Task.Delay(TryDelay);
                     RequestCreated(chatId);
                     message = await client.SendTextMessageAsync(
                         chatId, text, parseMode,
@@ -112,7 +88,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             bool muted = Muted != null ? Muted == true : disableNotification;
             Message message = default;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             try
             {
                 message = await client.ForwardMessageAsync(
@@ -137,7 +113,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             bool muted = Muted != null ? Muted == true : disableNotification;
             Message message = default;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
@@ -152,7 +128,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
                     Console.WriteLine(
                         $"Не удалось отправить стикер. ChatId: {chatId}\nОшибка: сообщение для ответа не найдено. Попробую отправить еще раз без ответа...");
                     while (!AvailableToSend(chatId))
-                        await Task.Delay(250);
+                        await Task.Delay(TryDelay);
                     RequestCreated(chatId);
                     message = await client.SendStickerAsync(
                         chatId, sticker, muted,
@@ -175,7 +151,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             bool muted = Muted != null ? Muted == true : disableNotification;
             Message message = default;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
@@ -188,7 +164,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
                     Console.WriteLine(
                         $"Не удалось отправить картинку. ChatId: {chatId}\nОшибка: сообщение для ответа не найдено. Попробую отправить еще раз без ответа...");
                     while (!AvailableToSend(chatId))
-                        await Task.Delay(250);
+                        await Task.Delay(TryDelay);
                     RequestCreated(chatId);
                     message = await client.SendPhotoAsync(chatId, photo, caption, parseMode, muted, 0, replyMarkup, cancellationToken);
                 }
@@ -209,7 +185,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             bool muted = Muted != null ? Muted == true : disableNotification;
             Message message = default;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
@@ -223,7 +199,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
                     Console.WriteLine(
                         $"Не удалось отправить видео. ChatId: {chatId}\nОшибка: сообщение для ответа не найдено. Попробую отправить еще раз без ответа...");
                     while (!AvailableToSend(chatId))
-                        await Task.Delay(250);
+                        await Task.Delay(TryDelay);
                     RequestCreated(chatId);
                     message = await client.SendVideoAsync(chatId, video, duration, width, height, caption, parseMode, 
                         supportsStreaming, muted, 0, replyMarkup, cancellationToken, thumb);
@@ -245,7 +221,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             bool muted = Muted != null ? Muted == true : disableNotification;
             Message message = default;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
@@ -259,7 +235,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
                     Console.WriteLine(
                         $"Не удалось отправить аудио. ChatId: {chatId}\nОшибка: сообщение для ответа не найдено. Попробую отправить еще раз без ответа...");
                     while (!AvailableToSend(chatId))
-                        await Task.Delay(250);
+                        await Task.Delay(TryDelay);
                     RequestCreated(chatId);
                     message = await client.SendAudioAsync(chatId, audio, caption, parseMode, 
                         duration, performer, title, muted, 0, replyMarkup, cancellationToken, thumb);
@@ -280,7 +256,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             bool muted = Muted != null ? Muted == true : disableNotification;
             Message message = default;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
@@ -294,7 +270,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
                     Console.WriteLine(
                         $"Не удалось отправить анимацию. ChatId: {chatId}\nОшибка: сообщение для ответа не найдено. Попробую отправить еще раз без ответа...");
                     while (!AvailableToSend(chatId))
-                        await Task.Delay(250);
+                        await Task.Delay(TryDelay);
                     RequestCreated(chatId);
                     message = await client.SendAnimationAsync(chatId, animation, duration, width, height, thumb, caption, parseMode,
                         muted, 0, replyMarkup, cancellationToken);
@@ -316,7 +292,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             bool muted = Muted != null ? Muted == true : disableNotification;
             Message message = default;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
@@ -331,7 +307,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
                     Console.WriteLine(
                         $"Не удалось отправить голосование. ChatId: {chatId}\nОшибка: сообщение для ответа не найдено. Попробую отправить еще раз без ответа...");
                     while (!AvailableToSend(chatId))
-                        await Task.Delay(250);
+                        await Task.Delay(TryDelay);
                     RequestCreated(chatId);
                     message = await client.SendPollAsync(chatId, question, options, muted, 0, replyMarkup, 
                         cancellationToken, isAnonymous, type, allowsMultipleAnswers, correctOptionId, isClosed, 
@@ -352,7 +328,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
         public static async Task<Message> TryEditMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, InlineKeyboardMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             Message message = default;
             try
@@ -379,7 +355,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
         {
             Message message = default;
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
@@ -404,7 +380,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
         public static async Task TryDeleteMessageAsync(this ITelegramBotClient client, ChatId chatId, int messageId, CancellationToken cancellationToken = default)
         {
             while (!AvailableToSend(chatId))
-                await Task.Delay(250);
+                await Task.Delay(TryDelay);
             RequestCreated(chatId);
             try
             {
