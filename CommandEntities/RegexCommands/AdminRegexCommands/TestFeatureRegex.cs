@@ -4,6 +4,7 @@ using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
+using ChapubelichBot.Types.ScheduledJobs;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -14,7 +15,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.AdminRegexCommands
         public override string Pattern => @"/102938test";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            List<Task> sendTasks = new List<Task>(100);
+            /*List<Task> sendTasks = new List<Task>(100);
             for (int i = 0; i < 100; i++)
             {
                 int mes = i;
@@ -22,7 +23,9 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.AdminRegexCommands
                 sendTasks.Add(task);
             }
 
-            await Task.WhenAll(sendTasks.ToArray());
+            await Task.WhenAll(sendTasks.ToArray());*/
+
+            await DailyResetJob.ExecuteManually();
         }
     }
 }
