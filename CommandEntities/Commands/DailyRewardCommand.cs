@@ -11,7 +11,7 @@ using User = ChapubelichBot.Types.Entities.User;
 
 namespace ChapubelichBot.CommandEntities.Commands
 {
-    class DailyReward : Command
+    class DailyRewardCommand : Command
     {
         public override string Name => "💵 Ежедневная награда";
 

@@ -53,7 +53,7 @@ namespace ChapubelichBot.Main.Chapubelich
                 new GenderSet(),
                 new DefaultBetSet(),
                 new ProfileInfo(),
-                new DailyReward(),
+                new DailyRewardCommand(),
 
                 new GamesList(),
                 new RouletteStart(),
