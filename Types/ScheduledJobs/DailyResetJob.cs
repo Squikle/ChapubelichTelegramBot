@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +17,19 @@ namespace ChapubelichBot.Types.ScheduledJobs
         {
             Console.WriteLine($"{DateTime.Now} дневной сброс...");
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-            foreach (var user in dbContext.Users)
+            foreach (var user in dbContext.Users.Include(u => u.DailyReward))
             {
                 user.Complimented = false;
-                user.DailyRewarded = false;
+                if (user.DailyReward != null)
+                {
+                    if (!user.DailyReward.Rewarded || user.DailyReward.Stage >= 6)
+                        dbContext.Remove(user.DailyReward);
+                    else
+                    {
+                        user.DailyReward.Rewarded = false;
+                        user.DailyReward.Stage++;
+                    }
+                }
             }
             (await dbContext.Configurations.FirstAsync()).LastResetTime = DateTime.Now;
             await dbContext.SaveChangesAsync();

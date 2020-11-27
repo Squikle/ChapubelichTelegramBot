@@ -7,6 +7,7 @@ namespace ChapubelichBot.Types.Entities
         [Key]
         public int UserId { get; set; }
         public int Stage { get; set; }
+        [ConcurrencyCheck]
         public bool Rewarded { get; set; }
         public User User { get; set; }
     }
