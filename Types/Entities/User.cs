@@ -17,9 +17,9 @@ namespace ChapubelichBot.Types.Entities
         public short DefaultBet { get; set; }
         public bool Complimented { get; set; }
         public bool ComplimentSubscription { get; set; }
-        public bool DailyRewarded { get; set; }
         public DateTime LastMoneyTheft { get; set; }
         public List<int> LastGameSessions { get; set; }
+        public DailyReward DailyReward { get; set; }
 
         public List<Group> Groups { get; set; }
 
@@ -31,7 +31,6 @@ namespace ChapubelichBot.Types.Entities
             Gender = true;
             DefaultBet = 50;
             Complimented = false;
-            DailyRewarded = false;
         }
     }
 }
