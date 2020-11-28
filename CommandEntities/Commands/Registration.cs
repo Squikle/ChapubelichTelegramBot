@@ -14,7 +14,7 @@ namespace ChapubelichBot.CommandEntities.Commands
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             await client.TrySendTextMessageAsync(message.Chat.Id,
-            "Пожалуйста, укажите свой пол:",
+            "Пожалуйста, укажи свой пол:",
             replyMarkup: InlineKeyboards.GenderChooseMarkup);
         }
     }
