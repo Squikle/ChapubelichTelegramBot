@@ -84,7 +84,7 @@ namespace ChapubelichBot.Main.Chapubelich
                     alreadyRestarted = true;
             }
             if (!alreadyRestarted)
-                dailyResetTask = DailyResetJob.ExecuteManually();
+                dailyResetTask = DailyResetJob.ExecuteManuallyAsync();
 
             //send compliments if not done before
             var date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 00, 00);

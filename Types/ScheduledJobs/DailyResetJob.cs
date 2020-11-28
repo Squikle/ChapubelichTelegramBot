@@ -11,9 +11,9 @@ namespace ChapubelichBot.Types.ScheduledJobs
     {
         public async Task Execute(IJobExecutionContext context)
         {
-            await ExecuteManually();
+            await ExecuteManuallyAsync();
         }
-        public static async Task ExecuteManually()
+        public static async Task ExecuteManuallyAsync()
         {
             Console.WriteLine($"{DateTime.Now} дневной сброс...");
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
