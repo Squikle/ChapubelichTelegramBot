@@ -20,7 +20,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 {
     class PersonRollRegex : RegexCommand
     {
-        public override string Pattern => @"^(?:!|\/) *(.*[^ ]) *дня\??(@ChapubelichBot)?$";
+        public override string Pattern => @"^(?:!|\/) *(.*[^ ]) +дня\??(@ChapubelichBot)?$";
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
