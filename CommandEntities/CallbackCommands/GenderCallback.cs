@@ -25,20 +25,20 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
 
             User senderUser = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == query.From.Id);
 
-            Task deletingMessage = client.TryDeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId);
-
+            string result;
             if (senderUser != null)
-                await ChangeSettingsAsync(query, dbContext, client, senderUser, choosenGender);
+                result = await ChangeSettingsAsync(dbContext, senderUser, choosenGender);
             else
-                await RegisterUserAsync(query, dbContext, client, choosenGender);
+                result = await RegisterUserAsync(query, dbContext, choosenGender);
 
-            await deletingMessage;
+            if (!string.IsNullOrEmpty(result))
+                await client.TryEditMessageAsync(query.Message.Chat.Id, query.Message.MessageId, result);
         }
 
-        private async Task RegisterUserAsync(CallbackQuery query, ChapubelichdbContext dbContext, ITelegramBotClient client,
+        private async Task<string> RegisterUserAsync(CallbackQuery query, ChapubelichdbContext dbContext,
             bool choosenGender)
         {
-            User senderUser = new User()
+            User senderUser = new User
             {
                 Gender = choosenGender,
                 Username = query.From.Username,
@@ -53,25 +53,18 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands
             catch (DbUpdateException)
             {
                 Console.WriteLine("Повторное добавление юзера");
-                return;
+                return null;
             }
-            await client.TrySendTextMessageAsync(
-                query.Message.Chat.Id,
-                "Ты был успешно зарегестрирован!",
-                replyMarkup: ReplyKeyboards.MainMarkup
-            );
+
+            return "Ты был успешно зарегестрирован!";
         }
 
-        private async Task ChangeSettingsAsync(CallbackQuery query, ChapubelichdbContext dbContext, ITelegramBotClient client,
+        private async Task<string> ChangeSettingsAsync(ChapubelichdbContext dbContext,
             User senderUser, bool choosenGender)
         {
-
             senderUser.Gender = choosenGender;
             await dbContext.SaveChangesAsync();
-            await client.TrySendTextMessageAsync(
-                query.Message.Chat.Id,
-                "Настройки успешно сохранены!",
-                replyMarkup: ReplyKeyboards.SettingsMarkup);
+            return "Настройки успешно сохранены!";
         }
     }
 }
