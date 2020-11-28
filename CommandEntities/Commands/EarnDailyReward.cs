@@ -4,24 +4,21 @@ using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Microsoft.Extensions.Configuration;
 using User = ChapubelichBot.Types.Entities.User;
 
 namespace ChapubelichBot.CommandEntities.Commands
 {
-    class DailyRewardCommand : Command
+    class EarnDailyReward : Command
     {
         public override string Name => "💵 Ежедневная награда";
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             User user;
-            int configDailyReward = ChapubelichClient.GetConfig().GetValue<int>("AppSettings:DailyReward");
             int dailyRewardSum;
 
             await using (var dbContext = new ChapubelichdbContext())
@@ -52,7 +49,8 @@ namespace ChapubelichBot.CommandEntities.Commands
                 {
                     await client.TrySendTextMessageAsync(
                             message.Chat.Id,
-                            $"<i><a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a></i>, ты уже получил ежедневную награду. Забери новую награду завтра 😉",
+                            $"<i><a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a></i>, ты уже забрал сегодняшнюю награду.\nПриходи завтра! 😉\n" +
+                            $"{GetRewardsProgress(user.DailyReward.Stage)}",
                             replyToMessageId: message.MessageId,
                             parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
                     return;
@@ -76,7 +74,8 @@ namespace ChapubelichBot.CommandEntities.Commands
 
             await client.TrySendTextMessageAsync(
             message.Chat.Id,
-            $"<i><a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a></i>, ты получил <b>{dailyRewardSum}</b> 💵",
+            $"<i><a href=\"tg://user?id={user.UserId}\">{message.From.FirstName}</a></i>, {(user.DailyReward.Stage == 6 ? "Ура!🥳 Ты получил максимальную награду" : "ты получил")} <b>{dailyRewardSum}</b> 💵\n" +
+            $"{GetRewardsProgress(user.DailyReward.Stage)}",
             replyToMessageId: message.MessageId,
             parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
         }
@@ -90,6 +89,21 @@ namespace ChapubelichBot.CommandEntities.Commands
             int dailyAdition = 50;
 
             return min + stage * dailyAdition;
+        }
+
+        private string GetRewardsProgress(int stage)
+        {
+            return stage switch
+            {
+                0 => "🟢->⭕️->⭕️->⭕️->⭕️->⭕️->💎",
+                1 => "🟢->🟢->⭕️->⭕️->⭕️->⭕️->💎",
+                2 => "🟢->🟢->🟢->⭕️->⭕️->⭕️->💎",
+                3 => "🟢->🟢->🟢->🟢->⭕️->⭕️->💎",
+                4 => "🟢->🟢->🟢->🟢->🟢->⭕️->💎",
+                5 => "🟢->🟢->🟢->🟢->🟢->🟢->💎",
+                6 => "🟢->🟢->🟢->🟢->🟢->🟢->💎 ✅",
+                _ => throw new Exception("Only 6 DailyReward stages allowed")
+            };
         }
     }
 }
