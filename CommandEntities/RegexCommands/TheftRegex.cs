@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
+using ChapubelichBot.Types.Entities;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
@@ -27,7 +28,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 return;
 
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-            var thief = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id); 
+            var thief = await dbContext.Users.Include(u => u.UserTheft).FirstOrDefaultAsync(x => x.UserId == message.From.Id); 
             var theftFrom = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == markedUser.Id);
 
             if (theftFrom == null)
@@ -44,7 +45,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             if (thief == null)
                 return;
-            if (thief.LastMoneyTheft.AddSeconds(config.GetValue<int>("AppSettings:TheftCoolDownDuration")) > DateTime.UtcNow)
+            if (thief.UserTheft != null && thief.UserTheft.LastMoneyTheft.AddSeconds(config.GetValue<int>("AppSettings:TheftCoolDownDuration")) > DateTime.UtcNow)
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
@@ -166,8 +167,26 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             if (string.IsNullOrEmpty(resultMessage))
                 return;
 
-            thief.LastMoneyTheft = DateTime.UtcNow;
-            await dbContext.SaveChangesAsync();
+            thief.UserTheft ??= new UserTheft
+            {
+                User = thief
+            };
+            thief.UserTheft.LastMoneyTheft = DateTime.UtcNow;
+
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                Console.WriteLine("Повторная попытка украсть деньги");
+                return;
+            }
+            catch (DbUpdateException)
+            {
+                Console.WriteLine("Повторное добавление вора");
+                return;
+            }
             
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,

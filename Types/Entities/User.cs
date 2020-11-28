@@ -17,9 +17,10 @@ namespace ChapubelichBot.Types.Entities
         public short DefaultBet { get; set; }
         public bool Complimented { get; set; }
         public bool ComplimentSubscription { get; set; }
-        public DateTime LastMoneyTheft { get; set; }
         public List<int> LastGameSessions { get; set; }
+
         public DailyReward DailyReward { get; set; }
+        public UserTheft UserTheft { get; set; }
 
         public List<Group> Groups { get; set; }
 
