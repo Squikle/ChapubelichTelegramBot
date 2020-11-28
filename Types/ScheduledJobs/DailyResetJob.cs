@@ -17,9 +17,12 @@ namespace ChapubelichBot.Types.ScheduledJobs
         {
             Console.WriteLine($"{DateTime.Now} дневной сброс...");
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-            foreach (var user in dbContext.Users.Include(u => u.DailyReward))
+            foreach (var user in dbContext.Users
+                .Include(u => u.DailyReward)
+                .Include(u => u.UserCompliment))
             {
-                user.Complimented = false;
+                if (user.UserCompliment != null)   
+                    user.UserCompliment.Praised = false;
                 if (user.DailyReward != null)
                 {
                     if (!user.DailyReward.Rewarded || user.DailyReward.Stage >= 6)

@@ -6,6 +6,7 @@ using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities;
 using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
+using Microsoft.EntityFrameworkCore;
 using Quartz;
 using Telegram.Bot;
 
@@ -28,17 +29,13 @@ namespace ChapubelichBot.Types.ScheduledJobs
 
             await using (var dbContext = new ChapubelichdbContext())
             {
-                var complimentingUsersDatabase = dbContext.Users.Where(x => x.ComplimentSubscription && !x.Complimented);
+                var complimentingUsersQuery = dbContext.Users
+                    .Include(u => u.UserCompliment)
+                    .Where(u => u.UserCompliment != null && !u.UserCompliment.Praised);
 
-                complimentingUsers = complimentingUsersDatabase.ToArray();
+                complimentingUsers = complimentingUsersQuery.ToArray();
                 if (complimentingUsers.Length <= 0)
                     return;
-
-                foreach (var user in complimentingUsersDatabase)
-                {
-                    user.Complimented = true;
-                }
-                await dbContext.SaveChangesAsync();
 
                 if (complimentingUsers.Any(x => x.Gender))
                     boyCompliments = dbContext.BoyCompliments.Select(x => x.ComplimentText).ToArray();
@@ -71,6 +68,18 @@ namespace ChapubelichBot.Types.ScheduledJobs
 
             Parallel.ForEach(userCompliments, async uc =>
                 await client.TrySendTextMessageAsync(uc.Key, $"🎉Твой комплимент дня🎉\n{uc.Value}"));
+
+            await using (var dbContext = new ChapubelichdbContext())
+            {
+                foreach (var user in dbContext.Users
+                    .Include(u => u.UserCompliment)
+                    .Where(u => userCompliments.Keys.Contains(u.UserId)))
+                {
+                    user.UserCompliment.Praised = true;
+                }
+
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 }

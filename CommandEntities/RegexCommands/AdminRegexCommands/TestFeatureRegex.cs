@@ -26,6 +26,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.AdminRegexCommands
             await Task.WhenAll(sendTasks.ToArray());*/
 
             await DailyResetJob.ExecuteManually();
+            await DailyComplimentJob.ExecuteManuallyAsync(client);
         }
     }
 }
