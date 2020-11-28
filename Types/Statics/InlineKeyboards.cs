@@ -9,6 +9,7 @@ namespace ChapubelichBot.Types.Statics
             InlineKeyboardButton.WithCallbackData("М\U00002642", "Male"),
             InlineKeyboardButton.WithCallbackData("Ж\U00002640", "Female")
         });
+
         public static InlineKeyboardMarkup ComplimentSubscriptionChooseMarkup = new InlineKeyboardMarkup(new[]
         {
             InlineKeyboardButton.WithCallbackData("Выключить\U0001F494", "DisableCompliments"),
@@ -66,6 +67,11 @@ namespace ChapubelichBot.Types.Statics
                     {
                         InlineKeyboardButton.WithCallbackData("❌Отмена ставок❌", "rouletteBetsCancel"),
                     }
+        });
+
+        public static InlineKeyboardMarkup CrocodileRegistration = new InlineKeyboardMarkup(new[]
+        {
+            InlineKeyboardButton.WithCallbackData("Быть ведущим\U0001F451", "hostCrocodile")
         });
     }
 }
