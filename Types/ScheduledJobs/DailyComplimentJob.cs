@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.Managers;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
