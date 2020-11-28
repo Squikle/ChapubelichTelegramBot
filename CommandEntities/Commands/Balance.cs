@@ -7,6 +7,7 @@ using Telegram.Bot.Types;
 using User = ChapubelichBot.Types.Entities.User;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Managers.MessagesSender;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChapubelichBot.CommandEntities.Commands
 {
@@ -18,7 +19,7 @@ namespace ChapubelichBot.CommandEntities.Commands
             User user;
             await using (var dbContext = new ChapubelichdbContext())
             {
-                user = dbContext.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+                user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id);
             }
 
             if (user != null)

@@ -23,7 +23,7 @@ namespace ChapubelichBot.CommandEntities.Commands
 
             await using (var dbContext = new ChapubelichdbContext())
             {
-                user = dbContext.Users.Include(u => u.DailyReward).FirstOrDefault(x => x.UserId == message.From.Id);
+                user = await dbContext.Users.Include(u => u.DailyReward).FirstOrDefaultAsync(x => x.UserId == message.From.Id);
                 if (user == null)
                     return;
                 if (user.DailyReward == null)

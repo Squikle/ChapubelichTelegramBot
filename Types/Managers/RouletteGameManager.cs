@@ -110,7 +110,7 @@ namespace ChapubelichBot.Types.Managers
 
             if (chat != null)
             {
-                UpdateLog(gameSession, dbContext, chat.Type);
+                await UpdateLogAsync(gameSession, dbContext, chat.Type);
                 await dbContext.SaveChangesAsync();
             }
 
@@ -670,7 +670,7 @@ namespace ChapubelichBot.Types.Managers
             Task task = Task.Delay(animationDuration >= maxLimitAnimationDuration ? maxLimitAnimationDuration : animationDuration);
 
             // Удаление сообщений и отправка результатов
-            UpdateLog(gameSession, dbContext, chatType);
+            await UpdateLogAsync(gameSession, dbContext, chatType);
             string result = await SummarizeAsync(gameSession);
 
             await task;
@@ -777,12 +777,12 @@ namespace ChapubelichBot.Types.Managers
                     .Contains(gameSession.ResultNumber)).ToList();
         }
 
-        private static void UpdateLog(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType chatType)
+        private static async Task UpdateLogAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType chatType)
         {
             if (chatType == ChatType.Private)
             {
-                User user = dbContext.Users
-                    .FirstOrDefault(u => u.UserId == gameSession.ChatId);
+                User user = await dbContext.Users
+                    .FirstOrDefaultAsync(u => u.UserId == gameSession.ChatId);
                 if (user != null)
                 {
                     List<int> lastGameSessionsResults = user.LastGameSessions ??= new List<int>(1);
@@ -793,8 +793,8 @@ namespace ChapubelichBot.Types.Managers
             }
             else
             {
-                Group group = dbContext.Groups
-                    .FirstOrDefault(g => g.GroupId == gameSession.ChatId);
+                Group group = await dbContext.Groups
+                    .FirstOrDefaultAsync(g => g.GroupId == gameSession.ChatId);
                 if (group != null)
                 {
                     List<int> lastGameSessionsResults = group.LastGameSessions ??= new List<int>(1);

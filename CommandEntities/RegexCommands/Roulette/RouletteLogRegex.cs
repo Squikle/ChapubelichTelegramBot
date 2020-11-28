@@ -25,7 +25,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
             int[] lastGameSessions;
             if (message.Chat.Type == ChatType.Private)
             {
-                User user = dbContext.Users.FirstOrDefault(x => x.UserId == message.From.Id);
+                User user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id);
                 if (user == null)
                     return;
                 if (user.LastGameSessions != null)
