@@ -9,6 +9,11 @@ namespace ChapubelichBot.Types.Statics
             InlineKeyboardButton.WithCallbackData("М\U00002642", "Male"),
             InlineKeyboardButton.WithCallbackData("Ж\U00002640", "Female")
         });
+        public static InlineKeyboardMarkup ComplimentSubscriptionChooseMarkup = new InlineKeyboardMarkup(new[]
+        {
+            InlineKeyboardButton.WithCallbackData("Выключить\U0001F494", "DisableCompliments"),
+            InlineKeyboardButton.WithCallbackData("Включить\U0001F49A", "EnableCompliments")
+        });
 
         public static InlineKeyboardMarkup DefaultBetChooseMarkup = new InlineKeyboardMarkup(new[]
         {

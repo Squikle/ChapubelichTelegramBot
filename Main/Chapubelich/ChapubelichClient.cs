@@ -51,6 +51,7 @@ namespace ChapubelichBot.Main.Chapubelich
                 new Help(),
                 new SettingsList(),
                 new GenderSet(),
+                new ComplimentSubscription(),
                 new DefaultBetSet(),
                 new ProfileInfo(),
                 new EarnDailyReward(),
@@ -71,6 +72,7 @@ namespace ChapubelichBot.Main.Chapubelich
                 new BetNumbersCallback(),
                 new RouletteRollCallback(),
                 new BetCancelCallback(),
+                new ComplimentSubscriptionCallback()
             };
             _botRegexCommands = new List<RegexCommand>
             {

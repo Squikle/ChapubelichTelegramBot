@@ -56,7 +56,8 @@ namespace ChapubelichBot.Types.Statics
                     },
                     new[]
                     {
-                        new KeyboardButton("⚥  Сменить пол")
+                        new KeyboardButton("⚥  Сменить пол"),
+                        new KeyboardButton("🙌 Комплимент дня"),
                     },
                     new[]
                     {
