@@ -6,6 +6,7 @@
     <RootNamespace>ChapubelichBot</RootNamespace>
     <AssemblyName>ChapubelichBot</AssemblyName>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
