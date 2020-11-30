@@ -71,7 +71,7 @@ namespace ChapubelichBot.Types.Statics
 
         public static InlineKeyboardMarkup CrocodileRegistration = new InlineKeyboardMarkup(new[]
         {
-            InlineKeyboardButton.WithCallbackData("Быть ведущим\U0001F451", "hostCrocodile")
+            InlineKeyboardButton.WithCallbackData("Быть ведущим\U0001F451", "hostCrocodileRequest")
         });
     }
 }
