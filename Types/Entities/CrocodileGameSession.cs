@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ChapubelichBot.Types.Entities
@@ -11,5 +12,6 @@ namespace ChapubelichBot.Types.Entities
         public int GameMessageId { get; set; }
         public List<User> HostCandidates { get; set; }
         public User Host { get; set; }
+        public DateTime LastActivity { get; set; }
     }
 }
