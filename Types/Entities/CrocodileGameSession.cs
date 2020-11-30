@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ChapubelichBot.Types.Entities
 {
-    class CrocodileGameSession
+    public class CrocodileGameSession
     {
         [Key]
         public long ChatId { get; set; }
