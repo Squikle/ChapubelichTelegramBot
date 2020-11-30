@@ -52,12 +52,18 @@ namespace ChapubelichBot.Main.Chapubelich
             modelBuilder.Entity<RouletteGameSession>()
                 .OwnsMany(gs => gs.NumberBetTokens);
 
+            modelBuilder.Entity<CrocodileGameSession>()
+                .OwnsMany(gs => gs.HostCandidates);
+            modelBuilder.Entity<CrocodileGameSession>()
+                .OwnsOne(gs => gs.Host);
+
             modelBuilder
                 .Entity<Group>()
                 .HasOne(g => g.GroupDailyPerson)
                 .WithOne(gpd => gpd.Group)
                 .HasForeignKey<GroupDailyPerson>(gpd => gpd.GroupId)
                 .OnDelete(DeleteBehavior.SetNull);
+
 
             modelBuilder.Entity<GroupDailyPerson>().HasOne(gdp => gdp.User);
         }
@@ -68,5 +74,6 @@ namespace ChapubelichBot.Main.Chapubelich
         public DbSet<GirlCompliment> GirlCompliments { get; set; }
         public DbSet<Configuration> Configurations { get; set; }
         public DbSet<RouletteGameSession> RouletteGameSessions { get; set; }
+        public DbSet<CrocodileGameSession> CrocodileGameSessions { get; set; }
     }
 }
