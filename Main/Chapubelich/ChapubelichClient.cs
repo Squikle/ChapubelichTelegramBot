@@ -68,6 +68,7 @@ namespace ChapubelichBot.Main.Chapubelich
             _botCallbackMessages = new List<CallbackCommand>
             {
                 new CrocodileHostCandidacyCallback(),
+                new CrocodileChooseWordCallback(),
                 new DefaultBetChangeCallbackMessage(),
                 new RouletteStartCallbackCommand(),
                 new BetColorCallback(),
