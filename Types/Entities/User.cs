@@ -21,11 +21,14 @@ namespace ChapubelichBot.Types.Entities
         public UserCompliment UserCompliment { get; set; }
 
         public List<Group> Groups { get; set; }
-        public List<CrocodileGameSession> HostingRequestedCrocodile { get; set; }
+
+        public List<CrocodileGameSession> HostingSessionRequests { get; set; }
+        public List<CrocodileHostingRegistration> CrocodileHostingRegistrations { get; set; }
 
         public User()
         {
-            HostingRequestedCrocodile = new List<CrocodileGameSession>();
+            HostingSessionRequests = new List<CrocodileGameSession>();
+            CrocodileHostingRegistrations = new List<CrocodileHostingRegistration>();
             Groups = new List<Group>();
             LastGameSessions = new List<int>();
             Balance = 300;

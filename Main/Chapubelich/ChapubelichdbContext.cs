@@ -59,12 +59,31 @@ namespace ChapubelichBot.Main.Chapubelich
                 .HasForeignKey<GroupDailyPerson>(gpd => gpd.GroupId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.HostingRequestedCrocodile)
-                .WithMany(gs => gs.HostCandidates);
-
             modelBuilder.Entity<CrocodileGameSession>()
                 .HasOne(gs => gs.Host);
+            modelBuilder.Entity<CrocodileGameSession>()
+                .HasOne(gs => gs.Group)
+                .WithOne(g => g.CrocodileGameSession);
+
+            modelBuilder
+                .Entity<CrocodileGameSession>()
+                .HasMany(gs => gs.HostingCandidates)
+                .WithMany(hc => hc.HostingSessionRequests)
+                .UsingEntity<CrocodileHostingRegistration>(
+                j => j
+                    .HasOne(chr => chr.Candidate)
+                    .WithMany(c => c.CrocodileHostingRegistrations)
+                    .HasForeignKey(chc => chc.CandidateId),
+                j => j
+                    .HasOne(chr => chr.CrocodileGameSession)
+                    .WithMany(gs => gs.CrocodileHostingRegistrations)
+                    .HasForeignKey(chr => chr.CrocodileGameSessionId),
+                j =>
+                {
+                    j.Property(chg => chg.RegistrationTime).HasDefaultValueSql("timezone('utc', now())");
+                    j.ToTable("CrocodileHostingRegistrations");
+                }
+            );
 
             modelBuilder.Entity<GroupDailyPerson>().HasOne(gdp => gdp.User);
         }

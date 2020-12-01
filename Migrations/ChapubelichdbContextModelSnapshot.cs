@@ -55,13 +55,17 @@ namespace ChapubelichBot.Migrations
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileGameSession", b =>
                 {
-                    b.Property<long>("ChatId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .UseIdentityByDefaultColumn();
+                    b.Property<long>("GroupId")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("GameMessageId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("GameMessageText")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GameWord")
+                        .HasColumnType("text");
 
                     b.Property<int?>("HostUserId")
                         .HasColumnType("integer");
@@ -69,14 +73,38 @@ namespace ChapubelichBot.Migrations
                     b.Property<DateTime>("LastActivity")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Word")
-                        .HasColumnType("text");
+                    b.Property<bool>("Started")
+                        .HasColumnType("boolean");
 
-                    b.HasKey("ChatId");
+                    b.Property<string[]>("WordVariants")
+                        .HasMaxLength(50)
+                        .HasColumnType("text[]");
+
+                    b.HasKey("GroupId");
 
                     b.HasIndex("HostUserId");
 
                     b.ToTable("CrocodileGameSessions");
+                });
+
+            modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileHostingRegistration", b =>
+                {
+                    b.Property<int>("CandidateId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("CrocodileGameSessionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("RegistrationTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("timezone('utc', now())");
+
+                    b.HasKey("CandidateId", "CrocodileGameSessionId");
+
+                    b.HasIndex("CrocodileGameSessionId");
+
+                    b.ToTable("CrocodileHostingRegistrations");
                 });
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.DailyReward", b =>
@@ -239,21 +267,6 @@ namespace ChapubelichBot.Migrations
                     b.ToTable("UserTheft");
                 });
 
-            modelBuilder.Entity("CrocodileGameSessionUser", b =>
-                {
-                    b.Property<int>("HostCandidatesUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("HostingRequestedCrocodileChatId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("HostCandidatesUserId", "HostingRequestedCrocodileChatId");
-
-                    b.HasIndex("HostingRequestedCrocodileChatId");
-
-                    b.ToTable("CrocodileGameSessionUser");
-                });
-
             modelBuilder.Entity("GroupUser", b =>
                 {
                     b.Property<long>("GroupsGroupId")
@@ -271,11 +284,38 @@ namespace ChapubelichBot.Migrations
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileGameSession", b =>
                 {
+                    b.HasOne("ChapubelichBot.Types.Entities.Group", "Group")
+                        .WithOne("CrocodileGameSession")
+                        .HasForeignKey("ChapubelichBot.Types.Entities.CrocodileGameSession", "GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ChapubelichBot.Types.Entities.User", "Host")
                         .WithMany()
                         .HasForeignKey("HostUserId");
 
+                    b.Navigation("Group");
+
                     b.Navigation("Host");
+                });
+
+            modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileHostingRegistration", b =>
+                {
+                    b.HasOne("ChapubelichBot.Types.Entities.User", "Candidate")
+                        .WithMany("CrocodileHostingRegistrations")
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChapubelichBot.Types.Entities.CrocodileGameSession", "CrocodileGameSession")
+                        .WithMany("CrocodileHostingRegistrations")
+                        .HasForeignKey("CrocodileGameSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
+
+                    b.Navigation("CrocodileGameSession");
                 });
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.DailyReward", b =>
@@ -411,21 +451,6 @@ namespace ChapubelichBot.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CrocodileGameSessionUser", b =>
-                {
-                    b.HasOne("ChapubelichBot.Types.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("HostCandidatesUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ChapubelichBot.Types.Entities.CrocodileGameSession", null)
-                        .WithMany()
-                        .HasForeignKey("HostingRequestedCrocodileChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("GroupUser", b =>
                 {
                     b.HasOne("ChapubelichBot.Types.Entities.Group", null)
@@ -441,13 +466,22 @@ namespace ChapubelichBot.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileGameSession", b =>
+                {
+                    b.Navigation("CrocodileHostingRegistrations");
+                });
+
             modelBuilder.Entity("ChapubelichBot.Types.Entities.Group", b =>
                 {
+                    b.Navigation("CrocodileGameSession");
+
                     b.Navigation("GroupDailyPerson");
                 });
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.User", b =>
                 {
+                    b.Navigation("CrocodileHostingRegistrations");
+
                     b.Navigation("DailyReward");
 
                     b.Navigation("UserCompliment");
