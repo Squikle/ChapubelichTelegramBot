@@ -13,5 +13,10 @@ namespace ChapubelichBot.Types.Entities
         public ICollection<User> HostCandidates { get; set; }
         public User Host { get; set; }
         public DateTime LastActivity { get; set; }
+
+        public CrocodileGameSession()
+        {
+            HostCandidates = new LinkedList<User>();
+        }
     }
 }

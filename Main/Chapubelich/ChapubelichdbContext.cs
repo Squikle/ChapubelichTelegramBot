@@ -59,6 +59,12 @@ namespace ChapubelichBot.Main.Chapubelich
                 .HasForeignKey<GroupDailyPerson>(gpd => gpd.GroupId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.HostingRequestedCrocodile)
+                .WithMany(gs => gs.HostCandidates);
+
+            modelBuilder.Entity<CrocodileGameSession>()
+                .HasOne(gs => gs.Host);
 
             modelBuilder.Entity<GroupDailyPerson>().HasOne(gdp => gdp.User);
         }
