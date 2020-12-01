@@ -52,11 +52,6 @@ namespace ChapubelichBot.Main.Chapubelich
             modelBuilder.Entity<RouletteGameSession>()
                 .OwnsMany(gs => gs.NumberBetTokens);
 
-            modelBuilder.Entity<CrocodileGameSession>()
-                .OwnsMany(gs => gs.HostCandidates);
-            modelBuilder.Entity<CrocodileGameSession>()
-                .OwnsOne(gs => gs.Host);
-
             modelBuilder
                 .Entity<Group>()
                 .HasOne(g => g.GroupDailyPerson)
