@@ -6,6 +6,7 @@ using ChapubelichBot.CommandEntities.Commands;
 using ChapubelichBot.CommandEntities.Commands.Admin;
 using ChapubelichBot.CommandEntities.RegexCommands;
 using ChapubelichBot.CommandEntities.RegexCommands.AdminRegexCommands;
+using ChapubelichBot.CommandEntities.RegexCommands.Crocodile;
 using ChapubelichBot.CommandEntities.RegexCommands.Roulette;
 using ChapubelichBot.Main.CommandProcessors;
 using ChapubelichBot.Types.Abstractions.CommandProcessors;
@@ -66,6 +67,7 @@ namespace ChapubelichBot.Main.Chapubelich
             };
             _botCallbackMessages = new List<CallbackCommand>
             {
+                new CrocodileHostCandidacyCallback(),
                 new DefaultBetChangeCallbackMessage(),
                 new RouletteStartCallbackCommand(),
                 new BetColorCallback(),
@@ -83,6 +85,8 @@ namespace ChapubelichBot.Main.Chapubelich
                 new BetInfoRegex(),
                 new BetNumberRegex(),
                 new RouletteLogRegex(),
+
+                new CrocodileStartRegex(),
 
                 new BalanceRegex(),
                 new TransferRegex(),
