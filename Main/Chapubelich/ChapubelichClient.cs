@@ -62,6 +62,7 @@ namespace ChapubelichBot.Main.Chapubelich
             };
             _botGroupRegexCommands = new List<RegexCommand>
             {
+                new CrocodileStartRegex(),
                 new TopChatBalanceRegex(),
                 new PersonRollRegex(),
             };
@@ -86,8 +87,6 @@ namespace ChapubelichBot.Main.Chapubelich
                 new BetInfoRegex(),
                 new BetNumberRegex(),
                 new RouletteLogRegex(),
-
-                new CrocodileStartRegex(),
 
                 new BalanceRegex(),
                 new TransferRegex(),
