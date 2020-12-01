@@ -1,4 +1,5 @@
-﻿using Telegram.Bot.Types.ReplyMarkups;
+﻿using System.Collections.Generic;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ChapubelichBot.Types.Statics
 {
@@ -69,9 +70,28 @@ namespace ChapubelichBot.Types.Statics
                     }
         });
 
-        public static InlineKeyboardMarkup CrocodileRegistration = new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup CrocodileRegistrationMarkup = new InlineKeyboardMarkup(new[]
         {
             InlineKeyboardButton.WithCallbackData("\U0001F451Быть ведущим\U0001F451", "hostCrocodileRequest")
         });
+
+        public static InlineKeyboardMarkup GetCrocodileChooseWordMarkup(string word1, string word2, string word3)
+        {
+            return new[]
+            {
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData($"{word1}", $"crocodileChooseFirstWord")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData($"{word2}", "crocodileChooseSecondWord")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData($"{word3}", "crocodileChooseThirdWord")
+                }
+            };
+        }
     }
 }

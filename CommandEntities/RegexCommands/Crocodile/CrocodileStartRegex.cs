@@ -14,7 +14,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Crocodile
         public override string Pattern => @"^\/? *(крокодил|crocodile)(@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await CrocodileGameManager.StartRequestAsync(message);
+            await CrocodileGameManager.CreateRequestAsync(message);
         }
     }
 }
