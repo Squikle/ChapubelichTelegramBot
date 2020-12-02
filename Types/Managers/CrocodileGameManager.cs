@@ -34,7 +34,7 @@ namespace ChapubelichBot.Types.Managers
             _deadSessionsCollector = new Timer(async _ => await CollectDeadSessionsAsync(), null, periodToCollect, periodToCollect);
 
             int periodToStartGame = (int) TimeSpan.FromSeconds(5).TotalMilliseconds;
-            _startGameTimer = new Timer(async _ => await StartGames(), null, periodToStartGame, periodToStartGame);
+            _startGameTimer = new Timer(async _ => await StartGamesByTimer(), null, periodToStartGame, periodToStartGame);
         }
         public static void Terminate()
         {
@@ -110,19 +110,26 @@ namespace ChapubelichBot.Types.Managers
 
             string answerMessage;
 
-            if (dbContext.CrocodileGameSessions.Any(gs => gs.Group.GroupId != callbackQuery.Message.Chat.Id && 
-                      gs.HostingCandidates.Any(u => u.UserId == user.UserId)))
+            CrocodileGameSession alreadyHostingGameSession = await dbContext.CrocodileGameSessions
+                .Include(gs => gs.HostCandidates)
+                .Include(gs => gs.Host)
+                .Include(gs => gs.Group)
+                .FirstOrDefaultAsync(
+                    gs => gs.HostCandidates
+                        .Any(c => c.CandidateId == user.UserId) || gs.Host.UserId == callbackQuery.From.Id);
+            if (alreadyHostingGameSession != null)
             {
-                answerMessage = "Ты уже являешься кандидатом на ведущего в другой сессии!";
+                answerMessage = alreadyHostingGameSession.Group.GroupId != callbackQuery.Message.Chat.Id 
+                    ? "Ты не можешь быть ведущим в нескольких чатах сразу!" : "Ты уже являешься кандидатом на ведущего!";
             }
-            else if (gameSession.CrocodileHostingRegistrations.All(u => u.Candidate.UserId != user.UserId))
+            else
             {
                 string candidateName = string.Empty;
                 ChatMember candidate = await Client.GetChatMemberAsync(gameSession.Group.GroupId, callbackQuery.From.Id);
                 if (candidate != null)
                     candidateName = candidate.User.FirstName;
 
-                gameSession.HostingCandidates.Add(user);
+                gameSession.HostCandidates.Add(new CrocodileHostCandidate {Candidate = user});
                 try
                 {
                     await dbContext.SaveChangesAsync();
@@ -138,9 +145,9 @@ namespace ChapubelichBot.Types.Managers
                 if (!string.IsNullOrEmpty(candidateName))
                 {
                     string newGameMessageText = gameSession.GameMessageText;
-                    if (gameSession.CrocodileHostingRegistrations.Count == 1)
+                    if (gameSession.HostCandidates.Count > 1)
                         newGameMessageText += "\nСписок желающих быть ведущим:";
-                    newGameMessageText += $"\n<b>{gameSession.CrocodileHostingRegistrations.Count}.</b> <i><a href=\"tg://user?id={callbackQuery.From.Id}\">{candidateName}</a></i>";
+                    newGameMessageText += $"\n<b>{gameSession.HostCandidates.Count}.</b> <i><a href=\"tg://user?id={callbackQuery.From.Id}\">{candidateName}</a></i>";
                     await Client.TryEditMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId,
                         newGameMessageText, ParseMode.Html,
                     replyMarkup: InlineKeyboards.CrocodileRegistrationMarkup);
@@ -149,8 +156,6 @@ namespace ChapubelichBot.Types.Managers
                     await dbContext.SaveChangesAsync();
                 } 
             }
-            else
-                answerMessage = "Ты уже кандидат на ведущего!";
 
             await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, answerMessage);
         }
@@ -159,10 +164,15 @@ namespace ChapubelichBot.Types.Managers
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             CrocodileGameSession gameSession =
-                await dbContext.CrocodileGameSessions.FirstOrDefaultAsync(gs =>
-                    gs.HostingCandidates.Any(u => u.UserId == callbackQuery.From.Id));
+                await dbContext.CrocodileGameSessions
+                    .Include(gs => gs.Host)
+                    .FirstOrDefaultAsync(gs => gs.Host.UserId == callbackQuery.From.Id);
             if (gameSession == null || !string.IsNullOrEmpty(gameSession.GameWord) || !gameSession.Started)
                 return;
+
+            UpdateLastActivity(gameSession);
+            await dbContext.SaveChangesAsync();
+
             string choosenWord = string.Empty;
             switch (callbackQuery.Data)
             {
@@ -198,7 +208,6 @@ namespace ChapubelichBot.Types.Managers
 
         private static async Task StartGameSessionAsync(CrocodileGameSession gameSession)
         {
-            Random rand = new Random();
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             gameSession = await GetGameSessionOrNullAsync(gameSession.Group.GroupId, dbContext);
             if (gameSession == null)
@@ -207,62 +216,70 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession.Started)
                 return;
 
-            gameSession.Started = true;
+            UpdateLastActivity(gameSession);
             await dbContext.SaveChangesAsync();
 
-            string[] wordVariants = await GetRandomWordsAsync(@"./Resources/crocodile/Words.txt", 3);
-
-            gameSession.WordVariants = wordVariants;
-            await dbContext.SaveChangesAsync();
-
-            HashSet<int> tryedUsers = new HashSet<int>();
-            Message wordChooseMessage = null;
-            User host = null;
-            while (wordChooseMessage == null && tryedUsers.Count < gameSession.HostingCandidates.Count)
+            if (gameSession.WordVariants == null)
             {
-                host = gameSession.HostingCandidates[rand.Next(gameSession.HostingCandidates.Count)];
-                if (!tryedUsers.Contains(host.UserId))
-                    tryedUsers.Add(host.UserId);
-                else continue;
-                wordChooseMessage = await Client.TrySendTextMessageAsync(host.UserId,
-                    $"Ты выбран в качестве ведущего в группе <i>{gameSession.Group.Name}</i>. Выбери одно из 3 предложенных слов:",
-                    replyMarkup: InlineKeyboards.GetCrocodileChooseWordMarkup(wordVariants[0], wordVariants[1], wordVariants[2]),
-                    parseMode: ParseMode.Html);
-            }
-            if (wordChooseMessage == null && tryedUsers.Count == gameSession.HostingCandidates.Count)
-            {
-                if (await DeleteGameSessionAsync(gameSession, dbContext))
-                    await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
-                        "Не могу отправить сообщение <i>Ведущему</i>. Игра отменена 😞",
-                        ParseMode.Html);
-                return;
+                string[] wordVariants = await GetRandomWordsAsync(@"./Resources/crocodile/Words.txt", 3);
+
+                gameSession.WordVariants = wordVariants;
+                await dbContext.SaveChangesAsync();
             }
 
-            string choosenHostText = "<b>Ведущий выбран!</b>\n" +
-                                     "Загаданное слово отправлено в личные сообщения";
-            ChatMember hostMember = null;
-            if (host != null)
-                hostMember = await Client.GetChatMemberAsync(gameSession.Group.GroupId, host.UserId);
-            if (hostMember != null)
-                 choosenHostText += $" Ведущему <i><a href=\"tg://user?id={hostMember.User.Id}\">{hostMember.User.FirstName}</a></i>";
-            else 
-                 choosenHostText += $" <i>Ведущему</i>";
-            Message newGameMessage = await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
-                choosenHostText,
-                parseMode: ParseMode.Html);
+            if (gameSession.Host == null)
+            {
+                HashSet<int> tryedUsers = new HashSet<int>();
+                Message wordChooseMessage = null;
+                Random rand = new Random();
+                User host = null;
+                while (wordChooseMessage == null && tryedUsers.Count < gameSession.HostCandidates.Count)
+                {
+                    host = gameSession.HostCandidates[rand.Next(gameSession.HostCandidates.Count)].Candidate;
+                    if (!tryedUsers.Contains(host.UserId))
+                        tryedUsers.Add(host.UserId);
+                    else continue;
+                    wordChooseMessage = await Client.TrySendTextMessageAsync(host.UserId,
+                        $"Ты выбран в качестве ведущего в группе <i>{gameSession.Group.Name}</i>. Выбери одно из 3 предложенных слов:",
+                        replyMarkup: InlineKeyboards.GetCrocodileChooseWordMarkup(gameSession.WordVariants[0], gameSession.WordVariants[1], gameSession.WordVariants[2]),
+                        parseMode: ParseMode.Html);
+                }
+                if (wordChooseMessage == null && tryedUsers.Count == gameSession.HostCandidates.Count || host == null)
+                {
+                    if (await DeleteGameSessionAsync(gameSession, dbContext))
+                        await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
+                            "Не могу отправить сообщение <i>Ведущему</i>. Игра отменена 😞",
+                            ParseMode.Html);
+                    return;
+                }
 
-            await Client.TryEditMessageReplyMarkupAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
+                
+                ChatMember hostMember = await Client.GetChatMemberAsync(gameSession.Group.GroupId, host.UserId);
+                if (hostMember == null)
+                    return;
 
-            gameSession.GameMessageId = newGameMessage?.MessageId ?? 0;
-            gameSession.GameMessageText = null;
-            await dbContext.SaveChangesAsync();
+                string choosenHostText = "<b>Ведущий выбран!</b>\n" +
+                                         $"Загаданное слово отправлено в личные сообщения Ведущему <i><a href=\"tg://user?id={hostMember.User.Id}\">{hostMember.User.FirstName}</a></i>";
+                Message newGameMessage = await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
+                    choosenHostText,
+                    ParseMode.Html);
+
+                await Client.TryEditMessageReplyMarkupAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
+
+                dbContext.RemoveRange(gameSession.HostCandidates);
+                gameSession.Host = host;
+                gameSession.GameMessageId = newGameMessage?.MessageId ?? 0;
+                gameSession.GameMessageText = null;
+                gameSession.Started = true;
+                await dbContext.SaveChangesAsync();
+            }
         }
         private static async Task<CrocodileGameSession> GetGameSessionOrNullAsync(long chatId, ChapubelichdbContext dbContext)
         {
             CrocodileGameSession gameSession =
                 await dbContext.CrocodileGameSessions
-                    .Include(gs => gs.CrocodileHostingRegistrations)
-                    .Include(gs => gs.HostingCandidates)
+                    .Include(gs => gs.HostCandidates)
+                    .ThenInclude(hc => hc.Candidate)
                     .Include(gs => gs.Host)
                     .Include(gs => gs.Group)
                     .FirstOrDefaultAsync(x => x.Group.GroupId == chatId);
@@ -277,10 +294,11 @@ namespace ChapubelichBot.Types.Managers
                 int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("AppSettings:StopGameDelay");
 
                 deadSessions = (await dbContext.CrocodileGameSessions
-                    .Where(gs => gs.LastActivity < DateTime.UtcNow)
-                    .ToListAsync())
-                    .Where(gs => gs.LastActivity.AddSeconds(timeToSessionDispose) < DateTime.UtcNow)
-                    .ToList();
+                        .Include(gs => gs.Group)
+                        .Where(gs => gs.LastActivity < DateTime.UtcNow)
+                        .ToListAsync())
+                        .Where(gs => gs.LastActivity.AddSeconds(timeToSessionDispose) < DateTime.UtcNow)
+                        .ToList();
             }
 
             Parallel.ForEach(deadSessions, async gs =>
@@ -292,7 +310,8 @@ namespace ChapubelichBot.Types.Managers
                     await Client.TrySendTextMessageAsync(
                         gs.Group.GroupId,
                         "Игровая сессия крокодила отменена из-за отсутствия активности",
-                        replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
+                        //TODO: перезапускать крокодила, а не рулетку
+                        replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
             });
         }
 
@@ -332,22 +351,22 @@ namespace ChapubelichBot.Types.Managers
                 selectedWords[i] = words[rand.Next(words.Length)];
             return selectedWords;
         }
-        private static async Task StartGames()
+        private static async Task StartGamesByTimer()
         {
             int secondsToStartGame = 5;
             List<CrocodileGameSession> gameSessions;
             await using (ChapubelichdbContext dbContext = new ChapubelichdbContext())
                 gameSessions = dbContext.CrocodileGameSessions
-                    .Include(gs => gs.HostingCandidates)
+                    .Include(gs => gs.HostCandidates)
                     .Include(gs => gs.Group)
                     // TODO: вернуть "> 1" после тестов 
-                    .Where(gs => !gs.Started && gs.HostingCandidates.Count > 0)
+                    .Where(gs => !gs.Started && gs.HostCandidates.Count > 0)
                     .ToList();
             Parallel.ForEach(gameSessions, async gs =>
             {
-                if (gs.CrocodileHostingRegistrations.Count > 0)
+                if (gs.HostCandidates.Count > 0)
                 {
-                    if (gs.CrocodileHostingRegistrations[^1].RegistrationTime.AddSeconds(secondsToStartGame) <
+                    if (gs.HostCandidates[^1].RegistrationTime.AddSeconds(secondsToStartGame) <
                         DateTime.UtcNow)
                         await StartGameSessionAsync(gs);
                 }
