@@ -29,6 +29,11 @@ namespace ChapubelichBot.Types.Statics
             InlineKeyboardButton.WithCallbackData("Играть снова\U0001F501", "roulettePlayAgain")
         });
 
+        public static InlineKeyboardMarkup CrocodilePlayAgainMarkup => new InlineKeyboardMarkup(new[]
+        {
+            InlineKeyboardButton.WithCallbackData("Играть снова\U0001F501", "crocodilePlayAgain")
+        });
+
         public static InlineKeyboardMarkup RouletteBetsMarkup => new InlineKeyboardMarkup(new[]
         {
             new[]
