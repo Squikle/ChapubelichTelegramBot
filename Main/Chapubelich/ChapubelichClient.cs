@@ -67,7 +67,7 @@ namespace ChapubelichBot.Main.Chapubelich
             _botCallbackMessages = new List<CallbackCommand>
             {
                 new DefaultBetChangeCallbackMessage(),
-                new RouletteStartCallbackCommand(),
+                new RoulettePlayAgainCallback(),
                 new BetColorCallback(),
                 new BetNumbersCallback(),
                 new RouletteRollCallback(),
