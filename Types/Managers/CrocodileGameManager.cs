@@ -339,6 +339,7 @@ namespace ChapubelichBot.Types.Managers
                 gameSessions = dbContext.CrocodileGameSessions
                     .Include(gs => gs.HostingCandidates)
                     .Include(gs => gs.Group)
+                    // TODO: вернуть "> 1" после тестов 
                     .Where(gs => !gs.Started && gs.HostingCandidates.Count > 1)
                     .ToList();
             Parallel.ForEach(gameSessions, async gs =>
