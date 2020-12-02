@@ -225,8 +225,9 @@ namespace ChapubelichBot.Types.Managers
                     tryedUsers.Add(host.UserId);
                 else continue;
                 wordChooseMessage = await Client.TrySendTextMessageAsync(host.UserId,
-                    "Ты выбран в качестве ведущего. Выбери одно из 3 предложенных слов:",
-                    replyMarkup: InlineKeyboards.GetCrocodileChooseWordMarkup(wordVariants[0], wordVariants[1], wordVariants[2]));
+                    $"Ты выбран в качестве ведущего в группе <i>{gameSession.Group.Name}</i>. Выбери одно из 3 предложенных слов:",
+                    replyMarkup: InlineKeyboards.GetCrocodileChooseWordMarkup(wordVariants[0], wordVariants[1], wordVariants[2]),
+                    parseMode: ParseMode.Html);
             }
             if (wordChooseMessage == null && tryedUsers.Count == gameSession.HostingCandidates.Count)
             {
@@ -339,7 +340,8 @@ namespace ChapubelichBot.Types.Managers
                 gameSessions = dbContext.CrocodileGameSessions
                     .Include(gs => gs.HostingCandidates)
                     .Include(gs => gs.Group)
-                    .Where(gs => !gs.Started && gs.HostingCandidates.Count > 1)
+                    // TODO: вернуть "> 1" после тестов 
+                    .Where(gs => !gs.Started && gs.HostingCandidates.Count > 0)
                     .ToList();
             Parallel.ForEach(gameSessions, async gs =>
             {
