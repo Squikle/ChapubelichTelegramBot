@@ -14,10 +14,10 @@ namespace ChapubelichBot.Types.Entities
         public string GameWord { get; set; }
         public int GameMessageId { get; set; }
         public string GameMessageText { get; set; }
+        [ConcurrencyCheck]
         public bool Started { get; set; }
 
-        public List<User> HostingCandidates { get; set; }
-        public List<CrocodileHostingRegistration> CrocodileHostingRegistrations { get; set; }
+        public List<CrocodileHostCandidate> HostCandidates { get; set; }
 
         public User Host { get; set; }
         public DateTime LastActivity { get; set; }
@@ -25,8 +25,7 @@ namespace ChapubelichBot.Types.Entities
 
         public CrocodileGameSession()
         {
-            HostingCandidates = new List<User>();
-            CrocodileHostingRegistrations = new List<CrocodileHostingRegistration>();
+            HostCandidates = new List<CrocodileHostCandidate>();
             Started = false;
             LastActivity = DateTime.UtcNow;
         }

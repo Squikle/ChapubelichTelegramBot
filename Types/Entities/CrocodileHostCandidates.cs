@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace ChapubelichBot.Types.Entities
 {
-    public class CrocodileHostingRegistration
+    public class CrocodileHostCandidate
     {
+        [Key]
         public int CandidateId { get; set; }
         public User Candidate { get; set; }
 
