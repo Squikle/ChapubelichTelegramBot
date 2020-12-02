@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using ChapubelichBot.Types.Statics;
 using Microsoft.EntityFrameworkCore;
