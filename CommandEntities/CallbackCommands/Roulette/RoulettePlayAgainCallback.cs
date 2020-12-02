@@ -8,7 +8,7 @@ using Telegram.Bot.Types;
 
 namespace ChapubelichBot.CommandEntities.CallbackCommands.Roulette
 {
-    class RouletteStartCallbackCommand : CallbackCommand
+    class RoulettePlayAgainCallback : CallbackCommand
     {
         public override List<string> IncludingData => new List<string> { "roulettePlayAgain" };
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
