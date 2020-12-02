@@ -1,23 +1,22 @@
-﻿using System.Collections.Generic;
-using Telegram.Bot.Types.ReplyMarkups;
+﻿using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ChapubelichBot.Types.Statics
 {
     static class InlineKeyboards
     {
-        public static InlineKeyboardMarkup GenderChooseMarkup = new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup GenderChooseMarkup => new InlineKeyboardMarkup(new[]
         {
             InlineKeyboardButton.WithCallbackData("М\U00002642", "Male"),
             InlineKeyboardButton.WithCallbackData("Ж\U00002640", "Female")
         });
 
-        public static InlineKeyboardMarkup ComplimentSubscriptionChooseMarkup = new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup ComplimentSubscriptionChooseMarkup => new InlineKeyboardMarkup(new[]
         {
             InlineKeyboardButton.WithCallbackData("Выключить\U0001F494", "DisableCompliments"),
             InlineKeyboardButton.WithCallbackData("Включить\U0001F49A", "EnableCompliments")
         });
 
-        public static InlineKeyboardMarkup DefaultBetChooseMarkup = new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup DefaultBetChooseMarkup => new InlineKeyboardMarkup(new[]
         {
             new[] { InlineKeyboardButton.WithCallbackData("25", "DefaultBet25"), },
             new[] { InlineKeyboardButton.WithCallbackData("50", "DefaultBet50"), },
@@ -25,12 +24,12 @@ namespace ChapubelichBot.Types.Statics
             new[] { InlineKeyboardButton.WithCallbackData("500", "DefaultBet500") }
         });
 
-        public static InlineKeyboardMarkup RoulettePlayAgainMarkup = new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup RoulettePlayAgainMarkup => new InlineKeyboardMarkup(new[]
         {
             InlineKeyboardButton.WithCallbackData("Играть снова\U0001F501", "roulettePlayAgain")
         });
 
-        public static InlineKeyboardMarkup RouletteBetsMarkup = new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup RouletteBetsMarkup => new InlineKeyboardMarkup(new[]
         {
             new[]
                     {
@@ -70,7 +69,7 @@ namespace ChapubelichBot.Types.Statics
                     }
         });
 
-        public static InlineKeyboardMarkup CrocodileRegistrationMarkup = new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup CrocodileRegistrationMarkup => new InlineKeyboardMarkup(new[]
         {
             InlineKeyboardButton.WithCallbackData("\U0001F451Быть ведущим\U0001F451", "hostCrocodileRequest")
         });
