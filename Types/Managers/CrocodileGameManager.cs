@@ -185,7 +185,7 @@ namespace ChapubelichBot.Types.Managers
                 $"Ты выбрал слово \"<i>{choosenWord}</i>\"" +
                 "\nТеперь помоги другим игрокам отгадать его!",
                 ParseMode.Html);
-            Message newGameMessage = await Client.TrySendTextMessageAsync(gameSession.GroupId, $"<b>Игра началась!</b>" +
+            Message newGameMessage = await Client.TrySendTextMessageAsync(gameSession.GroupId, "<b>Игра началась!</b>" +
                 $"\nЗагаданное слово отправлено в личные сообщения ведущему <i>{callbackQuery.From.FirstName}</i>" +
                 "\n👑<i>Ведущий</i> должен объяснить загаданное слово не используя однокоренные слова" +
                 "\n👤<i>Остальные</i> учасники должны отгадать что это за слово как можно быстрее",
@@ -217,9 +217,10 @@ namespace ChapubelichBot.Types.Managers
 
             HashSet<int> tryedUsers = new HashSet<int>();
             Message wordChooseMessage = null;
+            User host = null;
             while (wordChooseMessage == null && tryedUsers.Count < gameSession.HostingCandidates.Count)
             {
-                var host = gameSession.HostingCandidates[rand.Next(gameSession.HostingCandidates.Count)];
+                host = gameSession.HostingCandidates[rand.Next(gameSession.HostingCandidates.Count)];
                 if (!tryedUsers.Contains(host.UserId))
                     tryedUsers.Add(host.UserId);
                 else continue;
@@ -230,12 +231,23 @@ namespace ChapubelichBot.Types.Managers
             if (wordChooseMessage == null && tryedUsers.Count == gameSession.HostingCandidates.Count)
             {
                 await DeleteGameSessionAsync(gameSession, dbContext);
-                await Client.TrySendTextMessageAsync(gameSession.Group.GroupId, "<b>Произошла ошибка!</b> Я не могу отправить сообщение <i>Ведущему</i>. Игра отменена 😞");
+                await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
+                    "Не могу отправить сообщение <i>Ведущему</i>. Игра отменена 😞",
+                    ParseMode.Html);
                 return;
             }
 
+            string choosenHostText = "<b>Ведущий выбран!</b>\n" +
+                                     "Загаданное слово отправлено в личные сообщения";
+            ChatMember hostMember = null;
+            if (host != null)
+                hostMember = await Client.GetChatMemberAsync(gameSession.Group.GroupId, host.UserId);
+            if (hostMember != null)
+                 choosenHostText += $" Ведущему <i><a href=\"tg://user?id={hostMember.User.Id}\">{hostMember.User.FirstName}</a></i>";
+            else 
+                 choosenHostText += $" <i>Ведущему</i>";
             Message newGameMessage = await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
-                "<b>Ведущий выбран!</b> Загаданное слово отправлено в личные сообщения <i>Ведущему</i>",
+                choosenHostText,
                 parseMode: ParseMode.Html);
 
             await Client.TryEditMessageReplyMarkupAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
@@ -285,6 +297,9 @@ namespace ChapubelichBot.Types.Managers
 
         private static async Task<bool> DeleteGameSessionAsync(CrocodileGameSession gameSession, ChapubelichdbContext dbContext)
         {
+            if (gameSession == null)
+                return false;
+
             Task deletingMessage = null;
             if (gameSession.GameMessageId != 0)
                 deletingMessage = Client.TryDeleteMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
