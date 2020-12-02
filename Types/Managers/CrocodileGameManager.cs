@@ -230,10 +230,10 @@ namespace ChapubelichBot.Types.Managers
             }
             if (wordChooseMessage == null && tryedUsers.Count == gameSession.HostingCandidates.Count)
             {
-                await DeleteGameSessionAsync(gameSession, dbContext);
-                await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
-                    "Не могу отправить сообщение <i>Ведущему</i>. Игра отменена 😞",
-                    ParseMode.Html);
+                if (await DeleteGameSessionAsync(gameSession, dbContext))
+                    await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
+                        "Не могу отправить сообщение <i>Ведущему</i>. Игра отменена 😞",
+                        ParseMode.Html);
                 return;
             }
 
@@ -303,6 +303,7 @@ namespace ChapubelichBot.Types.Managers
             Task deletingMessage = null;
             if (gameSession.GameMessageId != 0)
                 deletingMessage = Client.TryDeleteMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
+            dbContext.CrocodileGameSessions.Remove(gameSession);
             try
             {
                 await dbContext.SaveChangesAsync();
