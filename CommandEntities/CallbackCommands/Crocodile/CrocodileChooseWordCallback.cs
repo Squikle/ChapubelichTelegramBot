@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Managers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace ChapubelichBot.CommandEntities.CallbackCommands
+namespace ChapubelichBot.CommandEntities.CallbackCommands.Crocodile
 {
     class CrocodileChooseWordCallback : CallbackCommand
     {

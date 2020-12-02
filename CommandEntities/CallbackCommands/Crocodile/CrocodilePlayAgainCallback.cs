@@ -6,7 +6,7 @@ using ChapubelichBot.Types.Managers.MessagesSender;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace ChapubelichBot.CommandEntities.CallbackCommands
+namespace ChapubelichBot.CommandEntities.CallbackCommands.Crocodile
 {
     class CrocodilePlayAgainCallback : CallbackCommand
     {

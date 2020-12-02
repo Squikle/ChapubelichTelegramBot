@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ChapubelichBot.CommandEntities.CallbackCommands;
+using ChapubelichBot.CommandEntities.CallbackCommands.Crocodile;
 using ChapubelichBot.CommandEntities.CallbackCommands.Roulette;
 using ChapubelichBot.CommandEntities.Commands;
 using ChapubelichBot.CommandEntities.Commands.Admin;
