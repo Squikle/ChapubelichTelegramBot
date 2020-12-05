@@ -72,12 +72,15 @@ namespace ChapubelichBot.Main.Chapubelich
             {
                 new CrocodileHostCandidacyCallback(),
                 new CrocodileChooseWordCallback(),
-                new DefaultBetChangeCallbackMessage(),
+                new CrocodilePlayAgainCallback(),
+
                 new RouletteStartCallbackCommand(),
                 new BetColorCallback(),
                 new BetNumbersCallback(),
                 new RouletteRollCallback(),
                 new BetCancelCallback(),
+
+                new DefaultBetChangeCallbackMessage(),
                 new ComplimentSubscriptionCallback()
             };
             _botRegexCommands = new List<RegexCommand>
