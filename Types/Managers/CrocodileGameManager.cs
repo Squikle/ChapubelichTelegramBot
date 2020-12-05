@@ -360,7 +360,8 @@ namespace ChapubelichBot.Types.Managers
         }
         private static async Task StartGamesByTimer()
         {
-            int secondsToStartGame = 5;
+            int secondsToStartGame = ChapubelichClient.GetConfig().GetValue<int>("CrocodileSettings:StartGameDelaySeconds");
+
             List<CrocodileGameSession> gameSessions;
             await using (ChapubelichdbContext dbContext = new ChapubelichdbContext())
                 gameSessions = dbContext.CrocodileGameSessions
@@ -384,7 +385,7 @@ namespace ChapubelichBot.Types.Managers
             List<CrocodileGameSession> deadSessions;
             await using (var dbContext = new ChapubelichdbContext())
             {
-                int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("AppSettings:StopGameDelay");
+                int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("CrocodileSettings:StopCrocodileGameDelay");
 
                 deadSessions = (await dbContext.CrocodileGameSessions
                         .Include(gs => gs.Group)

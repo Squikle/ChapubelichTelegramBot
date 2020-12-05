@@ -20,6 +20,7 @@
     "MaxNumberHostingCandidates": 10,
     "MaxCrocodileReward": 50,
     "MaxSecondsToGetCrocodileReward": 300,
+    "StartGameDelaySeconds": 5,
     "StopCrocodileGameDelay": 300
   },
   "Logger": {
@@ -45,6 +46,7 @@
     "_MaxNumberHostingCandidates": "how many users can participate in the selection of a crocodile host: Default 10",
     "_MaxCrocodileReward": "how much the player can get if he guesses the word in the crocodile game: Default: 50",
     "_MaxSecondsToGetCrocodileReward": "how long can it take for the player to still get the reward for guessing the word in the crocodile game (in seconds): Default: 300 = 5min",
+    "_StartGameDelaySeconds": "time before crocodile session is started after last candidate added (in seconds): Default: 5",
     "_StopCrocodileGameDelay": "time before crocodile session is destroyed (in seconds): Default: 60 = 1min"
   }
 }
