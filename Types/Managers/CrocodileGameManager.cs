@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Group = ChapubelichBot.Types.Entities.Group;
 using User = ChapubelichBot.Types.Entities.User;
 
 namespace ChapubelichBot.Types.Managers
@@ -91,6 +94,7 @@ namespace ChapubelichBot.Types.Managers
                 await dbContext.SaveChangesAsync();
             }
         }
+
         public static async Task AddToHostCandidatesRequestAsync(CallbackQuery callbackQuery)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
@@ -157,7 +161,6 @@ namespace ChapubelichBot.Types.Managers
 
             await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, answerMessage);
         }
-
         public static async Task ChooseWordRequestTask(CallbackQuery callbackQuery)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
@@ -203,7 +206,6 @@ namespace ChapubelichBot.Types.Managers
             await sendingPrivateMessage;
             await deletingCallbackMessage;
         }
-
         private static async Task StartGameSessionAsync(CrocodileGameSession gameSession)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
@@ -272,6 +274,25 @@ namespace ChapubelichBot.Types.Managers
                 await dbContext.SaveChangesAsync();
             }
         }
+
+        public static async Task GuessTheWordRequest(Message message)
+        {
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            CrocodileGameSession gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
+            if (gameSession == null || string.IsNullOrEmpty(gameSession.GameWord) || !gameSession.Started)
+                return;
+
+            User guessingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == message.From.Id);
+            if (guessingUser == null)
+                return;
+
+            if (IsWordGuessCorrect(message.Text, gameSession.GameWord))
+                await Client.TrySendTextMessageAsync(gameSession.GroupId, 
+                    "Правильно!" +
+                    $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал слово \"<i>{gameSession.GameWord}</i>\"!",
+                    ParseMode.Html);
+        }
+
         private static async Task<CrocodileGameSession> GetGameSessionOrNullAsync(long chatId, ChapubelichdbContext dbContext)
         {
             CrocodileGameSession gameSession =
@@ -283,7 +304,31 @@ namespace ChapubelichBot.Types.Managers
                     .FirstOrDefaultAsync(x => x.Group.GroupId == chatId);
             return gameSession;
         }
-
+        private static void UpdateLastActivity(CrocodileGameSession gameSession)
+        {
+            gameSession.LastActivity = DateTime.UtcNow;
+        }
+        private static async Task StartGamesByTimer()
+        {
+            int secondsToStartGame = 5;
+            List<CrocodileGameSession> gameSessions;
+            await using (ChapubelichdbContext dbContext = new ChapubelichdbContext())
+                gameSessions = dbContext.CrocodileGameSessions
+                    .Include(gs => gs.HostCandidates)
+                    .Include(gs => gs.Group)
+                    // TODO: вернуть "> 1" после тестов 
+                    .Where(gs => !gs.Started && gs.HostCandidates.Count > 0)
+                    .ToList();
+            Parallel.ForEach(gameSessions, async gs =>
+            {
+                if (gs.HostCandidates.Count > 0)
+                {
+                    if (gs.HostCandidates[^1].RegistrationTime.AddSeconds(secondsToStartGame) <
+                        DateTime.UtcNow)
+                        await StartGameSessionAsync(gs);
+                }
+            });
+        }
         private static async Task CollectDeadSessionsAsync()
         {
             List<CrocodileGameSession> deadSessions;
@@ -312,7 +357,6 @@ namespace ChapubelichBot.Types.Managers
                         replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
             });
         }
-
         private static async Task<bool> DeleteGameSessionAsync(CrocodileGameSession gameSession, ChapubelichdbContext dbContext)
         {
             if (gameSession == null)
@@ -336,10 +380,7 @@ namespace ChapubelichBot.Types.Managers
 
             return true;
         }
-        private static void UpdateLastActivity(CrocodileGameSession gameSession)
-        {
-            gameSession.LastActivity = DateTime.UtcNow;
-        }
+
         private static async Task<string[]> GetRandomWordsAsync(string pathOfWordsFile, int count)
         {
             Random rand = new Random();
@@ -349,26 +390,13 @@ namespace ChapubelichBot.Types.Managers
                 selectedWords[i] = words[rand.Next(words.Length)];
             return selectedWords;
         }
-        private static async Task StartGamesByTimer()
+
+        private static bool IsWordGuessCorrect(string guessWord, string gameSessionWord)
         {
-            int secondsToStartGame = 5;
-            List<CrocodileGameSession> gameSessions;
-            await using (ChapubelichdbContext dbContext = new ChapubelichdbContext())
-                gameSessions = dbContext.CrocodileGameSessions
-                    .Include(gs => gs.HostCandidates)
-                    .Include(gs => gs.Group)
-                    // TODO: вернуть "> 1" после тестов 
-                    .Where(gs => !gs.Started && gs.HostCandidates.Count > 0)
-                    .ToList();
-            Parallel.ForEach(gameSessions, async gs =>
-            {
-                if (gs.HostCandidates.Count > 0)
-                {
-                    if (gs.HostCandidates[^1].RegistrationTime.AddSeconds(secondsToStartGame) <
-                        DateTime.UtcNow)
-                        await StartGameSessionAsync(gs);
-                }
-            });
+            guessWord = Regex.Replace(guessWord, "э", "е", RegexOptions.IgnoreCase);
+            guessWord = Regex.Replace(guessWord, "ё", "е", RegexOptions.IgnoreCase);
+            var compareOptions = CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols;
+            return String.Compare(guessWord, gameSessionWord, CultureInfo.InvariantCulture, compareOptions) == 0;
         }
     }
 }
