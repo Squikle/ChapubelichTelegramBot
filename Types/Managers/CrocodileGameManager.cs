@@ -287,10 +287,14 @@ namespace ChapubelichBot.Types.Managers
             if (guessingUser == null)
                 return;
 
+            gameSession.Attempts++;
+            await dbContext.SaveChangesAsync();
+            
             if (IsWordGuessCorrect(message.Text, gameSession.GameWord))
                 await Client.TrySendTextMessageAsync(gameSession.GroupId, 
                     "Правильно!" +
-                    $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал слово \"<i>{gameSession.GameWord}</i>\"!",
+                    $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал слово \"<i>{gameSession.GameWord}</i>\"!" +
+                    $"\nВсего попыток: <b>{gameSession.Attempts}</b>",
                     ParseMode.Html);
         }
 
