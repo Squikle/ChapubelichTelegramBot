@@ -66,6 +66,7 @@ namespace ChapubelichBot.Main.Chapubelich
                 new CrocodileStartRegex(),
                 new TopChatBalanceRegex(),
                 new PersonRollRegex(),
+                new CrocodileGuessWord(),
             };
             _botCallbackMessages = new List<CallbackCommand>
             {
