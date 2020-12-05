@@ -168,7 +168,7 @@ namespace ChapubelichBot.Types.Managers
                 await dbContext.CrocodileGameSessions
                     .Include(gs => gs.Host)
                     .FirstOrDefaultAsync(gs => gs.Host.UserId == callbackQuery.From.Id);
-            if (gameSession == null || !string.IsNullOrEmpty(gameSession.GameWord) || !gameSession.Started)
+            if (gameSession == null || !string.IsNullOrEmpty(gameSession.GameWord) || gameSession.StartTime == null)
                 return;
 
             UpdateLastActivity(gameSession);
@@ -189,6 +189,7 @@ namespace ChapubelichBot.Types.Managers
             }
 
             gameSession.GameWord = choosenWord;
+            gameSession.StartTime = DateTime.UtcNow;
             await dbContext.SaveChangesAsync();
             Task deletingCallbackMessage =
                 Client.TryDeleteMessageAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId);
@@ -213,7 +214,7 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession == null)
                 return;
 
-            if (gameSession.Started)
+            if (gameSession.StartTime != null)
                 return;
 
             UpdateLastActivity(gameSession);
@@ -270,7 +271,7 @@ namespace ChapubelichBot.Types.Managers
                 gameSession.Host = host;
                 gameSession.GameMessageId = newGameMessage?.MessageId ?? 0;
                 gameSession.GameMessageText = null;
-                gameSession.Started = true;
+                gameSession.StartTime = DateTime.UtcNow;
                 await dbContext.SaveChangesAsync();
             }
         }
@@ -279,7 +280,7 @@ namespace ChapubelichBot.Types.Managers
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             CrocodileGameSession gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
-            if (gameSession == null || string.IsNullOrEmpty(gameSession.GameWord) || !gameSession.Started)
+            if (gameSession == null || string.IsNullOrEmpty(gameSession.GameWord) || gameSession.StartTime == null)
                 return;
 
             User guessingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == message.From.Id);
@@ -317,7 +318,7 @@ namespace ChapubelichBot.Types.Managers
                     .Include(gs => gs.HostCandidates)
                     .Include(gs => gs.Group)
                     // TODO: вернуть "> 1" после тестов 
-                    .Where(gs => !gs.Started && gs.HostCandidates.Count > 0)
+                    .Where(gs => gs.StartTime == null && gs.HostCandidates.Count > 0)
                     .ToList();
             Parallel.ForEach(gameSessions, async gs =>
             {
