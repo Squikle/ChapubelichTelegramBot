@@ -16,6 +16,7 @@ namespace ChapubelichBot.Types.Entities
         public string GameMessageText { get; set; }
         [ConcurrencyCheck]
         public DateTime? StartTime { get; set; }
+        [ConcurrencyCheck]
         public int Attempts { get; set; }
 
         public List<CrocodileHostCandidate> HostCandidates { get; set; }
