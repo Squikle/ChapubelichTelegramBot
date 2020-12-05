@@ -248,9 +248,20 @@ namespace ChapubelichBot.Types.Managers
                 if (wordChooseMessage == null && tryedUsers.Count == gameSession.HostCandidates.Count || host == null)
                 {
                     if (await DeleteGameSessionAsync(gameSession, dbContext))
+                    {
+                        try
+                        {
+                            await dbContext.SaveChangesAsync();
+                        }
+                        catch (DbUpdateException)
+                        {
+                            Console.WriteLine("Повторное удаление игровой сессии крокодила");
+                            return;
+                        }
                         await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
                             "Не могу отправить сообщение <i>Ведущему</i>. Игра отменена 😞",
                             ParseMode.Html);
+                    }
                     return;
                 }
 
@@ -305,11 +316,31 @@ namespace ChapubelichBot.Types.Managers
             } while (saveFailed);
 
             if (IsWordGuessCorrect(message.Text, gameSession.GameWord))
-                await Client.TrySendTextMessageAsync(gameSession.GroupId,
-                    "Правильно!" +
-                    $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал слово \"<i>{gameSession.GameWord}</i>\"!" +
-                    $"\nВсего попыток: <b>{gameSession.Attempts}</b>",
-                    ParseMode.Html);
+            {
+                long reward = GetPlayerReward(gameSession);
+
+                if (reward > 0)
+                    guessingUser.Balance += reward;
+                await DeleteGameSessionAsync(gameSession, dbContext);
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    Console.WriteLine("Повторное удаление игровой сессии крокодила");
+                    return;
+                }
+                await dbContext.SaveChangesAsync();
+
+                string answer = "Правильно!" +
+                                $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал слово \"<i>{gameSession.GameWord}</i>\"" +
+                                $"{(reward > 0 ? $" и получил <b>{reward}</b> 💰!" : " но ничего не получил 😔")}" +
+                                $"\nВсего было попыток: <b>{gameSession.Attempts}</b>";
+                await Client.TrySendTextMessageAsync(gameSession.GroupId, answer, 
+                    ParseMode.Html, replyToMessageId: message.MessageId, 
+                    replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
+            }    
         }
 
         private static async Task<CrocodileGameSession> GetGameSessionOrNullAsync(long chatId, ChapubelichdbContext dbContext)
@@ -369,11 +400,21 @@ namespace ChapubelichBot.Types.Managers
                 gs = await GetGameSessionOrNullAsync(gs.Group.GroupId, dbContext);
 
                 if (await DeleteGameSessionAsync(gs, dbContext))
+                {
+                    try
+                    {
+                        await dbContext.SaveChangesAsync();
+                    }
+                    catch (DbUpdateException)
+                    {
+                        Console.WriteLine("Повторное удаление игровой сессии крокодила");
+                        return;
+                    }
                     await Client.TrySendTextMessageAsync(
                         gs.Group.GroupId,
                         "Игровая сессия крокодила отменена из-за отсутствия активности",
-                        //TODO: перезапускать крокодила, а не рулетку
                         replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
+                }
             });
         }
         private static async Task<bool> DeleteGameSessionAsync(CrocodileGameSession gameSession, ChapubelichdbContext dbContext)
@@ -381,22 +422,10 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession == null)
                 return false;
 
-            Task deletingMessage = null;
             if (gameSession.GameMessageId != 0)
-                deletingMessage = Client.TryDeleteMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
+                await Client.TryDeleteMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
+
             dbContext.CrocodileGameSessions.Remove(gameSession);
-            try
-            {
-                await dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                return false;
-            }
-
-            if (deletingMessage != null)
-                await deletingMessage;
-
             return true;
         }
 
@@ -416,6 +445,24 @@ namespace ChapubelichBot.Types.Managers
             guessWord = Regex.Replace(guessWord, "ё", "е", RegexOptions.IgnoreCase);
             var compareOptions = CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols;
             return String.Compare(guessWord, gameSessionWord, CultureInfo.InvariantCulture, compareOptions) == 0;
+        }
+
+        private static long GetPlayerReward(CrocodileGameSession gameSession)
+        {
+            if (!gameSession.StartTime.HasValue)
+                return 0;
+
+            IConfiguration config = ChapubelichClient.GetConfig();
+            int maxSecondsToGetCrocodileReward = config.GetValue<int>("CrocodileSettings:MaxSecondsToGetCrocodileReward");
+            TimeSpan elapsedTime = DateTime.UtcNow.Subtract(gameSession.StartTime.Value);
+
+            if (elapsedTime.Seconds > maxSecondsToGetCrocodileReward)
+                return 0;
+
+            int maxReward = config.GetValue<int>("CrocodileSettings:MaxCrocodileReward");
+            double maxSecondForReward = TimeSpan.FromSeconds(maxSecondsToGetCrocodileReward).TotalSeconds;
+            double divider = maxSecondForReward / 100;
+            return (long)(maxReward * (maxSecondForReward - elapsedTime.TotalSeconds) / divider * 0.01d) + 1;
         }
     }
 }
