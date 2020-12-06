@@ -113,8 +113,6 @@ namespace ChapubelichBot.Main.Chapubelich
             };
             _botAdminCommands = new List<Command>
             {
-                new SetShutdown(),
-                new CancelShutdown(),
                 new GetId()
             };
 
