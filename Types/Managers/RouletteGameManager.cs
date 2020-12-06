@@ -831,7 +831,7 @@ namespace ChapubelichBot.Types.Managers
             Parallel.ForEach(deadSessions, async gs =>
             {
                 await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-                gs = await GetGameSessionOrNullAsync(gs.ChatId, dbContext);
+                dbContext.Attach(gs);
 
                 var returnedBets = string.Empty;
 

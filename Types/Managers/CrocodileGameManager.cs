@@ -403,7 +403,7 @@ namespace ChapubelichBot.Types.Managers
             Parallel.ForEach(deadSessions, async gs =>
             {
                 await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-                gs = await GetGameSessionOrNullAsync(gs.Group.GroupId, dbContext);
+                dbContext.CrocodileGameSessions.Attach(gs);
 
                 if (await DeleteGameSessionAsync(gs, dbContext))
                 {
