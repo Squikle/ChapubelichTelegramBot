@@ -2,6 +2,7 @@
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.CommandProcessors;
 using ChapubelichBot.Types.Entities;
+using ChapubelichBot.Types.Entities.Groups;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;

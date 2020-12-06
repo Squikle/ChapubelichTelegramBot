@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Entities;
+using ChapubelichBot.Types.Entities.Groups;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,8 +14,8 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
-using Group = ChapubelichBot.Types.Entities.Group;
-using User = ChapubelichBot.Types.Entities.User;
+using Group = ChapubelichBot.Types.Entities.Groups.Group;
+using User = ChapubelichBot.Types.Entities.Users.User;
 
 namespace ChapubelichBot.CommandEntities.RegexCommands
 {

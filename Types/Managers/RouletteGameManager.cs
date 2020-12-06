@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions;
 using ChapubelichBot.Types.Entities;
+using ChapubelichBot.Types.Entities.Roulette;
 using ChapubelichBot.Types.Enums;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers.MessagesSender;
@@ -18,8 +19,8 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
-using Group = ChapubelichBot.Types.Entities.Group;
-using User = ChapubelichBot.Types.Entities.User;
+using Group = ChapubelichBot.Types.Entities.Groups.Group;
+using User = ChapubelichBot.Types.Entities.Users.User;
 
 namespace ChapubelichBot.Types.Managers
 {

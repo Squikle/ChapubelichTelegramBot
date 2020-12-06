@@ -1,7 +1,8 @@
 ﻿using ChapubelichBot.Types.Abstractions;
+using ChapubelichBot.Types.Entities.Users;
 using ChapubelichBot.Types.Enums;
 
-namespace ChapubelichBot.Types.Entities
+namespace ChapubelichBot.Types.Entities.Roulette
 {
     public class RouletteColorBetToken : RouletteBetToken
     {

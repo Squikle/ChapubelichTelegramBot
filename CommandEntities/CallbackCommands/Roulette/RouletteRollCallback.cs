@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Entities;
+using ChapubelichBot.Types.Entities.Roulette;
 using ChapubelichBot.Types.Managers;
 using Telegram.Bot;
 using Telegram.Bot.Types;

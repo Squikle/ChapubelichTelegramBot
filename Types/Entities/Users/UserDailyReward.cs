@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ChapubelichBot.Types.Entities
+namespace ChapubelichBot.Types.Entities.Users
 {
-    public class DailyReward
+    public class UserDailyReward
     {
         [Key]
         public int UserId { get; set; }

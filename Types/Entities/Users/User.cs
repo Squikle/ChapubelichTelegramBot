@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ChapubelichBot.Types.Entities.Crocodile;
+using ChapubelichBot.Types.Entities.Groups;
 
-namespace ChapubelichBot.Types.Entities
+namespace ChapubelichBot.Types.Entities.Users
 {
     public class User
     {
@@ -16,7 +18,7 @@ namespace ChapubelichBot.Types.Entities
         public short DefaultBet { get; set; }
         public List<int> LastGameSessions { get; set; }
 
-        public DailyReward DailyReward { get; set; }
+        public UserDailyReward DailyReward { get; set; }
         public UserTheft UserTheft { get; set; }
         public UserCompliment UserCompliment { get; set; }
         public CrocodileHostCandidate CrocodileHostingRegistration { get; set; }

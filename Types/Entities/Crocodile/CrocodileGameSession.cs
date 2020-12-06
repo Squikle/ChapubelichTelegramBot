@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using ChapubelichBot.Types.Entities.Groups;
+using ChapubelichBot.Types.Entities.Users;
 
-namespace ChapubelichBot.Types.Entities
+namespace ChapubelichBot.Types.Entities.Crocodile
 {
     public class CrocodileGameSession
     {

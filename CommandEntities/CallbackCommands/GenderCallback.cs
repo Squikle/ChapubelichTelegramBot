@@ -7,7 +7,7 @@ using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using User = ChapubelichBot.Types.Entities.User;
+using User = ChapubelichBot.Types.Entities.Users.User;
 
 namespace ChapubelichBot.CommandEntities.CallbackCommands
 {

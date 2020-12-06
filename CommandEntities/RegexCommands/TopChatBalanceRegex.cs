@@ -12,8 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Group = ChapubelichBot.Types.Entities.Group;
-using User = ChapubelichBot.Types.Entities.User;
+using Group = ChapubelichBot.Types.Entities.Groups.Group;
+using User = ChapubelichBot.Types.Entities.Users.User;
 
 namespace ChapubelichBot.CommandEntities.RegexCommands
 {

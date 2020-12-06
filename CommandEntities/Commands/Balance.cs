@@ -3,7 +3,7 @@ using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using User = ChapubelichBot.Types.Entities.User;
+using User = ChapubelichBot.Types.Entities.Users.User;
 using ChapubelichBot.Types.Abstractions.Commands;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using Microsoft.EntityFrameworkCore;

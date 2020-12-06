@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ChapubelichBot.Types.Entities.Crocodile;
+using ChapubelichBot.Types.Entities.Users;
 
-namespace ChapubelichBot.Types.Entities
+namespace ChapubelichBot.Types.Entities.Groups
 {
     public class Group
     {

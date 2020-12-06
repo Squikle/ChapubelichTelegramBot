@@ -1,4 +1,9 @@
 ﻿using ChapubelichBot.Types.Entities;
+using ChapubelichBot.Types.Entities.Bot;
+using ChapubelichBot.Types.Entities.Crocodile;
+using ChapubelichBot.Types.Entities.Groups;
+using ChapubelichBot.Types.Entities.Roulette;
+using ChapubelichBot.Types.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
