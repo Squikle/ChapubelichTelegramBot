@@ -147,7 +147,7 @@ namespace ChapubelichBot.Types.Managers
                 if (!string.IsNullOrEmpty(candidateName))
                 {
                     string newGameMessageText = gameSession.GameMessageText;
-                    if (gameSession.HostCandidates.Count > 1)
+                    if (gameSession.HostCandidates.Count == 1)
                         newGameMessageText += "\nСписок желающих быть ведущим:";
                     newGameMessageText += $"\n<b>{gameSession.HostCandidates.Count}.</b> <i><a href=\"tg://user?id={callbackQuery.From.Id}\">{candidateName}</a></i>";
                     await Client.TryEditMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId,
@@ -156,7 +156,12 @@ namespace ChapubelichBot.Types.Managers
 
                     gameSession.GameMessageText = newGameMessageText;
                     await dbContext.SaveChangesAsync();
-                } 
+                }
+
+                int maxNumberHostingCandidates = ChapubelichClient.GetConfig()
+                    .GetValue<int>("CrocodileSettings:MaxNumberHostingCandidates");
+                if (gameSession.HostCandidates.Count >= maxNumberHostingCandidates)
+                    await StartGameSessionAsync(gameSession);
             }
 
             await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, answerMessage);
@@ -230,22 +235,24 @@ namespace ChapubelichBot.Types.Managers
 
             if (gameSession.Host == null)
             {
-                HashSet<int> tryedUsers = new HashSet<int>();
+                HashSet<int> tryedUserIds = new HashSet<int>();
                 Message wordChooseMessage = null;
                 Random rand = new Random();
                 User host = null;
-                while (wordChooseMessage == null && tryedUsers.Count < gameSession.HostCandidates.Count)
+                while (wordChooseMessage == null && tryedUserIds.Count < gameSession.HostCandidates.Count)
                 {
                     host = gameSession.HostCandidates[rand.Next(gameSession.HostCandidates.Count)].Candidate;
-                    if (!tryedUsers.Contains(host.UserId))
-                        tryedUsers.Add(host.UserId);
-                    else continue;
+                    if (tryedUserIds.Contains(host.UserId))
+                        continue;
+
                     wordChooseMessage = await Client.TrySendTextMessageAsync(host.UserId,
                         $"Ты выбран в качестве ведущего в группе <i>{gameSession.Group.Name}</i>. Выбери одно из 3 предложенных слов:",
                         replyMarkup: InlineKeyboards.GetCrocodileChooseWordMarkup(gameSession.WordVariants[0], gameSession.WordVariants[1], gameSession.WordVariants[2]),
                         parseMode: ParseMode.Html);
+
+                    tryedUserIds.Add(host.UserId);
                 }
-                if (wordChooseMessage == null && tryedUsers.Count == gameSession.HostCandidates.Count || host == null)
+                if (wordChooseMessage == null && tryedUserIds.Count == gameSession.HostCandidates.Count || host == null)
                 {
                     if (await DeleteGameSessionAsync(gameSession, dbContext))
                     {
@@ -259,12 +266,11 @@ namespace ChapubelichBot.Types.Managers
                             return;
                         }
                         await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
-                            "Не могу отправить сообщение <i>Ведущему</i>. Игра отменена 😞",
-                            ParseMode.Html);
+                            "Не удалось отправить сообщение ни одному из возможных <i>Ведущих</i>. Игра отменена 😞",
+                            ParseMode.Html, replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
                     }
                     return;
                 }
-
                 
                 ChatMember hostMember = await Client.GetChatMemberAsync(gameSession.Group.GroupId, host.UserId);
                 if (hostMember == null)
@@ -295,7 +301,7 @@ namespace ChapubelichBot.Types.Managers
                 return;
 
             User guessingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == message.From.Id);
-            if (guessingUser == null)
+            if (guessingUser == null || guessingUser.UserId == gameSession.Host.UserId)
                 return;
 
             bool saveFailed;
@@ -367,8 +373,7 @@ namespace ChapubelichBot.Types.Managers
                 gameSessions = dbContext.CrocodileGameSessions
                     .Include(gs => gs.HostCandidates)
                     .Include(gs => gs.Group)
-                    // TODO: вернуть "> 1" после тестов 
-                    .Where(gs => gs.StartTime == null && gs.HostCandidates.Count > 0)
+                    .Where(gs => gs.StartTime == null && gs.HostCandidates.Count > 1)
                     .ToList();
             Parallel.ForEach(gameSessions, async gs =>
             {
