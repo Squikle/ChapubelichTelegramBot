@@ -8,11 +8,11 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
 {
     class RouletteStartRegex : RegexCommand
     {
-        public override string Pattern => @"^\/? *(рулетка|roulette)(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/? *(рулетка|казино|roulette|casino)(@ChapubelichBot)?$";
 
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await RouletteGameManager.StartAsync(message);
+            await RouletteGameManager.CreateRequestAsync(message);
         }
     }
 }

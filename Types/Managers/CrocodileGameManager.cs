@@ -35,7 +35,7 @@ namespace ChapubelichBot.Types.Managers
             _deadSessionsCollector = new Timer(async _ => await CollectDeadSessionsAsync(), null, periodToCollect, periodToCollect);
 
             int periodToStartGame = (int) TimeSpan.FromSeconds(5).TotalMilliseconds;
-            _startGameTimer = new Timer(async _ => await StartGamesByTimer(), null, periodToStartGame, periodToStartGame);
+            _startGameTimer = new Timer(async _ => await StartGamesByTimerAsync(), null, periodToStartGame, periodToStartGame);
         }
         public static void Terminate()
         {
@@ -166,7 +166,7 @@ namespace ChapubelichBot.Types.Managers
 
             await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, answerMessage);
         }
-        public static async Task ChooseWordRequestTask(CallbackQuery callbackQuery)
+        public static async Task ChooseWordRequestAsync(CallbackQuery callbackQuery)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             CrocodileGameSession gameSession =
@@ -293,7 +293,7 @@ namespace ChapubelichBot.Types.Managers
             }
         }
 
-        public static async Task GuessTheWordRequest(Message message)
+        public static async Task GuessTheWordRequestAsync(Message message)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             CrocodileGameSession gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
@@ -364,7 +364,7 @@ namespace ChapubelichBot.Types.Managers
         {
             gameSession.LastActivity = DateTime.UtcNow;
         }
-        private static async Task StartGamesByTimer()
+        private static async Task StartGamesByTimerAsync()
         {
             int secondsToStartGame = ChapubelichClient.GetConfig().GetValue<int>("CrocodileSettings:StartGameDelaySeconds");
 
@@ -418,7 +418,8 @@ namespace ChapubelichBot.Types.Managers
                     }
                     await Client.TrySendTextMessageAsync(
                         gs.Group.GroupId,
-                        "Игровая сессия крокодила отменена из-за отсутствия активности",
+                        "Игровая сессия <i>крокодила</i> отменена из-за отсутствия активности",
+                        ParseMode.Html,
                         replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
                 }
             });
@@ -444,7 +445,6 @@ namespace ChapubelichBot.Types.Managers
                 selectedWords[i] = words[rand.Next(words.Length)];
             return selectedWords;
         }
-
         private static bool IsWordGuessCorrect(string guessWord, string gameSessionWord)
         {
             guessWord = Regex.Replace(guessWord, "э", "е", RegexOptions.IgnoreCase);
@@ -452,7 +452,6 @@ namespace ChapubelichBot.Types.Managers
             var compareOptions = CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols;
             return String.Compare(guessWord, gameSessionWord, CultureInfo.InvariantCulture, compareOptions) == 0;
         }
-
         private static long GetPlayerReward(CrocodileGameSession gameSession)
         {
             if (!gameSession.StartTime.HasValue)

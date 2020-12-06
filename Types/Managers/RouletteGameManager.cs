@@ -43,7 +43,7 @@ namespace ChapubelichBot.Types.Managers
         }
 
         // Public
-        public static async Task StartAsync(Message message)
+        public static async Task CreateRequestAsync(Message message)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             RouletteGameSession gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
@@ -325,7 +325,7 @@ namespace ChapubelichBot.Types.Managers
                 parseMode: ParseMode.Html);
 
             if (!string.IsNullOrEmpty(matchString.Groups[3].Value))
-                await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
+                await EndGameSessionAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
         public static async Task BetNumbersRequestAsync(CallbackQuery callbackQuery)
         {
@@ -485,7 +485,7 @@ namespace ChapubelichBot.Types.Managers
                 parseMode: ParseMode.Html);
 
             if (!string.IsNullOrEmpty(matchString.Groups[5].Value))
-                await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
+                await EndGameSessionAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
         public static async Task RollRequestAsync(CallbackQuery callbackQuery)
         {
@@ -510,7 +510,7 @@ namespace ChapubelichBot.Types.Managers
             }
 
             Task answeringCallbackQuery = Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "✅");
-            await ResultAsync(gameSession, dbContext, callbackQuery.Message.Chat.Type);
+            await EndGameSessionAsync(gameSession, dbContext, callbackQuery.Message.Chat.Type);
             await answeringCallbackQuery;
         }
         public static async Task RollRequestAsync(Message message)
@@ -533,7 +533,7 @@ namespace ChapubelichBot.Types.Managers
                 "Сделай ставку, чтобы крутить барабан",
                 replyToMessageId: message.MessageId);
             else
-                await ResultAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
+                await EndGameSessionAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
         }
         public static async Task BetInfoRequestAsync(Message message)
         {
@@ -650,7 +650,7 @@ namespace ChapubelichBot.Types.Managers
 
             return result.ToString();
         }
-        private static async Task ResultAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType chatType, int startMessageId = 0)
+        private static async Task EndGameSessionAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType chatType, int startMessageId = 0)
         {
             gameSession.Resulting = true;
             await dbContext.SaveChangesAsync();
@@ -853,7 +853,7 @@ namespace ChapubelichBot.Types.Managers
                     deletingMessage = Client.TryDeleteMessageAsync(gs.ChatId, gs.GameMessageId);
                 Task sendingMessage = Client.TrySendTextMessageAsync(
                     gs.ChatId,
-                    "Игровая сессия отменена из-за отсутствия активности" + returnedBets,
+                    "Игровая сессия <i>рулетки</i> отменена из-за отсутствия активности" + returnedBets,
                     ParseMode.Html,
                     replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
 
