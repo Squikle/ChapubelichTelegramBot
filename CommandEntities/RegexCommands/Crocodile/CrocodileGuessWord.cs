@@ -11,7 +11,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Crocodile
         public override string Pattern => @"^\/?\..*$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await CrocodileGameManager.GuessTheWordRequest(message);
+            await CrocodileGameManager.GuessTheWordRequestAsync(message);
         }
     }
 }

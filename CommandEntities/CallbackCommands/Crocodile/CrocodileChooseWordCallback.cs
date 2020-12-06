@@ -12,7 +12,7 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands.Crocodile
         public override List<string> IncludingData => new List<string> { "crocodileChooseFirstWord", "crocodileChooseSecondWord", "crocodileChooseThirdWord" };
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
-           await CrocodileGameManager.ChooseWordRequestTask(query);
+           await CrocodileGameManager.ChooseWordRequestAsync(query);
         }
     }
 }

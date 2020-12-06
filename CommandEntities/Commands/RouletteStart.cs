@@ -11,7 +11,7 @@ namespace ChapubelichBot.CommandEntities.Commands
         public override string Name => RouletteGameManager.Name;
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await RouletteGameManager.StartAsync(message);
+            await RouletteGameManager.CreateRequestAsync(message);
         }
     }
 }

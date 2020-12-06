@@ -14,7 +14,7 @@ namespace ChapubelichBot.CommandEntities.CallbackCommands.Roulette
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             await client.TryEditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
-            await RouletteGameManager.StartAsync(query.Message);
+            await RouletteGameManager.CreateRequestAsync(query.Message);
         }
     }
 } 
