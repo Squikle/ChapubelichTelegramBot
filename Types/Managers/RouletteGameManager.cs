@@ -509,7 +509,7 @@ namespace ChapubelichBot.Types.Managers
                 return;
             }
 
-            Task answeringCallbackQuery = Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "Ты крутишь барабан!");
+            Task answeringCallbackQuery = Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "Ты крутишь барабан! ✅");
             await EndGameSessionAsync(gameSession, dbContext, callbackQuery.Message.Chat.Type);
             await answeringCallbackQuery;
         }
