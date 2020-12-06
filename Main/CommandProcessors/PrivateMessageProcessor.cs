@@ -36,7 +36,7 @@ namespace ChapubelichBot.Main.CommandProcessors
             if (isUserRegistered)
             {
                 foreach (var privateCommand in ChapubelichClient.BotPrivateCommandsList)
-                    if (privateCommand.Contains(message.Text, privateChat: true))
+                    if (privateCommand.Contains(message.Text))
                     {
                         await privateCommand.ExecuteAsync(message, client);
                         return true;
@@ -50,7 +50,7 @@ namespace ChapubelichBot.Main.CommandProcessors
                     }
             }
 
-            if (ChapubelichClient.StartCommand.Contains(message.Text, privateChat: true))
+            if (ChapubelichClient.StartCommand.Contains(message.Text))
             {
                 if (!isUserRegistered)
                 {
@@ -60,7 +60,7 @@ namespace ChapubelichBot.Main.CommandProcessors
 
                 repeatedRegisterRequest = true;
             }
-            else if (ChapubelichClient.RegistrationCommand.Contains(message.Text, privateChat: true))
+            else if (ChapubelichClient.RegistrationCommand.Contains(message.Text))
             {
                 if (!isUserRegistered)
                 {

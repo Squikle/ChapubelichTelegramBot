@@ -36,7 +36,7 @@ namespace ChapubelichBot.Types.ScheduledJobs
             }
             (await dbContext.Configurations.FirstAsync()).LastResetTime = DateTime.Now;
             await dbContext.SaveChangesAsync();
-            string dbSchema = ChapubelichClient.GetConfig().GetValue<string>("AppSettings:DatabaseSchema");
+            string dbSchema = ChapubelichClient.GetConfig().GetValue<string>("BotSettings:DatabaseSchema");
             await dbContext.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE \"{dbSchema}\".\"GroupDailyPerson\"");
         }
     }

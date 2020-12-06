@@ -1,20 +1,26 @@
 {
-  "AppSettings": {
+  "BotSettings": {
     "DatabaseSchema": "Botdb",
-    "BotName": "Chapubelich",
-    "MessageCheckPeriod": 15,
-    "StopGameDelay": 300,
-    "RouletteAnimationDuration": 3,
-    "MaxTransferSum": 1000,
-    "MaxBetSum": 10000,
-    "MaxTheftSum": 100,
-    "TheftCoolDownDuration": 600,
-    "FullTheftChance": 45,
-    "PartialTheftChance": 30,
-    "TheftSumCoefficient": 5,
+    "Mute": true,
+    "MessageCheckPeriod": 15
+  },
+  "CommandSettings": {
     "MaxTopChatOutput": 20,
-    "MaxDailyPersonNameLenght": 30,
-    "Mute": true
+    "MaxDailyPersonNameLenght": 30
+  },
+  "UserSettings": {
+    "TheftSumCoefficient": 5,
+    "PartialTheftChance": 30,
+    "FullTheftChance": 45,
+    "TheftCoolDownDuration": 600,
+    "MaxTheftSum": 100,
+
+    "MaxTransferSum": 1000
+  },
+  "RouletteSettings": {
+    "RouletteAnimationDuration": 3,
+    "MaxBetSum": 10000,
+    "StopGameDelay": 300
   },
   "CrocodileSettings": {
     "MaxNumberHostingCandidates": 10,
@@ -29,19 +35,24 @@
   },
 
   "_Comments": {
+    "_Mute": "force disable notifications (true = yes|false = no|null = depends on call context): Default: true",
     "_MessageCheckPeriod": "how old message to check (in minutes): Default: 15",
-    "_StopGameDelay": "time before roulette session is destroyed (in seconds): Default: 300 = 5min",
-    "_RouletteAnimationDuration": "duration of roulette animation (in seconds): Default: 3",
-    "_MaxTransferSum": "how much can users transfer: Default: 1000",
-    "_MaxBetSum": "how much can bet on roulette: Default: 10000",
-    "_MaxTheftSum": "how much can theft per 1 time: Default: 100",
-    "_TheftCoolDownDuration": "duration of cool down for next money theft: Default: 600 = 10min",
-    "_FullTheftChance": "chance to theft full value for 1% (in percents): Default: 45",
-    "_PartialTheftChance": "chance to theft pertial value for 1% (in percents): Default: 30",
-    "_TheftSumCoefficient": "how much the size of the theft sum affects the chance of theft. On 30 it almost doesn't affect: Default: 5 = decreasing by 2 times",
+
     "_MaxTopChatOutput": "how much users can top contain: Default: 20",
     "_MaxDailyPersonNameLenght": "max lenght of name string of daily person in group: Default: 30",
-    "_Mute": "force disable notifications (true = yes|false = no|null = depends on call context): Default: true",
+
+    "_TheftSumCoefficient": "how much the size of the theft sum affects the chance of theft. On 30 it almost doesn't affect: Default: 5 = decreasing by 2 times",
+    "_PartialTheftChance": "chance to theft pertial value for 1% (in percents): Default: 30",
+    "_FullTheftChance": "chance to theft full value for 1% (in percents): Default: 45",
+    "_TheftCoolDownDuration": "duration of cool down for next money theft: Default: 600 = 10min",
+    "_MaxTheftSum": "how much can theft per 1 time: Default: 100",
+
+    "_MaxTransferSum": "how much can users transfer: Default: 1000",
+
+
+    "_RouletteAnimationDuration": "duration of roulette animation (in seconds): Default: 3",
+    "_MaxBetSum": "how much can bet on roulette: Default: 10000",
+    "_StopGameDelay": "time before roulette session is destroyed (in seconds): Default: 300 = 5min",
 
     "_MaxNumberHostingCandidates": "how many users can participate in the selection of a crocodile host: Default 10",
     "_MaxCrocodileReward": "how much the player can get if he guesses the word in the crocodile game: Default: 50",

@@ -27,7 +27,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             Match match = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase);
             string transferSumString = match.Groups[1].Value;
 
-            long maxTransferSum = ChapubelichClient.GetConfig().GetValue<long>("AppSettings:MaxTransferSum");
+            long maxTransferSum = ChapubelichClient.GetConfig().GetValue<long>("UserSettings:MaxTransferSum");
 
             if (!long.TryParse(transferSumString, out long transferSum)
                 || transferSum > maxTransferSum)

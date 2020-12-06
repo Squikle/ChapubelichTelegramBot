@@ -44,7 +44,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             if (thief == null)
                 return;
-            if (thief.UserTheft != null && thief.UserTheft.LastMoneyTheft.AddSeconds(config.GetValue<int>("AppSettings:TheftCoolDownDuration")) > DateTime.UtcNow)
+            if (thief.UserTheft != null && thief.UserTheft.LastMoneyTheft.AddSeconds(config.GetValue<int>("UserSettings:TheftCoolDownDuration")) > DateTime.UtcNow)
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
@@ -56,7 +56,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             Match match = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase);
             string theftSumString = match.Groups[1].Value;
 
-            long maxTheftSum = config.GetValue<long>("AppSettings:MaxTheftSum");
+            long maxTheftSum = config.GetValue<long>("UserSettings:MaxTheftSum");
 
             if (!long.TryParse(theftSumString, out long theftSum)
                 || theftSum > maxTheftSum)
@@ -81,9 +81,9 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             Random rand = new Random();
 
-            int fullChance = config.GetValue<int>("AppSettings:FullTheftChance"); // шанс забрать 100%
-            int partialChance = config.GetValue<int>("AppSettings:PartialTheftChance") + fullChance; // шанс забрать часть
-            int coef = config.GetValue<int>("AppSettings:TheftSumCoefficient"); // влияние размера кражи на шанс (чем больше тем больше шанс украсть много) (при 30 почти не влияет, при 5 шанс падает в 2 раза при краже от 1% до 100%)
+            int fullChance = config.GetValue<int>("UserSettings:FullTheftChance"); // шанс забрать 100%
+            int partialChance = config.GetValue<int>("UserSettings:PartialTheftChance") + fullChance; // шанс забрать часть
+            int coef = config.GetValue<int>("UserSettings:TheftSumCoefficient"); // влияние размера кражи на шанс (чем больше тем больше шанс украсть много) (при 30 почти не влияет, при 5 шанс падает в 2 раза при краже от 1% до 100%)
 
             int randCase = (int)((float)theftSum / maxTheftSum * 100 / coef) + rand.Next(0, 100);
 

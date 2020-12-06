@@ -269,7 +269,7 @@ namespace ChapubelichBot.Types.Managers
 
             Match matchString = Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase);
 
-            long maxBetSum = ChapubelichClient.GetConfig().GetValue<long>("AppSettings:MaxBetSum");
+            long maxBetSum = ChapubelichClient.GetConfig().GetValue<long>("RouletteSettings:MaxBetSum");
 
             if (!long.TryParse(matchString.Groups[1].Value, out long playerBetSum) || playerBetSum > maxBetSum)
             {
@@ -399,7 +399,7 @@ namespace ChapubelichBot.Types.Managers
 
             Match matchString = Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase);
 
-            long maxBetSum = ChapubelichClient.GetConfig().GetValue<long>("AppSettings:MaxBetSum");
+            long maxBetSum = ChapubelichClient.GetConfig().GetValue<long>("RouletteSettings:MaxBetSum");
 
             if (!long.TryParse(matchString.Groups[1].Value, out long playerBetSum) || playerBetSum > maxBetSum)
             {
@@ -665,7 +665,7 @@ namespace ChapubelichBot.Types.Managers
                 await dbContext.SaveChangesAsync();
             }
 
-            int configAnimationDuration = ChapubelichClient.GetConfig().GetValue<int>("AppSettings:RouletteAnimationDuration");
+            int configAnimationDuration = ChapubelichClient.GetConfig().GetValue<int>("RouletteSettings:RouletteAnimationDuration");
             int animationDuration = (int)TimeSpan.FromSeconds(configAnimationDuration).TotalMilliseconds;
             int maxLimitAnimationDuration = (int)TimeSpan.FromSeconds(10).TotalMilliseconds;
             Task task = Task.Delay(animationDuration >= maxLimitAnimationDuration ? maxLimitAnimationDuration : animationDuration);
@@ -814,7 +814,7 @@ namespace ChapubelichBot.Types.Managers
             List<RouletteGameSession> deadSessions;
             await using (var dbContext = new ChapubelichdbContext())
             {
-                int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("AppSettings:StopGameDelay");
+                int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("RouletteSettings:StopGameDelay");
 
                 deadSessions = (await dbContext.RouletteGameSessions
                     .Where(gs => gs.LastActivity < DateTime.UtcNow && !gs.Resulting)

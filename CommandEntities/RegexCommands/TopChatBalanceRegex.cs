@@ -31,7 +31,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             if (!int.TryParse(Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[2].Value, out int usersToOutput) || usersToOutput == 0)
                 usersToOutput = 10;
 
-            int maxTopChatOutput = ChapubelichClient.GetConfig().GetValue<int>("AppSettings:MaxTopChatOutput");
+            int maxTopChatOutput = ChapubelichClient.GetConfig().GetValue<int>("CommandSettings:MaxTopChatOutput");
             if (usersToOutput > maxTopChatOutput)
                 usersToOutput = maxTopChatOutput;
             if (usersToOutput > group.Users.Count)

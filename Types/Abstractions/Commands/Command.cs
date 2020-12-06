@@ -10,12 +10,9 @@ namespace ChapubelichBot.Types.Abstractions.Commands
     {
         public abstract string Name { get; }
         public abstract Task ExecuteAsync(Message message, ITelegramBotClient client);
-        public bool Contains(string text, bool privateChat)
+        public bool Contains(string text)
         {
-            if (privateChat)
-                return text.Contains(Name);
-
-            return text.Contains(Name) && text.Contains(ChapubelichClient.GetConfig().GetValue<string>("AppSettings:BotName"));
+            return text.Contains(Name);
         }
     }
 }

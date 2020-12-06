@@ -123,7 +123,7 @@ namespace ChapubelichBot.Main.Chapubelich
                 e.Message.From.Id, e.Message.From.Username,
                 e.Message.Chat.Id, e.Message.Chat?.Title, e.Message.MessageId, e.Message.Text);
 
-            if (e.Message.Date.AddMinutes(Config.GetValue<int>("AppSettings:MessageCheckPeriod")) < DateTime.UtcNow)
+            if (e.Message.Date.AddMinutes(Config.GetValue<int>("BotSettings:MessageCheckPeriod")) < DateTime.UtcNow)
                 return;
 
             if (await ChapubelichClient.AdminMessageProcessor.ExecuteAsync(e.Message, Client))

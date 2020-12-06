@@ -40,7 +40,7 @@ namespace ChapubelichBot.Types.Managers.MessagesSender
             return _chatLimiter.IsAvailableToSend(chatId) && _globalLimiter.IsAvailableToSend();
         }
 
-        private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("AppSettings:Mute");
+        private static bool? Muted => ChapubelichClient.GetConfig().GetValue<bool?>("BotSettings:Mute");
         public static async Task<Message> TrySendTextMessageAsync(this ITelegramBotClient client, ChatId chatId, string text, ParseMode parseMode = ParseMode.Default, bool disableWebPagePreview = false, bool disableNotification = false, int replyToMessageId = 0, IReplyMarkup replyMarkup = null, CancellationToken cancellationToken = default)
         {
             bool muted = Muted != null ? Muted == true : disableNotification;

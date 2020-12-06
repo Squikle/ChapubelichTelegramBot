@@ -41,7 +41,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             }
             string regexName = Regex.Match(message.Text, Pattern, RegexOptions.IgnoreCase).Groups[1].Value;
 
-            int maxDailyPersonNameLenght = ChapubelichClient.GetConfig().GetValue<int>("AppSettings:MaxDailyPersonNameLenght");
+            int maxDailyPersonNameLenght = ChapubelichClient.GetConfig().GetValue<int>("CommandSettings:MaxDailyPersonNameLenght");
             if (regexName.Length > maxDailyPersonNameLenght)
             {
                 await client.TrySendTextMessageAsync(message.Chat.Id, 
