@@ -851,11 +851,6 @@ namespace ChapubelichBot.Types.Managers
                 Task deletingMessage = null;
                 if (gs.GameMessageId != 0)
                     deletingMessage = Client.TryDeleteMessageAsync(gs.ChatId, gs.GameMessageId);
-                Task sendingMessage = Client.TrySendTextMessageAsync(
-                    gs.ChatId,
-                    "Игровая сессия <i>рулетки</i> отменена из-за отсутствия активности" + returnedBets,
-                    ParseMode.Html,
-                    replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
 
                 dbContext.RouletteGameSessions.Remove(gs);
                 try
@@ -867,10 +862,13 @@ namespace ChapubelichBot.Types.Managers
                     return;
                 }
 
+                await Client.TrySendTextMessageAsync(
+                    gs.ChatId,
+                    "Игровая сессия <i>рулетки</i> отменена из-за отсутствия активности" + returnedBets,
+                    ParseMode.Html,
+                    replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup);
                 if (deletingMessage != null)
                     await deletingMessage;
-
-                await sendingMessage;
             });
         }
 
