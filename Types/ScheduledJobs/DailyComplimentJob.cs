@@ -59,12 +59,6 @@ namespace ChapubelichBot.Types.ScheduledJobs
                 userCompliments.Add(user.UserId, compliment);
             }
 
-            // M compliment to console -------------------
-            int mUser = userCompliments.Keys.FirstOrDefault(x => x == 583067838);
-            if (mUser != 0)
-                Console.WriteLine(userCompliments[mUser]);
-            // -------------------------------------------
-
             Parallel.ForEach(userCompliments, async uc =>
                 await client.TrySendTextMessageAsync(uc.Key, $"🎉Твой комплимент дня🎉\n{uc.Value}"));
 
