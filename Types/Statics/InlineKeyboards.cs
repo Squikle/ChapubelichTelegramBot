@@ -85,7 +85,7 @@ namespace ChapubelichBot.Types.Statics
             {
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData($"{word1}", $"crocodileChooseFirstWord")
+                    InlineKeyboardButton.WithCallbackData($"{word1}", "crocodileChooseFirstWord")
                 },
                 new[]
                 {
