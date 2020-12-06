@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using ChapubelichBot.Main.Chapubelich;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ChapubelichBot.Migrations
 {
     [DbContext(typeof(ChapubelichdbContext))]
-    partial class ChapubelichdbContextModelSnapshot : ModelSnapshot
+    [Migration("20201202155836_one-to-many-CrocodileHostingRegistration")]
+    partial class onetomanyCrocodileHostingRegistration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,9 +60,6 @@ namespace ChapubelichBot.Migrations
                     b.Property<long>("GroupId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Attempts")
-                        .HasColumnType("integer");
-
                     b.Property<int>("GameMessageId")
                         .HasColumnType("integer");
 
@@ -76,9 +75,9 @@ namespace ChapubelichBot.Migrations
                     b.Property<DateTime>("LastActivity")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime?>("StartTime")
+                    b.Property<bool>("Started")
                         .IsConcurrencyToken()
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("boolean");
 
                     b.Property<string[]>("WordVariants")
                         .HasMaxLength(50)

@@ -14,6 +14,7 @@ namespace ChapubelichBot.Types.Entities
         public List<int> LastGameSessions { get; set; }
 
         public GroupDailyPerson GroupDailyPerson { get; set; }
+        public CrocodileGameSession CrocodileGameSession { get; set; }
 
         public List<User> Users { get; set; }
 

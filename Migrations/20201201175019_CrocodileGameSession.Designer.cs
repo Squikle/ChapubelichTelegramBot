@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using ChapubelichBot.Main.Chapubelich;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ChapubelichBot.Migrations
 {
     [DbContext(typeof(ChapubelichdbContext))]
-    partial class ChapubelichdbContextModelSnapshot : ModelSnapshot
+    [Migration("20201201175019_CrocodileGameSession")]
+    partial class CrocodileGameSession
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,9 +60,6 @@ namespace ChapubelichBot.Migrations
                     b.Property<long>("GroupId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Attempts")
-                        .HasColumnType("integer");
-
                     b.Property<int>("GameMessageId")
                         .HasColumnType("integer");
 
@@ -76,9 +75,8 @@ namespace ChapubelichBot.Migrations
                     b.Property<DateTime>("LastActivity")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime?>("StartTime")
-                        .IsConcurrencyToken()
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<bool>("Started")
+                        .HasColumnType("boolean");
 
                     b.Property<string[]>("WordVariants")
                         .HasMaxLength(50)
@@ -91,7 +89,7 @@ namespace ChapubelichBot.Migrations
                     b.ToTable("CrocodileGameSessions");
                 });
 
-            modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileHostCandidate", b =>
+            modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileHostingRegistration", b =>
                 {
                     b.Property<int>("CandidateId")
                         .HasColumnType("integer");
@@ -104,11 +102,11 @@ namespace ChapubelichBot.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("timezone('utc', now())");
 
-                    b.HasKey("CandidateId");
+                    b.HasKey("CandidateId", "CrocodileGameSessionId");
 
                     b.HasIndex("CrocodileGameSessionId");
 
-                    b.ToTable("CrocodileHostCandidate");
+                    b.ToTable("CrocodileHostingRegistrations");
                 });
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.DailyReward", b =>
@@ -303,16 +301,16 @@ namespace ChapubelichBot.Migrations
                     b.Navigation("Host");
                 });
 
-            modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileHostCandidate", b =>
+            modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileHostingRegistration", b =>
                 {
                     b.HasOne("ChapubelichBot.Types.Entities.User", "Candidate")
-                        .WithOne("CrocodileHostingRegistration")
-                        .HasForeignKey("ChapubelichBot.Types.Entities.CrocodileHostCandidate", "CandidateId")
+                        .WithMany("CrocodileHostingRegistrations")
+                        .HasForeignKey("CandidateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ChapubelichBot.Types.Entities.CrocodileGameSession", "CrocodileGameSession")
-                        .WithMany("HostCandidates")
+                        .WithMany("CrocodileHostingRegistrations")
                         .HasForeignKey("CrocodileGameSessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -472,7 +470,7 @@ namespace ChapubelichBot.Migrations
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.CrocodileGameSession", b =>
                 {
-                    b.Navigation("HostCandidates");
+                    b.Navigation("CrocodileHostingRegistrations");
                 });
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.Group", b =>
@@ -484,7 +482,7 @@ namespace ChapubelichBot.Migrations
 
             modelBuilder.Entity("ChapubelichBot.Types.Entities.User", b =>
                 {
-                    b.Navigation("CrocodileHostingRegistration");
+                    b.Navigation("CrocodileHostingRegistrations");
 
                     b.Navigation("DailyReward");
 

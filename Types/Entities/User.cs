@@ -19,6 +19,7 @@ namespace ChapubelichBot.Types.Entities
         public DailyReward DailyReward { get; set; }
         public UserTheft UserTheft { get; set; }
         public UserCompliment UserCompliment { get; set; }
+        public CrocodileHostCandidate CrocodileHostingRegistration { get; set; }
 
         public List<Group> Groups { get; set; }
 
