@@ -27,7 +27,7 @@
     "MaxCrocodileReward": 50,
     "MaxSecondsToGetCrocodileReward": 300,
     "StartGameDelaySeconds": 5,
-    "StopCrocodileGameDelay": 300
+    "StopCrocodileGameDelay": 60
   },
   "Logger": {
     "DirectoryPath": "ChapubelichLogs",
