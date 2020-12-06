@@ -74,6 +74,78 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
                 catch (DbUpdateException)
                 {
                     Console.WriteLine("Повторное добавление юзера в группу");
+                    group = await dbContext.Groups.FirstOrDefaultAsync(g => g.GroupId == message.Chat.Id);
+                }
+            }
+
+            if (saveChangesRequired)
+                await dbContext.SaveChangesAsync();
+
+            return group;
+        }
+        protected static async Task<Group> UpdateGroupAsync(CallbackQuery callbackQuery, ITelegramBotClient client)
+        {
+            Telegram.Bot.Types.User bot = await client.GetMeAsync();
+            if (bot == null)
+                return null;
+            Task<ChatMember> gettingChatMember = client.GetChatMemberAsync(callbackQuery.Message.Chat.Id, bot.Id);
+
+            bool saveChangesRequired = false;
+
+            await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
+            Group group = await dbContext.Groups.Include(u => u.Users).FirstOrDefaultAsync(g => g.GroupId == callbackQuery.Message.Chat.Id);
+            if (group == null)
+            {
+                group = new Group
+                {
+                    GroupId = callbackQuery.Message.Chat.Id,
+                    Name = callbackQuery.Message.Chat.Title,
+                    IsAvailable = true
+                };
+                await dbContext.Groups.AddAsync(group);
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    Console.WriteLine("Повторное добавление группы");
+                    group = await dbContext.Groups.FirstOrDefaultAsync(g => g.GroupId == callbackQuery.Message.Chat.Id);
+                }
+            }
+
+            if (group.Name != callbackQuery.Message.Chat.Title)
+            {
+                group.Name = callbackQuery.Message.Chat.Title;
+                saveChangesRequired = true;
+            }
+
+            var botAsChatMember = await gettingChatMember;
+
+            bool isChatAvailableToSend = false;
+            if (botAsChatMember != null)
+                isChatAvailableToSend = (botAsChatMember.CanSendMessages ?? true)
+                                        && (botAsChatMember.CanSendMediaMessages ?? true)
+                                        && (botAsChatMember.IsMember ?? true);
+
+            if (group.IsAvailable != isChatAvailableToSend)
+            {
+                group.IsAvailable = isChatAvailableToSend;
+                saveChangesRequired = true;
+            }
+
+            var senderUser = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == callbackQuery.From.Id);
+            if (senderUser != null && group.Users.All(u => u.UserId != senderUser.UserId))
+            {
+                group.Users.Add(senderUser);
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                    saveChangesRequired = false;
+                }
+                catch (DbUpdateException)
+                {
+                    Console.WriteLine("Повторное добавление юзера в группу");
                 }
             }
 

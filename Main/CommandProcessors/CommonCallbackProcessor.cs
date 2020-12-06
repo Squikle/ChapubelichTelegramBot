@@ -20,7 +20,7 @@ namespace ChapubelichBot.Main.CommandProcessors
                 if (callbackQuery.Message.Chat.Type == ChatType.Group ||
                     callbackQuery.Message.Chat.Type == ChatType.Supergroup)
                 {
-                    Group groupOfMessage = await UpdateGroupAsync(callbackQuery.Message, client);
+                    Group groupOfMessage = await UpdateGroupAsync(callbackQuery, client);
                     if (groupOfMessage != null && !groupOfMessage.IsAvailable)
                         return true;
 
