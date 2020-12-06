@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using ChapubelichBot.Main.Chapubelich;
-using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ChapubelichBot.Types.Abstractions.Commands;
-using ChapubelichBot.Types.ScheduledJobs;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 

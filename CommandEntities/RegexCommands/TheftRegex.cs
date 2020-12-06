@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
-using ChapubelichBot.Types.Entities;
 using ChapubelichBot.Types.Entities.Users;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers.MessagesSender;

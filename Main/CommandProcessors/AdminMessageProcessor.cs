@@ -36,7 +36,7 @@ namespace ChapubelichBot.Main.CommandProcessors
                 {
                     foreach (var adminCommand in ChapubelichClient.BotAdminCommandsList)
                     {
-                        if (adminCommand.Contains(message.Text, privateChat: true))
+                        if (adminCommand.Contains(message.Text))
                         {
                             await adminCommand.ExecuteAsync(message, client);
                             return true;

@@ -1,5 +1,4 @@
-﻿using ChapubelichBot.Types.Entities;
-using ChapubelichBot.Types.Entities.Roulette;
+﻿using ChapubelichBot.Types.Entities.Roulette;
 using ChapubelichBot.Types.Entities.Users;
 using ChapubelichBot.Types.Enums;
 

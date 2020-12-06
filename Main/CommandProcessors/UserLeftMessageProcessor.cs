@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.CommandProcessors;
-using ChapubelichBot.Types.Entities;
 using ChapubelichBot.Types.Entities.Groups;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
