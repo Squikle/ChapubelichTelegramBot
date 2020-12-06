@@ -98,15 +98,13 @@ namespace ChapubelichBot.Types.Managers
         }
         public static async Task ResumeResultingAsync(long chatId)
         {
-            Task<Chat> getChatTask = Client.GetChatAsync(chatId);
-
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
 
             RouletteGameSession gameSession = await GetGameSessionOrNullAsync(chatId, dbContext);
             if (gameSession == null)
                 return;
 
-            Chat chat = await getChatTask;
+            Chat chat = await Client.GetChatAsync(chatId);
 
             if (chat != null)
             {
@@ -653,7 +651,15 @@ namespace ChapubelichBot.Types.Managers
         private static async Task EndGameSessionAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType chatType, int startMessageId = 0)
         {
             gameSession.Resulting = true;
-            await dbContext.SaveChangesAsync();
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                Console.WriteLine("Повторная попытка крутить рулетку");
+                return;
+            }
 
             Message animationMessage = await Client.TrySendAnimationAsync(gameSession.ChatId,
                 GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");

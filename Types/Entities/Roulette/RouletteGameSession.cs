@@ -12,6 +12,7 @@ namespace ChapubelichBot.Types.Entities.Roulette
         public int AnimationMessageId { get; set; }
         public List<RouletteColorBetToken> ColorBetTokens { get; set; }
         public List<RouletteNumbersBetToken> NumberBetTokens { get; set; }
+        [ConcurrencyCheck]
         public bool Resulting { get; set; }
         public int ResultNumber { get; set; }
         public DateTime LastActivity { get; set; }
