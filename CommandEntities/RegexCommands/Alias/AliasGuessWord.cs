@@ -4,14 +4,14 @@ using ChapubelichBot.Types.Managers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace ChapubelichBot.CommandEntities.RegexCommands.Crocodile
+namespace ChapubelichBot.CommandEntities.RegexCommands.Alias
 {
-    class CrocodileStartRegex : RegexCommand
+    class AliasGuessWord : RegexCommand
     {
-        public override string Pattern => @"^\/? *(крокодил|crocodile)(@ChapubelichBot)?$";
+        public override string Pattern => @"^\/?\..*$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
-            await CrocodileGameManager.CreateRequestAsync(message);
+            await AliasGameManager.GuessTheWordRequestAsync(message);
         }
     }
 }

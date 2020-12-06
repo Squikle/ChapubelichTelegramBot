@@ -37,7 +37,7 @@
     <None Update="Resources\compliments\FemaleCompliments.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\crocodile\Words.txt">
+    <None Update="Resources\alias\Words.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
-using ChapubelichBot.Types.Entities.Crocodile;
+using ChapubelichBot.Types.Entities.Alias;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using ChapubelichBot.Types.Statics;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +19,9 @@ using User = ChapubelichBot.Types.Entities.Users.User;
 
 namespace ChapubelichBot.Types.Managers
 {
-    class CrocodileGameManager
+    class AliasGameManager
     {
-        public static string Name => "\U0001F40AКрокодил\U0001F40A";
+        public static string Name => "\U0001F64AАлиас\U0001F64A";
 
         // Fields
         private static ITelegramBotClient Client => ChapubelichClient.GetClient();
@@ -46,25 +46,25 @@ namespace ChapubelichBot.Types.Managers
         public static async Task CreateRequestAsync(Message message)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-            CrocodileGameSession gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
+            AliasGameSession gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
             if (gameSession == null)
             {
                 Group group = await dbContext.Groups.FirstOrDefaultAsync(g => g.GroupId == message.Chat.Id);
                 if (group == null)
                     return;
-                gameSession = new CrocodileGameSession
+                gameSession = new AliasGameSession
                 {
                     Group = group
                 };
 
-                await dbContext.CrocodileGameSessions.AddAsync(gameSession);
+                await dbContext.AliasGameSessions.AddAsync(gameSession);
                 try
                 {
                     await dbContext.SaveChangesAsync();
                 }
                 catch (DbUpdateException)
                 {
-                    Console.WriteLine("Повторное добавление сессии крокодила");
+                    Console.WriteLine("Повторное добавление сессии алиаса");
                     return;
                 }
             }
@@ -82,10 +82,10 @@ namespace ChapubelichBot.Types.Managers
             int replyId = message.From.Id == Client.BotId ? 0 : message.MessageId;
 
             var gameMessage = await Client.TrySendTextMessageAsync(message.Chat.Id,
-                "Игра \"Крокодил\"🐊" +
+                "Игра \"Алиас\"🙊" +
                 "\nНажми на кнопку чтобы участвовать в выборе ведущего!",
                 replyToMessageId: replyId,
-                replyMarkup: InlineKeyboards.CrocodileRegistrationMarkup);
+                replyMarkup: InlineKeyboards.AliasRegistrationMarkup);
 
             if (gameMessage != null)
             {
@@ -112,7 +112,7 @@ namespace ChapubelichBot.Types.Managers
 
             string answerMessage;
 
-            CrocodileGameSession alreadyHostingGameSession = await dbContext.CrocodileGameSessions
+            AliasGameSession alreadyHostingGameSession = await dbContext.AliasGameSessions
                 .Include(gs => gs.HostCandidates)
                 .Include(gs => gs.Host)
                 .Include(gs => gs.Group)
@@ -131,14 +131,14 @@ namespace ChapubelichBot.Types.Managers
                 if (candidate != null)
                     candidateName = candidate.User.FirstName;
 
-                gameSession.HostCandidates.Add(new CrocodileHostCandidate {Candidate = user});
+                gameSession.HostCandidates.Add(new AliasHostCandidate {Candidate = user});
                 try
                 {
                     await dbContext.SaveChangesAsync();
                 }
                 catch (DbUpdateException)
                 {
-                    Console.WriteLine("Повторное добавление юзера в кандидатов на хостинг крокодила");
+                    Console.WriteLine("Повторное добавление юзера в кандидатов на хостинг алиаса");
                     return;
                 }
 
@@ -152,14 +152,14 @@ namespace ChapubelichBot.Types.Managers
                     newGameMessageText += $"\n<b>{gameSession.HostCandidates.Count}.</b> <i><a href=\"tg://user?id={callbackQuery.From.Id}\">{candidateName}</a></i>";
                     await Client.TryEditMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId,
                         newGameMessageText, ParseMode.Html,
-                    replyMarkup: InlineKeyboards.CrocodileRegistrationMarkup);
+                    replyMarkup: InlineKeyboards.AliasRegistrationMarkup);
 
                     gameSession.GameMessageText = newGameMessageText;
                     await dbContext.SaveChangesAsync();
                 }
 
                 int maxNumberHostingCandidates = ChapubelichClient.GetConfig()
-                    .GetValue<int>("CrocodileSettings:MaxNumberHostingCandidates");
+                    .GetValue<int>("AliasSettings:MaxNumberHostingCandidates");
                 if (gameSession.HostCandidates.Count >= maxNumberHostingCandidates)
                     await StartGameSessionAsync(gameSession);
             }
@@ -169,8 +169,8 @@ namespace ChapubelichBot.Types.Managers
         public static async Task ChooseWordRequestAsync(CallbackQuery callbackQuery)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-            CrocodileGameSession gameSession =
-                await dbContext.CrocodileGameSessions
+            AliasGameSession gameSession =
+                await dbContext.AliasGameSessions
                     .Include(gs => gs.Host)
                     .FirstOrDefaultAsync(gs => gs.Host.UserId == callbackQuery.From.Id);
             if (gameSession == null || !string.IsNullOrEmpty(gameSession.GameWord) || gameSession.StartTime == null)
@@ -182,13 +182,13 @@ namespace ChapubelichBot.Types.Managers
             string choosenWord = string.Empty;
             switch (callbackQuery.Data)
             {
-                case "crocodileChooseFirstWord":
+                case "aliasChooseFirstWord":
                     choosenWord = gameSession.WordVariants[0];
                     break;
-                case "crocodileChooseSecondWord":
+                case "aliasChooseSecondWord":
                     choosenWord = gameSession.WordVariants[1];
                     break;
-                case "crocodileChooseThirdWord":
+                case "aliasChooseThirdWord":
                     choosenWord = gameSession.WordVariants[2];
                     break;
             }
@@ -212,7 +212,7 @@ namespace ChapubelichBot.Types.Managers
             await sendingPrivateMessage;
             await deletingCallbackMessage;
         }
-        private static async Task StartGameSessionAsync(CrocodileGameSession gameSession)
+        private static async Task StartGameSessionAsync(AliasGameSession gameSession)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             gameSession = await GetGameSessionOrNullAsync(gameSession.Group.GroupId, dbContext);
@@ -227,7 +227,7 @@ namespace ChapubelichBot.Types.Managers
 
             if (gameSession.WordVariants == null)
             {
-                string[] wordVariants = await GetRandomWordsAsync(@"./Resources/crocodile/Words.txt", 3);
+                string[] wordVariants = await GetRandomWordsAsync(@"./Resources/alias/Words.txt", 3);
 
                 gameSession.WordVariants = wordVariants;
                 await dbContext.SaveChangesAsync();
@@ -247,7 +247,7 @@ namespace ChapubelichBot.Types.Managers
 
                     wordChooseMessage = await Client.TrySendTextMessageAsync(host.UserId,
                         $"Ты выбран в качестве ведущего в группе <i>{gameSession.Group.Name}</i>. Выбери одно из 3 предложенных слов:",
-                        replyMarkup: InlineKeyboards.GetCrocodileChooseWordMarkup(gameSession.WordVariants[0], gameSession.WordVariants[1], gameSession.WordVariants[2]),
+                        replyMarkup: InlineKeyboards.GetAliasChooseWordMarkup(gameSession.WordVariants[0], gameSession.WordVariants[1], gameSession.WordVariants[2]),
                         parseMode: ParseMode.Html);
 
                     tryedUserIds.Add(host.UserId);
@@ -262,12 +262,12 @@ namespace ChapubelichBot.Types.Managers
                         }
                         catch (DbUpdateException)
                         {
-                            Console.WriteLine("Повторное удаление игровой сессии крокодила");
+                            Console.WriteLine("Повторное удаление игровой сессии алиаса");
                             return;
                         }
                         await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
                             "Не удалось отправить сообщение ни одному из возможных <i>Ведущих</i>. Игра отменена 😞",
-                            ParseMode.Html, replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
+                            ParseMode.Html, replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
                     }
                     return;
                 }
@@ -296,7 +296,7 @@ namespace ChapubelichBot.Types.Managers
         public static async Task GuessTheWordRequestAsync(Message message)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-            CrocodileGameSession gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
+            AliasGameSession gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
             if (gameSession == null || string.IsNullOrEmpty(gameSession.GameWord) || gameSession.StartTime == null)
                 return;
 
@@ -334,7 +334,7 @@ namespace ChapubelichBot.Types.Managers
                 }
                 catch (DbUpdateException)
                 {
-                    Console.WriteLine("Повторное удаление игровой сессии крокодила");
+                    Console.WriteLine("Повторное удаление игровой сессии алиаса");
                     return;
                 }
                 await dbContext.SaveChangesAsync();
@@ -345,14 +345,14 @@ namespace ChapubelichBot.Types.Managers
                                 $"\nВсего было попыток: <b>{gameSession.Attempts}</b>";
                 await Client.TrySendTextMessageAsync(gameSession.GroupId, answer, 
                     ParseMode.Html, replyToMessageId: message.MessageId, 
-                    replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
+                    replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
             }    
         }
 
-        private static async Task<CrocodileGameSession> GetGameSessionOrNullAsync(long chatId, ChapubelichdbContext dbContext)
+        private static async Task<AliasGameSession> GetGameSessionOrNullAsync(long chatId, ChapubelichdbContext dbContext)
         {
-            CrocodileGameSession gameSession =
-                await dbContext.CrocodileGameSessions
+            AliasGameSession gameSession =
+                await dbContext.AliasGameSessions
                     .Include(gs => gs.HostCandidates)
                     .ThenInclude(hc => hc.Candidate)
                     .Include(gs => gs.Host)
@@ -360,17 +360,17 @@ namespace ChapubelichBot.Types.Managers
                     .FirstOrDefaultAsync(x => x.Group.GroupId == chatId);
             return gameSession;
         }
-        private static void UpdateLastActivity(CrocodileGameSession gameSession)
+        private static void UpdateLastActivity(AliasGameSession gameSession)
         {
             gameSession.LastActivity = DateTime.UtcNow;
         }
         private static async Task StartGamesByTimerAsync()
         {
-            int secondsToStartGame = ChapubelichClient.GetConfig().GetValue<int>("CrocodileSettings:StartCrocodileGameDelaySeconds");
+            int secondsToStartGame = ChapubelichClient.GetConfig().GetValue<int>("AliasSettings:StartAliasGameDelaySeconds");
 
-            List<CrocodileGameSession> gameSessions;
+            List<AliasGameSession> gameSessions;
             await using (ChapubelichdbContext dbContext = new ChapubelichdbContext())
-                gameSessions = dbContext.CrocodileGameSessions
+                gameSessions = dbContext.AliasGameSessions
                     .Include(gs => gs.HostCandidates)
                     .Include(gs => gs.Group)
                     .Where(gs => gs.StartTime == null && gs.HostCandidates.Count > 1)
@@ -387,12 +387,12 @@ namespace ChapubelichBot.Types.Managers
         }
         private static async Task CollectDeadSessionsAsync()
         {
-            List<CrocodileGameSession> deadSessions;
+            List<AliasGameSession> deadSessions;
             await using (var dbContext = new ChapubelichdbContext())
             {
-                int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("CrocodileSettings:StopCrocodileGameDelay");
+                int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("AliasSettings:StopAliasGameDelay");
 
-                deadSessions = (await dbContext.CrocodileGameSessions
+                deadSessions = (await dbContext.AliasGameSessions
                         .Include(gs => gs.Group)
                         .Where(gs => gs.LastActivity < DateTime.UtcNow)
                         .ToListAsync())
@@ -403,7 +403,7 @@ namespace ChapubelichBot.Types.Managers
             Parallel.ForEach(deadSessions, async gs =>
             {
                 await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-                dbContext.CrocodileGameSessions.Attach(gs);
+                dbContext.AliasGameSessions.Attach(gs);
 
                 if (await DeleteGameSessionAsync(gs, dbContext))
                 {
@@ -413,21 +413,21 @@ namespace ChapubelichBot.Types.Managers
                     }
                     catch (DbUpdateException)
                     {
-                        Console.WriteLine("Повторное удаление игровой сессии крокодила");
+                        Console.WriteLine("Повторное удаление игровой сессии алиаса");
                         return;
                     }
-                    string message = "Игровая сессия <i>крокодила</i> отменена из-за отсутствия активности";
+                    string message = "Игровая сессия <i>алиаса</i> отменена из-за отсутствия активности";
                     if (!string.IsNullOrEmpty(gs.GameWord))
                         message += $"\nЭто было слово: <i>{gs.GameWord}</i>";
                     await Client.TrySendTextMessageAsync(
                         gs.Group.GroupId,
                         message,
                         ParseMode.Html,
-                        replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
+                        replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
                 }
             });
         }
-        private static async Task<bool> DeleteGameSessionAsync(CrocodileGameSession gameSession, ChapubelichdbContext dbContext)
+        private static async Task<bool> DeleteGameSessionAsync(AliasGameSession gameSession, ChapubelichdbContext dbContext)
         {
             if (gameSession == null)
                 return false;
@@ -435,7 +435,7 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession.GameMessageId != 0)
                 await Client.TryDeleteMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
 
-            dbContext.CrocodileGameSessions.Remove(gameSession);
+            dbContext.AliasGameSessions.Remove(gameSession);
             return true;
         }
 
@@ -455,20 +455,20 @@ namespace ChapubelichBot.Types.Managers
             var compareOptions = CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols;
             return String.Compare(guessWord, gameSessionWord, CultureInfo.InvariantCulture, compareOptions) == 0;
         }
-        private static long GetPlayerReward(CrocodileGameSession gameSession)
+        private static long GetPlayerReward(AliasGameSession gameSession)
         {
             if (!gameSession.StartTime.HasValue)
                 return 0;
 
             IConfiguration config = ChapubelichClient.GetConfig();
-            int maxSecondsToGetCrocodileReward = config.GetValue<int>("CrocodileSettings:MaxSecondsToGetCrocodileReward");
+            int maxSecondsToGetAliasReward = config.GetValue<int>("AliasSettings:MaxSecondsToGetAliasReward");
             TimeSpan elapsedTime = DateTime.UtcNow.Subtract(gameSession.StartTime.Value);
 
-            if (elapsedTime.Seconds > maxSecondsToGetCrocodileReward)
+            if (elapsedTime.Seconds > maxSecondsToGetAliasReward)
                 return 0;
 
-            int maxReward = config.GetValue<int>("CrocodileSettings:MaxCrocodileReward");
-            double maxSecondForReward = TimeSpan.FromSeconds(maxSecondsToGetCrocodileReward).TotalSeconds;
+            int maxReward = config.GetValue<int>("AliasSettings:MaxAliasReward");
+            double maxSecondForReward = TimeSpan.FromSeconds(maxSecondsToGetAliasReward).TotalSeconds;
             double divider = maxSecondForReward / 100;
             return (long)(maxReward * (maxSecondForReward - elapsedTime.TotalSeconds) / divider * 0.01d) + 1;
         }

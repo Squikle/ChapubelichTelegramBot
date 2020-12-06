@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ChapubelichBot.Types.Entities.Crocodile;
+using ChapubelichBot.Types.Entities.Alias;
 using ChapubelichBot.Types.Entities.Users;
 
 namespace ChapubelichBot.Types.Entities.Groups
@@ -16,7 +16,7 @@ namespace ChapubelichBot.Types.Entities.Groups
         public List<int> LastGameSessions { get; set; }
 
         public GroupDailyPerson GroupDailyPerson { get; set; }
-        public CrocodileGameSession CrocodileGameSession { get; set; }
+        public AliasGameSession AliasGameSession { get; set; }
 
         public List<User> Users { get; set; }
 

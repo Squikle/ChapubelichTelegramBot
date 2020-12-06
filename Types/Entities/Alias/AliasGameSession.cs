@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using ChapubelichBot.Types.Entities.Groups;
 using ChapubelichBot.Types.Entities.Users;
 
-namespace ChapubelichBot.Types.Entities.Crocodile
+namespace ChapubelichBot.Types.Entities.Alias
 {
-    public class CrocodileGameSession
+    public class AliasGameSession
     {
         [Key]
         public long GroupId { get; set; }
@@ -19,15 +19,15 @@ namespace ChapubelichBot.Types.Entities.Crocodile
         [ConcurrencyCheck]
         public int Attempts { get; set; }
 
-        public List<CrocodileHostCandidate> HostCandidates { get; set; }
+        public List<AliasHostCandidate> HostCandidates { get; set; }
 
         public User Host { get; set; }
         public DateTime LastActivity { get; set; }
         public Group Group { get; set; }
 
-        public CrocodileGameSession()
+        public AliasGameSession()
         {
-            HostCandidates = new List<CrocodileHostCandidate>();
+            HostCandidates = new List<AliasHostCandidate>();
             LastActivity = DateTime.UtcNow;
         }
     }

@@ -5,14 +5,14 @@ using ChapubelichBot.Types.Managers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace ChapubelichBot.CommandEntities.CallbackCommands.Crocodile
+namespace ChapubelichBot.CommandEntities.CallbackCommands.Alias
 {
-    class CrocodileHostCandidacyCallback : CallbackCommand
+    class AliasChooseWordCallback : CallbackCommand
     {
-        public override List<string> IncludingData => new List<string> { "hostCrocodileRequest" };
+        public override List<string> IncludingData => new List<string> { "aliasChooseFirstWord", "aliasChooseSecondWord", "aliasChooseThirdWord" };
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
-            await CrocodileGameManager.AddToHostCandidatesRequestAsync(query);
+           await AliasGameManager.ChooseWordRequestAsync(query);
         }
     }
 }

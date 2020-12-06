@@ -1,6 +1,5 @@
-﻿using ChapubelichBot.Types.Entities;
+﻿using ChapubelichBot.Types.Entities.Alias;
 using ChapubelichBot.Types.Entities.Bot;
-using ChapubelichBot.Types.Entities.Crocodile;
 using ChapubelichBot.Types.Entities.Groups;
 using ChapubelichBot.Types.Entities.Roulette;
 using ChapubelichBot.Types.Entities.Users;
@@ -56,19 +55,19 @@ namespace ChapubelichBot.Main.Chapubelich
                 .HasForeignKey<GroupDailyPerson>(gpd => gpd.GroupId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<CrocodileGameSession>()
+            modelBuilder.Entity<AliasGameSession>()
                 .HasOne(gs => gs.Host); 
-            modelBuilder.Entity<CrocodileGameSession>()
+            modelBuilder.Entity<AliasGameSession>()
                 .HasOne(gs => gs.Group)
-                .WithOne(g => g.CrocodileGameSession);
-            modelBuilder.Entity<CrocodileGameSession>()
+                .WithOne(g => g.AliasGameSession);
+            modelBuilder.Entity<AliasGameSession>()
                 .HasMany(gs => gs.HostCandidates);
 
-            modelBuilder.Entity<CrocodileHostCandidate>()
+            modelBuilder.Entity<AliasHostCandidate>()
                 .HasOne(chr => chr.Candidate);
-            modelBuilder.Entity<CrocodileHostCandidate>()
-                .HasOne(chr => chr.CrocodileGameSession);
-            modelBuilder.Entity<CrocodileHostCandidate>()
+            modelBuilder.Entity<AliasHostCandidate>()
+                .HasOne(chr => chr.AliasGameSession);
+            modelBuilder.Entity<AliasHostCandidate>()
                 .Property(hc => hc.RegistrationTime)
                 .HasDefaultValueSql("timezone('utc', now())");
 
@@ -79,6 +78,6 @@ namespace ChapubelichBot.Main.Chapubelich
         public DbSet<Group> Groups { get; set; }
         public DbSet<Configuration> Configurations { get; set; }
         public DbSet<RouletteGameSession> RouletteGameSessions { get; set; }
-        public DbSet<CrocodileGameSession> CrocodileGameSessions { get; set; }
+        public DbSet<AliasGameSession> AliasGameSessions { get; set; }
     }
 }

@@ -29,9 +29,9 @@ namespace ChapubelichBot.Types.Statics
             InlineKeyboardButton.WithCallbackData("Играть снова\U0001F501", "roulettePlayAgain")
         });
 
-        public static InlineKeyboardMarkup CrocodilePlayAgainMarkup => new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup AliasPlayAgainMarkup => new InlineKeyboardMarkup(new[]
         {
-            InlineKeyboardButton.WithCallbackData("Играть снова\U0001F501", "crocodilePlayAgain")
+            InlineKeyboardButton.WithCallbackData("Играть снова\U0001F501", "aliasPlayAgain")
         });
 
         public static InlineKeyboardMarkup RouletteBetsMarkup => new InlineKeyboardMarkup(new[]
@@ -74,26 +74,26 @@ namespace ChapubelichBot.Types.Statics
                     }
         });
 
-        public static InlineKeyboardMarkup CrocodileRegistrationMarkup => new InlineKeyboardMarkup(new[]
+        public static InlineKeyboardMarkup AliasRegistrationMarkup => new InlineKeyboardMarkup(new[]
         {
-            InlineKeyboardButton.WithCallbackData("\U0001F451Быть ведущим\U0001F451", "hostCrocodileRequest")
+            InlineKeyboardButton.WithCallbackData("\U0001F451Быть ведущим\U0001F451", "hostAliasRequest")
         });
 
-        public static InlineKeyboardMarkup GetCrocodileChooseWordMarkup(string word1, string word2, string word3)
+        public static InlineKeyboardMarkup GetAliasChooseWordMarkup(string word1, string word2, string word3)
         {
             return new[]
             {
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData($"{word1}", "crocodileChooseFirstWord")
+                    InlineKeyboardButton.WithCallbackData($"{word1}", "aliasChooseFirstWord")
                 },
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData($"{word2}", "crocodileChooseSecondWord")
+                    InlineKeyboardButton.WithCallbackData($"{word2}", "aliasChooseSecondWord")
                 },
                 new[]
                 {
-                    InlineKeyboardButton.WithCallbackData($"{word3}", "crocodileChooseThirdWord")
+                    InlineKeyboardButton.WithCallbackData($"{word3}", "aliasChooseThirdWord")
                 }
             };
         }

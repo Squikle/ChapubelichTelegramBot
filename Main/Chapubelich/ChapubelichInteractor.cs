@@ -24,7 +24,7 @@ namespace ChapubelichBot.Main.Chapubelich
         {
             MessageSenderManager.Init(new GlobalLimiter(30, 1), new ChatLimiter(30, 2));
             RouletteGameManager.Init();
-            CrocodileGameManager.Init();
+            AliasGameManager.Init();
             await RestoreDataAsync();
             await DailyProcessAsync();
             Client.StartReceiving();
@@ -36,7 +36,7 @@ namespace ChapubelichBot.Main.Chapubelich
         {
             MessageSenderManager.Terminate();
             RouletteGameManager.Terminate();
-            CrocodileGameManager.Terminate();
+            AliasGameManager.Terminate();
             Client.OnMessage -= MessageProcessAsync;
             Client.OnCallbackQuery -= CallbackProcess;
             if (Client.IsReceiving)

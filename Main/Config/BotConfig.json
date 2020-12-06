@@ -22,12 +22,12 @@
     "RouletteMaxBetSum": 10000,
     "StopRouletteGameDelay": 300
   },
-  "CrocodileSettings": {
+  "Alias": {
     "MaxNumberHostingCandidates": 10,
-    "MaxCrocodileReward": 50,
-    "MaxSecondsToGetCrocodileReward": 300,
-    "StartCrocodileGameDelaySeconds": 5,
-    "StopCrocodileGameDelay": 60
+    "MaxAliasReward": 50,
+    "MaxSecondsToGetAliasReward": 300,
+    "StartAliasGameDelaySeconds": 5,
+    "StopAliasGameDelay": 60
   },
   "Logger": {
     "DirectoryPath": "ChapubelichLogs",
@@ -53,10 +53,10 @@
     "_RouletteMaxBetSum": "how much can bet on roulette: Default: 10000",
     "_StopGameRouletteDelay": "time before roulette session is destroyed (in seconds): Default: 300 = 5min",
 
-    "_MaxNumberHostingCandidates": "how many users can participate in the selection of a crocodile host: Default 10",
-    "_MaxCrocodileReward": "how much the player can get if he guesses the word in the crocodile game: Default: 50",
-    "_MaxSecondsToGetCrocodileReward": "how long can it take for the player to still get the reward for guessing the word in the crocodile game (in seconds): Default: 300 = 5min",
-    "_StartCrocodileGameDelaySeconds": "time before crocodile session is started after last candidate added (in seconds): Default: 5",
-    "_StopCrocodileGameDelay": "time before crocodile session is destroyed (in seconds): Default: 60 = 1min"
+    "_MaxNumberHostingCandidates": "how many users can participate in the selection of a alias host: Default 10",
+    "_MaxAliasReward": "how much the player can get if he guesses the word in the alias game: Default: 50",
+    "_MaxSecondsToGetAliasReward": "how long can it take for the player to still get the reward for guessing the word in the alias game (in seconds): Default: 300 = 5min",
+    "_StartAliasGameDelaySeconds": "time before alias session is started after last candidate added (in seconds): Default: 5",
+    "_StopAliasGameDelay": "time before alias session is destroyed (in seconds): Default: 60 = 1min"
   }
 }

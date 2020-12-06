@@ -6,15 +6,15 @@ using ChapubelichBot.Types.Managers.MessagesSender;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace ChapubelichBot.CommandEntities.CallbackCommands.Crocodile
+namespace ChapubelichBot.CommandEntities.CallbackCommands.Alias
 {
-    class CrocodilePlayAgainCallback : CallbackCommand
+    class AliasPlayAgainCallback : CallbackCommand
     {
-        public override List<string> IncludingData => new List<string> { "crocodilePlayAgain" };
+        public override List<string> IncludingData => new List<string> { "aliasPlayAgain" };
         public override async Task ExecuteAsync(CallbackQuery query, ITelegramBotClient client)
         {
             await client.TryEditMessageReplyMarkupAsync(query.Message.Chat.Id, query.Message.MessageId);
-            await CrocodileGameManager.CreateRequestAsync(query.Message);
+            await AliasGameManager.CreateRequestAsync(query.Message);
         }
     }
 }

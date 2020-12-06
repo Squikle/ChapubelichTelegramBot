@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using ChapubelichBot.CommandEntities.CallbackCommands;
-using ChapubelichBot.CommandEntities.CallbackCommands.Crocodile;
+using ChapubelichBot.CommandEntities.CallbackCommands.Alias;
 using ChapubelichBot.CommandEntities.CallbackCommands.Roulette;
 using ChapubelichBot.CommandEntities.Commands;
 using ChapubelichBot.CommandEntities.Commands.Admin;
 using ChapubelichBot.CommandEntities.RegexCommands;
 using ChapubelichBot.CommandEntities.RegexCommands.AdminRegexCommands;
-using ChapubelichBot.CommandEntities.RegexCommands.Crocodile;
+using ChapubelichBot.CommandEntities.RegexCommands.Alias;
 using ChapubelichBot.CommandEntities.RegexCommands.Roulette;
 using ChapubelichBot.Main.CommandProcessors;
 using ChapubelichBot.Types.Abstractions.CommandProcessors;
@@ -63,19 +63,19 @@ namespace ChapubelichBot.Main.Chapubelich
             };
             _botGroupRegexCommands = new List<RegexCommand>
             {
-                new CrocodileStartRegex(),
+                new AliasStartRegex(),
                 new TopChatBalanceRegex(),
                 new PersonRollRegex(),
-                new CrocodileGuessWord(),
+                new AliasGuessWord(),
             };
             _botCallbackMessages = new List<CallbackCommand>
             {
                 new DefaultBetChangeCallbackMessage(),
                 new RoulettePlayAgainCallback(),
 
-                new CrocodileHostCandidacyCallback(),
-                new CrocodileChooseWordCallback(),
-                new CrocodilePlayAgainCallback(),
+                new AliasHostCandidacyCallback(),
+                new AliasChooseWordCallback(),
+                new AliasPlayAgainCallback(),
 
                 new BetColorCallback(),
                 new BetNumbersCallback(),
