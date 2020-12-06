@@ -266,7 +266,7 @@ namespace ChapubelichBot.Types.Managers
 
             Match matchString = Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase);
 
-            long maxBetSum = ChapubelichClient.GetConfig().GetValue<long>("RouletteSettings:MaxBetSum");
+            long maxBetSum = ChapubelichClient.GetConfig().GetValue<long>("RouletteSettings:RouletteMaxBetSum");
 
             if (!long.TryParse(matchString.Groups[1].Value, out long playerBetSum) || playerBetSum > maxBetSum)
             {
@@ -819,7 +819,7 @@ namespace ChapubelichBot.Types.Managers
             List<RouletteGameSession> deadSessions;
             await using (var dbContext = new ChapubelichdbContext())
             {
-                int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("RouletteSettings:StopGameDelay");
+                int timeToSessionDispose = ChapubelichClient.GetConfig().GetValue<int>("RouletteSettings:StopRouletteGameDelay");
 
                 deadSessions = (await dbContext.RouletteGameSessions
                     .Where(gs => gs.LastActivity < DateTime.UtcNow && !gs.Resulting)

@@ -366,7 +366,7 @@ namespace ChapubelichBot.Types.Managers
         }
         private static async Task StartGamesByTimerAsync()
         {
-            int secondsToStartGame = ChapubelichClient.GetConfig().GetValue<int>("CrocodileSettings:StartGameDelaySeconds");
+            int secondsToStartGame = ChapubelichClient.GetConfig().GetValue<int>("CrocodileSettings:StartCrocodileGameDelaySeconds");
 
             List<CrocodileGameSession> gameSessions;
             await using (ChapubelichdbContext dbContext = new ChapubelichdbContext())

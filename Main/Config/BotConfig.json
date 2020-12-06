@@ -19,14 +19,14 @@
   },
   "RouletteSettings": {
     "RouletteAnimationDuration": 3,
-    "MaxBetSum": 10000,
-    "StopGameDelay": 300
+    "RouletteMaxBetSum": 10000,
+    "StopRouletteGameDelay": 300
   },
   "CrocodileSettings": {
     "MaxNumberHostingCandidates": 10,
     "MaxCrocodileReward": 50,
     "MaxSecondsToGetCrocodileReward": 300,
-    "StartGameDelaySeconds": 5,
+    "StartCrocodileGameDelaySeconds": 5,
     "StopCrocodileGameDelay": 60
   },
   "Logger": {
@@ -49,15 +49,14 @@
 
     "_MaxTransferSum": "how much can users transfer: Default: 1000",
 
-
     "_RouletteAnimationDuration": "duration of roulette animation (in seconds): Default: 3",
-    "_MaxBetSum": "how much can bet on roulette: Default: 10000",
-    "_StopGameDelay": "time before roulette session is destroyed (in seconds): Default: 300 = 5min",
+    "_RouletteMaxBetSum": "how much can bet on roulette: Default: 10000",
+    "_StopGameRouletteDelay": "time before roulette session is destroyed (in seconds): Default: 300 = 5min",
 
     "_MaxNumberHostingCandidates": "how many users can participate in the selection of a crocodile host: Default 10",
     "_MaxCrocodileReward": "how much the player can get if he guesses the word in the crocodile game: Default: 50",
     "_MaxSecondsToGetCrocodileReward": "how long can it take for the player to still get the reward for guessing the word in the crocodile game (in seconds): Default: 300 = 5min",
-    "_StartGameDelaySeconds": "time before crocodile session is started after last candidate added (in seconds): Default: 5",
+    "_StartCrocodileGameDelaySeconds": "time before crocodile session is started after last candidate added (in seconds): Default: 5",
     "_StopCrocodileGameDelay": "time before crocodile session is destroyed (in seconds): Default: 60 = 1min"
   }
 }
