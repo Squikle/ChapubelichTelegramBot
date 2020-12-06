@@ -44,14 +44,6 @@ namespace ChapubelichBot.Main.Chapubelich
             .Property(p => p.GroupId)
             .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<BoyCompliment>()
-            .HasIndex(u => u.ComplimentText)
-            .IsUnique();
-
-            modelBuilder.Entity<GirlCompliment>()
-            .HasIndex(u => u.ComplimentText)
-            .IsUnique();
-
             modelBuilder.Entity<RouletteGameSession>()
                 .OwnsMany(gs => gs.ColorBetTokens);
             modelBuilder.Entity<RouletteGameSession>()
@@ -85,8 +77,6 @@ namespace ChapubelichBot.Main.Chapubelich
 
         public DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }
-        public DbSet<BoyCompliment> BoyCompliments {get; set;}
-        public DbSet<GirlCompliment> GirlCompliments { get; set; }
         public DbSet<Configuration> Configurations { get; set; }
         public DbSet<RouletteGameSession> RouletteGameSessions { get; set; }
         public DbSet<CrocodileGameSession> CrocodileGameSessions { get; set; }

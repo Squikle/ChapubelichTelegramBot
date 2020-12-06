@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ChapubelichBot.Types.Abstractions.Commands;
+using ChapubelichBot.Types.ScheduledJobs;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -20,6 +21,9 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.AdminRegexCommands
             }
 
             await Task.WhenAll(sendTasks.ToArray());*/
+
+            await DailyResetJob.ExecuteManuallyAsync();
+            await DailyComplimentJob.ExecuteManuallyAsync(client);
 
             Console.WriteLine("Test!");
         }

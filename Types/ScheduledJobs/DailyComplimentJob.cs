@@ -22,8 +22,8 @@ namespace ChapubelichBot.Types.ScheduledJobs
         {
             Console.WriteLine($"{DateTime.Now:HH:mm:ss} рассылаю комплименты...");
 
-            string[] boyCompliments = null;
-            string[] girlCompliments = null;
+            string[] boyCompliments;
+            string[] girlCompliments;
             User[] complimentingUsers;
 
             await using (var dbContext = new ChapubelichdbContext())
@@ -36,25 +36,31 @@ namespace ChapubelichBot.Types.ScheduledJobs
                 if (complimentingUsers.Length <= 0)
                     return;
 
-                if (complimentingUsers.Any(x => x.Gender))
-                    boyCompliments = dbContext.BoyCompliments.Select(x => x.ComplimentText).ToArray();
-                if (complimentingUsers.Any(x => x.Gender == false))
-                    girlCompliments = dbContext.GirlCompliments.Select(x => x.ComplimentText).ToArray();
+                boyCompliments = await GetComplimentsAsync(@"./Resources/compliments/MaleCompliments.txt", complimentingUsers.Count(cu => cu.Gender));
+                girlCompliments = await GetComplimentsAsync(@"./Resources/compliments/FemaleCompliments.txt", complimentingUsers.Count(cu => !cu.Gender));
             }
 
-            Random rand = new Random();
             Dictionary<int, string> userCompliments = new Dictionary<int, string>();
+
+            int maleNum = 0;
+            int femaleNum = 0;
             foreach (var user in complimentingUsers)
             {
                 string compliment;
                 switch (user.Gender)
                 {
                     case true:
-                        compliment = boyCompliments?[rand.Next(0, boyCompliments.Length)];
+                    {
+                        compliment = boyCompliments[maleNum];
+                        maleNum++;
                         break;
+                    }
                     case false:
-                        compliment = girlCompliments?[rand.Next(0, girlCompliments.Length)];
+                    {
+                        compliment = girlCompliments[femaleNum];
+                        femaleNum++;
                         break;
+                    }
                 }
                 userCompliments.Add(user.UserId, compliment);
             }
@@ -73,6 +79,16 @@ namespace ChapubelichBot.Types.ScheduledJobs
 
                 await dbContext.SaveChangesAsync();
             }
+        }
+
+        private static async Task<string[]> GetComplimentsAsync(string pathOfWordsFile, int count)
+        {
+            Random rand = new Random();
+            string[] words = await System.IO.File.ReadAllLinesAsync(pathOfWordsFile);
+            string[] selectedCompliments = new string[count];
+            for (int i = 0; i < selectedCompliments.Length; i++)
+                selectedCompliments[i] = words[rand.Next(words.Length)];
+            return selectedCompliments;
         }
     }
 }
