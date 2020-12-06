@@ -122,7 +122,7 @@ namespace ChapubelichBot.Types.Managers
             if (alreadyHostingGameSession != null)
             {
                 answerMessage = alreadyHostingGameSession.Group.GroupId != callbackQuery.Message.Chat.Id 
-                    ? "Ты не можешь быть ведущим в нескольких чатах сразу!" : "Ты уже являешься кандидатом на ведущего!";
+                    ? "Ты не можешь быть ведущим в нескольких чатах сразу!" : "Ты уже являешься участвуешь в выборе ведущего!";
             }
             else
             {
@@ -143,7 +143,7 @@ namespace ChapubelichBot.Types.Managers
                 }
 
                 await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id);
-                answerMessage = "Ты успешно добавлен в список кандидатов на ведущего! ✅";
+                answerMessage = "Ты успешно добавлен в желающих быть ведущим! ✅";
                 if (!string.IsNullOrEmpty(candidateName))
                 {
                     string newGameMessageText = gameSession.GameMessageText;
