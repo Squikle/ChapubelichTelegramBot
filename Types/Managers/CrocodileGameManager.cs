@@ -416,9 +416,12 @@ namespace ChapubelichBot.Types.Managers
                         Console.WriteLine("Повторное удаление игровой сессии крокодила");
                         return;
                     }
+                    string message = "Игровая сессия <i>крокодила</i> отменена из-за отсутствия активности";
+                    if (!string.IsNullOrEmpty(gs.GameWord))
+                        message += $"\nЭто было слово: <i>{gs.GameWord}</i>";
                     await Client.TrySendTextMessageAsync(
                         gs.Group.GroupId,
-                        "Игровая сессия <i>крокодила</i> отменена из-за отсутствия активности",
+                        message,
                         ParseMode.Html,
                         replyMarkup: InlineKeyboards.CrocodilePlayAgainMarkup);
                 }
