@@ -22,7 +22,7 @@
     "RouletteMaxBetSum": 10000,
     "StopRouletteGameDelay": 300
   },
-  "Alias": {
+  "AliasSettings": {
     "MaxNumberHostingCandidates": 10,
     "MaxAliasReward": 50,
     "MaxSecondsToGetAliasReward": 300,

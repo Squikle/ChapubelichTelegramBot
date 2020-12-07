@@ -377,12 +377,9 @@ namespace ChapubelichBot.Types.Managers
                     .ToList();
             Parallel.ForEach(gameSessions, async gs =>
             {
-                if (gs.HostCandidates.Count > 0)
-                {
-                    if (gs.HostCandidates[^1].RegistrationTime.AddSeconds(secondsToStartGame) <
-                        DateTime.UtcNow)
-                        await StartGameSessionAsync(gs);
-                }
+                if (gs.HostCandidates[^1].RegistrationTime.AddSeconds(secondsToStartGame) <
+                    DateTime.UtcNow)
+                    await StartGameSessionAsync(gs);
             });
         }
         private static async Task CollectDeadSessionsAsync()
