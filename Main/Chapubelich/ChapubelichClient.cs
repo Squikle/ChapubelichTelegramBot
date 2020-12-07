@@ -60,6 +60,7 @@ namespace ChapubelichBot.Main.Chapubelich
 
                 new GamesList(),
                 new RouletteStart(),
+                new AliasStart()
             };
             _botGroupRegexCommands = new List<RegexCommand>
             {

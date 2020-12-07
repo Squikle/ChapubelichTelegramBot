@@ -36,6 +36,10 @@ namespace ChapubelichBot.Types.Statics
                     },
                     new[]
                     {
+                        new KeyboardButton(AliasGameManager.Name)
+                    },
+                    new[]
+                    {
                         new KeyboardButton("🏠 Главная")
                     }
                 }, resizeKeyboard: true, oneTimeKeyboard: false);
