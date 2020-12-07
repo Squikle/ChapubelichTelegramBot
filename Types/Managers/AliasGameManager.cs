@@ -305,22 +305,7 @@ namespace ChapubelichBot.Types.Managers
             if (guessingUser == null || guessingUser.UserId == gameSession.Host.UserId)
                 return;
 
-            bool saveFailed;
-            do
-            {
-                saveFailed = false;
-
-                try
-                {
-                    gameSession.Attempts++;
-                    await dbContext.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    saveFailed = true;
-                    await ex.Entries.Single().ReloadAsync();
-                }
-            } while (saveFailed);
+            await dbContext.ConcurrencyChangeValueAsync(() => gameSession.Attempts++);
 
             if (IsWordGuessCorrect(message.Text, gameSession.GameWord))
             {
