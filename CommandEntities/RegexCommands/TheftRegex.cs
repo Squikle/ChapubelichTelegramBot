@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using User = ChapubelichBot.Types.Entities.Users.User;
 
 namespace ChapubelichBot.CommandEntities.RegexCommands
 {
@@ -43,7 +45,8 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             if (thief == null)
                 return;
-            if (thief.UserTheft != null && thief.UserTheft.LastMoneyTheft.AddSeconds(config.GetValue<int>("UserSettings:TheftCoolDownDuration")) > DateTime.UtcNow)
+            int theftCoolDownDuration = config.GetValue<int>("UserSettings:TheftCoolDownDuration");
+            if (!CanUserTheft(thief, theftCoolDownDuration))
             {
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
@@ -94,29 +97,20 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
 
             if (randCase < fullChance)
             {
-                resultMessage =
-                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> украл <b>{theftSum.ToMoneyFormat()}</b> 💵" +
-                    $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
-                    $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance + theftSum).ToMoneyFormat()}</b> 💰";
-                if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
-
                 stolenSum = theftSum;
+                resultMessage =
+                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> украл <b>{stolenSum.ToMoneyFormat()}</b> 💵" +
+                    $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>";
             }
             else if (randCase < partialChance)
             {
                 float stealPercentage = rand.Next(20, 76) * 0.01f;
-                long reducedTheftSum = (long)(theftSum * stealPercentage);
+                stolenSum = (long)(theftSum * stealPercentage);
 
                 resultMessage =
                     $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
                     $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
-                    $"\nНо получилось украсть только <b>{reducedTheftSum}</b> 💵" +
-                    $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance + reducedTheftSum).ToMoneyFormat()}</b> 💰";
-                if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
-
-                stolenSum = reducedTheftSum;
+                    $"\nНо получилось украсть только <b>{stolenSum.ToMoneyFormat()}</b> 💵";
             }
 
             if (stolenSum <= 0)
@@ -125,26 +119,15 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                     $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
                     $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
                     $"\nНо у <i>{message.From.FirstName}</i> ничего не получилось 😇";
-                if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"\n<i>{(theftFrom.Gender ? "он</i> хотел" : "она</i> хотела")} сказать: <i>\"{attachedMessage}\"</i>";
             }
-            else
+            else if (theftFrom.Balance < stolenSum)
             {
-                if (theftFrom.Balance < stolenSum)
-                {
-                    resultMessage =
+                stolenSum = theftFrom.Balance;
+
+                resultMessage =
                         $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
                         $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
-                        $"\nНо у <i>{(theftFrom.Gender ? "него" : "неё")}</i> было всего <b>{theftFrom.Balance.ToMoneyFormat()}</b> 💰" +
-                        $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance + theftFrom.Balance).ToMoneyFormat()}</b> 💰";
-                    if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                        resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
-
-                    stolenSum = theftFrom.Balance;
-                }
-
-                theftFrom.Balance -= stolenSum;
-                thief.Balance += stolenSum;
+                        $"\nНо у <i>{(theftFrom.Gender ? "него" : "неё")}</i> было всего <b>{theftFrom.Balance.ToMoneyFormat()}</b> 💰";
             }
 
             if (string.IsNullOrEmpty(resultMessage))
@@ -155,27 +138,69 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 User = thief
             };
             thief.UserTheft.LastMoneyTheft = DateTime.UtcNow;
-
-            try
-            {
-                await dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                Console.WriteLine("Повторная попытка украсть деньги");
-                return;
-            }
-            catch (DbUpdateException)
-            {
-                Console.WriteLine("Повторное добавление вора");
-                return;
-            }
             
+            if (stolenSum > 0)
+            {
+                theftFrom.Balance -= stolenSum;
+                thief.Balance += stolenSum;
+                bool saved = false;
+                while (!saved)
+                {
+                    try
+                    {
+                        await dbContext.SaveChangesAsync();
+                        saved = true;
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+                        foreach (var entry in ex.Entries)
+                        {
+                            if (entry.Entity is User user)
+                            {
+                                Console.WriteLine("Конфликт параллелизма для баланса пользователя (TheftRegex)");
+                                await entry.ReloadAsync();
+
+                                if (user.UserId == theftFrom.UserId)
+                                    user.Balance -= stolenSum;
+                                else user.Balance += stolenSum;
+                                if (CanUserTheft(thief, theftCoolDownDuration)) continue;
+                                Console.WriteLine("Повторная попытка украсть деньги");
+                                return;
+                            }
+                            if (entry.Entity is UserTheft)
+                            {
+                                Console.WriteLine("Повторная попытка украсть деньги");
+                                return;
+                            }
+                        }
+                    }
+                    catch (DbUpdateException)
+                    {
+                        Console.WriteLine("Повторное добавление вора");
+                        return;
+                    }
+                }
+
+                resultMessage += $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance).ToMoneyFormat()}</b> 💰";
+                if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
+                    resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
+                    resultMessage += $"\n<i>{(theftFrom.Gender ? "он</i> хотел" : "она</i> хотела")} сказать: <i>\"{attachedMessage}\"</i>";
+            }
+
             await client.TrySendTextMessageAsync(
                 message.Chat.Id,
                 resultMessage,
                 Telegram.Bot.Types.Enums.ParseMode.Html,
                 replyToMessageId: message.MessageId);
+        }
+        private bool CanUserTheft(User thief, int theftCoolDownDuration)
+        {
+            return thief.UserTheft == null ||
+                   thief.UserTheft.LastMoneyTheft.AddSeconds(theftCoolDownDuration) < DateTime.UtcNow;
         }
     }
 }
