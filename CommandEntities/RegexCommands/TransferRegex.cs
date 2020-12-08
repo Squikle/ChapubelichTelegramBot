@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Abstractions.Commands;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using User = ChapubelichBot.Types.Entities.Users.User;
 
 namespace ChapubelichBot.CommandEntities.RegexCommands
 {
@@ -65,12 +67,40 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 transferFrom.Balance -= transferSum;
                 transferTo.Balance += transferSum;
 
+                bool saved = false;
+                while (!saved)
+                {
+                    try
+                    {
+                        await dbContext.SaveChangesAsync();
+                        saved = true;
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+                        foreach (var entry in ex.Entries)
+                        {
+                            if (entry.Entity is User user)
+                            {
+                                Console.WriteLine("Конфликт параллелизма для баланса пользователя (TransferRegex)");
+                                await entry.ReloadAsync();
+
+                                if (user.UserId == transferFrom.UserId)
+                                    user.Balance -= transferSum;
+                                else user.Balance += transferSum;
+                            }
+                        }
+                    }
+                    catch (DbUpdateException)
+                    {
+                        Console.WriteLine("Повторное добавление вора");
+                        return;
+                    }
+                }
+
                 string resultMessage = $"<b>{transferSum.ToMoneyFormat()}</b> 💵 переданы пользователю <i><a href=\"tg://user?id={transferTo.UserId}\">{markedUser.FirstName}</a></i>" +
                                        $"\nТеперь у <i>{genderWord}</i> <b>{transferTo.Balance.ToMoneyFormat()}</b> 💰";
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
                     resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
-
-                await dbContext.SaveChangesAsync();
 
                 await client.TrySendTextMessageAsync(
                     message.Chat.Id,
