@@ -58,16 +58,38 @@ namespace ChapubelichBot.CommandEntities.Commands
                 dailyRewardSum = GetDailyReward(user.DailyReward.Stage);
 
                 user.Balance += dailyRewardSum;
-                user.DailyReward.Rewarded = true;
+                bool saved = false;
+                while (!saved)
+                {
+                    user.DailyReward.Rewarded = true;
+                    try
+                    {
+                        await dbContext.SaveChangesAsync();
+                        saved = true;
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+                        foreach (var entry in ex.Entries)
+                        {
+                            if (entry.Entity is User entryUser)
+                            {
+                                Console.WriteLine("Конфликт параллелизма для баланса пользователя (EarnDailyReward)");
+                                await entry.ReloadAsync();
 
-                try
-                {
-                    await dbContext.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    Console.WriteLine("Повторная попытка получения ежедневной награды пользователя");
-                    return;
+                                entryUser.Balance += dailyRewardSum;
+
+                                if (!entryUser.DailyReward.Rewarded)
+                                    continue;
+                                Console.WriteLine("Повторная попытка получения ежедневной награды пользователя");
+                                return;
+                            }
+                            if (entry.Entity is UserDailyReward)
+                            {
+                                Console.WriteLine("Повторная попытка получения ежедневной награды пользователя");
+                                return;
+                            }
+                        }
+                    }
                 }
             }
 
