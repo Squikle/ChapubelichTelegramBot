@@ -14,6 +14,7 @@ namespace ChapubelichBot.Types.Entities.Users
         public bool Gender { get; set; }
         [StringLength(32)]
         public string Username { get; set; }
+        [ConcurrencyCheck]
         public long Balance { get; set; }
         public short DefaultBet { get; set; }
         public List<int> LastGameSessions { get; set; }
