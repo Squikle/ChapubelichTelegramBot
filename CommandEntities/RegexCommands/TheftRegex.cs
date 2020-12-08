@@ -28,7 +28,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 return;
 
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-            var thief = await dbContext.Users.Include(u => u.UserTheft).FirstOrDefaultAsync(x => x.UserId == message.From.Id); 
+            var thief = await dbContext.Users.Include(u => u.UserTheft).FirstOrDefaultAsync(x => x.UserId == message.From.Id);
             var theftFrom = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == markedUser.Id);
 
             if (theftFrom == null)
@@ -137,55 +137,59 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 User = thief
             };
+
             thief.UserTheft.LastMoneyTheft = DateTime.UtcNow;
-            
+
             if (stolenSum > 0)
             {
                 theftFrom.Balance -= stolenSum;
                 thief.Balance += stolenSum;
-                bool saved = false;
-                while (!saved)
+            }
+            bool saved = false;
+            while (!saved)
+            {
+                try
                 {
-                    try
+                    await dbContext.SaveChangesAsync();
+                    saved = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    foreach (var entry in ex.Entries)
                     {
-                        await dbContext.SaveChangesAsync();
-                        saved = true;
-                    }
-                    catch (DbUpdateConcurrencyException ex)
-                    {
-                        foreach (var entry in ex.Entries)
+                        if (entry.Entity is User user)
                         {
-                            if (entry.Entity is User user)
+                            Console.WriteLine("Конфликт параллелизма для баланса пользователя (TheftRegex)");
+                            await entry.ReloadAsync();
+                            if (!CanUserTheft(thief, theftCoolDownDuration))
                             {
-                                Console.WriteLine("Конфликт параллелизма для баланса пользователя (TheftRegex)");
-                                await entry.ReloadAsync();
-
-                                if (user.UserId == theftFrom.UserId)
-                                    user.Balance -= stolenSum;
-                                else user.Balance += stolenSum;
-                                if (CanUserTheft(thief, theftCoolDownDuration)) continue;
-                                Console.WriteLine("Повторная попытка украсть деньги");
+                                Console.WriteLine("Повторная попытка украсть деньги 167");
                                 return;
                             }
-                            if (entry.Entity is UserTheft)
-                            {
-                                Console.WriteLine("Повторная попытка украсть деньги");
-                                return;
-                            }
+                            if (user.UserId == theftFrom.UserId)
+                                user.Balance -= stolenSum;
+                            else
+                                user.Balance += stolenSum;
+                        }
+                        if (entry.Entity is UserTheft)
+                        {
+                            Console.WriteLine("Повторная попытка украсть деньги 172");
+                            return;
                         }
                     }
-                    catch (DbUpdateException)
-                    {
-                        Console.WriteLine("Повторное добавление вора");
-                        return;
-                    }
                 }
-
-                resultMessage += $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance).ToMoneyFormat()}</b> 💰";
-                if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
+                catch (DbUpdateException)
+                {
+                    Console.WriteLine("Повторное добавление вора");
+                    return;
+                }
             }
-            else
+
+            resultMessage += $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance).ToMoneyFormat()}</b> 💰";
+            if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
+                resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
+
+            if (stolenSum <= 0)
             {
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
                     resultMessage += $"\n<i>{(theftFrom.Gender ? "он</i> хотел" : "она</i> хотела")} сказать: <i>\"{attachedMessage}\"</i>";
