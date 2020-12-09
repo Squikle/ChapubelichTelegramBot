@@ -482,11 +482,10 @@ namespace ChapubelichBot.Types.Managers
                 catch (DbUpdateException ex)
                 {
                     foreach (var entry in ex.Entries)
-                        if (entry.Entity is AliasGameSession)
-                        {
-                            Console.WriteLine("Повторное удаление игровой сессии алиаса");
-                            return;
-                        }
+                        Console.WriteLine(entry.Entity is AliasGameSession
+                            ? "Повторное удаление игровой сессии алиаса"
+                            : $"Ошибка сохраненния {entry.Entity.GetType()} (AliasGameManager)");
+                    return;
                 }
             }
 
