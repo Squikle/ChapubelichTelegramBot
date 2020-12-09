@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities.Alias;
+using ChapubelichBot.Types.Entities.Users;
 using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using ChapubelichBot.Types.Statics;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InputFiles;
 using Group = ChapubelichBot.Types.Entities.Groups.Group;
 using User = ChapubelichBot.Types.Entities.Users.User;
 
@@ -255,21 +257,19 @@ namespace ChapubelichBot.Types.Managers
                 }
                 if (wordChooseMessage == null && tryedUserIds.Count == gameSession.HostCandidates.Count || host == null)
                 {
-                    if (await DeleteGameSessionAsync(gameSession, dbContext))
+                    await DeleteGameSessionAsync(gameSession, dbContext);
+                    try
                     {
-                        try
-                        {
-                            await dbContext.SaveChangesAsync();
-                        }
-                        catch (DbUpdateException)
-                        {
-                            Console.WriteLine("Повторное удаление игровой сессии алиаса");
-                            return;
-                        }
-                        await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
-                            "Не удалось отправить сообщение ни одному из возможных <i>Ведущих</i>. Игра отменена 😞",
-                            ParseMode.Html, replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
+                        await dbContext.SaveChangesAsync();
                     }
+                    catch (DbUpdateException)
+                    {
+                        Console.WriteLine("Повторное удаление игровой сессии алиаса");
+                        return;
+                    }
+                    await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
+                        "Не удалось отправить сообщение ни одному из возможных <i>Ведущих</i>. Игра отменена 😞",
+                        ParseMode.Html, replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
                     return;
                 }
                 
@@ -305,34 +305,11 @@ namespace ChapubelichBot.Types.Managers
             if (guessingUser == null || guessingUser.UserId == gameSession.Host.UserId)
                 return;
 
-            await dbContext.ConcurrencyChangeValueAsync(() => gameSession.Attempts++);
 
             if (IsWordGuessCorrect(message.Text, gameSession.GameWord))
-            {
-                long reward = GetPlayerReward(gameSession);
-
-                if (reward > 0)
-                    guessingUser.Balance += reward;
-                await DeleteGameSessionAsync(gameSession, dbContext);
-                try
-                {
-                    await dbContext.SaveChangesAsync();
-                }
-                catch (DbUpdateException)
-                {
-                    Console.WriteLine("Повторное удаление игровой сессии алиаса");
-                    return;
-                }
-                await dbContext.SaveChangesAsync();
-
-                string answer = "Правильно!" +
-                                $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал слово \"<i>{gameSession.GameWord}</i>\"" +
-                                $"{(reward > 0 ? $" и получил <b>{reward}</b> 💰!" : " но ничего не получил 😔")}" +
-                                $"\nВсего было попыток: <b>{gameSession.Attempts}</b>";
-                await Client.TrySendTextMessageAsync(gameSession.GroupId, answer, 
-                    ParseMode.Html, replyToMessageId: message.MessageId, 
-                    replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
-            }    
+                await FinishGameAsync(gameSession, dbContext, guessingUser, message);
+            else
+                await AddAttemptsAndSaveAsync(gameSession, dbContext);
         }
 
         private static async Task<AliasGameSession> GetGameSessionOrNullAsync(long chatId, ChapubelichdbContext dbContext)
@@ -385,41 +362,38 @@ namespace ChapubelichBot.Types.Managers
 
             Parallel.ForEach(deadSessions, async gs =>
             {
+                if (gs == null)
+                    return;
+
                 await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
                 dbContext.AliasGameSessions.Attach(gs);
 
-                if (await DeleteGameSessionAsync(gs, dbContext))
+                await DeleteGameSessionAsync(gs, dbContext);
+                try
                 {
-                    try
-                    {
-                        await dbContext.SaveChangesAsync();
-                    }
-                    catch (DbUpdateException)
-                    {
-                        Console.WriteLine("Повторное удаление игровой сессии алиаса");
-                        return;
-                    }
-                    string message = "Игровая сессия <i>алиаса</i> отменена из-за отсутствия активности";
-                    if (!string.IsNullOrEmpty(gs.GameWord))
-                        message += $"\nЭто было слово: <i>{gs.GameWord}</i>";
-                    await Client.TrySendTextMessageAsync(
-                        gs.Group.GroupId,
-                        message,
-                        ParseMode.Html,
-                        replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
+                    await dbContext.SaveChangesAsync();
                 }
+                catch (DbUpdateException)
+                {
+                    Console.WriteLine("Повторное удаление игровой сессии алиаса");
+                    return;
+                }
+                string message = "Игровая сессия <i>алиаса</i> отменена из-за отсутствия активности";
+                if (!string.IsNullOrEmpty(gs.GameWord))
+                    message += $"\nЭто было слово: <i>{gs.GameWord}</i>";
+                await Client.TrySendTextMessageAsync(
+                    gs.Group.GroupId,
+                    message,
+                    ParseMode.Html,
+                    replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
             });
         }
-        private static async Task<bool> DeleteGameSessionAsync(AliasGameSession gameSession, ChapubelichdbContext dbContext)
+        private static async Task DeleteGameSessionAsync(AliasGameSession gameSession, ChapubelichdbContext dbContext)
         {
-            if (gameSession == null)
-                return false;
-
             if (gameSession.GameMessageId != 0)
                 await Client.TryDeleteMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId);
 
             dbContext.AliasGameSessions.Remove(gameSession);
-            return true;
         }
 
         private static async Task<string[]> GetRandomWordsAsync(string pathOfWordsFile, int count)
@@ -454,6 +428,77 @@ namespace ChapubelichBot.Types.Managers
             double maxSecondForReward = TimeSpan.FromSeconds(maxSecondsToGetAliasReward).TotalSeconds;
             double divider = maxSecondForReward / 100;
             return (long)(maxReward * (maxSecondForReward - elapsedTime.TotalSeconds) / divider * 0.01d) + 1;
+        }
+
+        private static async Task AddAttemptsAndSaveAsync(AliasGameSession gameSession, ChapubelichdbContext dbContext)
+        {
+            gameSession.Attempts++;
+
+            bool saved = false;
+            while (!saved)
+            {
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                    saved = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    Console.WriteLine("Конфликт параллелизма для добавления попыток алиаса");
+                    await ex.Entries.Single().ReloadAsync();
+                }
+            }
+        }
+        private static async Task FinishGameAsync(AliasGameSession gameSession, ChapubelichdbContext dbContext, User guessingUser, Message message)
+        {
+            long reward = GetPlayerReward(gameSession);
+
+            await DeleteGameSessionAsync(gameSession, dbContext);
+
+            if (reward > 0)
+                guessingUser.Balance += reward;
+
+            bool saved = false;
+            while (!saved)
+            {
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                    saved = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    foreach (var entry in ex.Entries)
+                    {
+                        if (entry.Entity is User user)
+                        {
+                            Console.WriteLine("Конфликт параллелизма для баланса пользователя (AliasGameManager)");
+                            await entry.ReloadAsync();
+
+                            user.Balance += reward;
+                        }
+                    }
+                }
+                catch (DbUpdateException ex)
+                {
+                    foreach (var entry in ex.Entries)
+                        if (entry.Entity is AliasGameSession)
+                        {
+                            Console.WriteLine("Повторное удаление игровой сессии алиаса");
+                            return;
+                        }
+                }
+            }
+
+            await AddAttemptsAndSaveAsync(gameSession, dbContext);
+
+            string answer = "Правильно!" +
+                            $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал слово \"<i>{gameSession.GameWord}</i>\"" +
+                            $"{(reward > 0 ? $" и получил <b>{reward}</b> 💰!" : " но ничего не получил 😔")}" +
+                            $"\nВсего было попыток: <b>{gameSession.Attempts}</b>";
+            await Client.TrySendTextMessageAsync(gameSession.GroupId, answer,
+                ParseMode.Html, replyToMessageId: message.MessageId,
+                replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
         }
     }
 }
