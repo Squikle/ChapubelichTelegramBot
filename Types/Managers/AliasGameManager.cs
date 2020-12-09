@@ -7,8 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using ChapubelichBot.Main.Chapubelich;
 using ChapubelichBot.Types.Entities.Alias;
-using ChapubelichBot.Types.Entities.Users;
-using ChapubelichBot.Types.Extensions;
 using ChapubelichBot.Types.Managers.MessagesSender;
 using ChapubelichBot.Types.Statics;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +14,6 @@ using Microsoft.Extensions.Configuration;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
 using Group = ChapubelichBot.Types.Entities.Groups.Group;
 using User = ChapubelichBot.Types.Entities.Users.User;
 
@@ -321,7 +318,6 @@ namespace ChapubelichBot.Types.Managers
             if (guessingUser == null || guessingUser.UserId == gameSession.Host.UserId)
                 return;
 
-
             if (IsWordGuessCorrect(message.Text, gameSession.GameWord))
                 await FinishGameAsync(gameSession, dbContext, guessingUser, message);
             else
@@ -416,10 +412,14 @@ namespace ChapubelichBot.Types.Managers
         {
             Random rand = new Random();
             string[] words = await System.IO.File.ReadAllLinesAsync(pathOfWordsFile);
-            string[] selectedWords = new string[count];
-            for (int i = 0; i < selectedWords.Length; i++)
-                selectedWords[i] = words[rand.Next(words.Length)];
-            return selectedWords;
+            HashSet<string> selectedWords = new HashSet<string>(count);
+            while (selectedWords.Count < count && selectedWords.Count < words.Length)
+            {
+                var pickedWord = words[rand.Next(words.Length)];
+                if (!selectedWords.Contains(pickedWord))
+                    selectedWords.Add(pickedWord);
+            }
+            return selectedWords.ToArray();
         }
         private static bool IsWordGuessCorrect(string guessWord, string gameSessionWord)
         {
