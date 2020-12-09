@@ -37,7 +37,7 @@ namespace ChapubelichBot.Types.Managers
             int periodToCollect = (int)TimeSpan.FromMinutes(1).TotalMilliseconds;
             _deadSessionsCollector = new Timer(async _ => await CollectDeadSessionsAsync(), null, periodToCollect, periodToCollect);
 
-            int periodToStartGame = (int) TimeSpan.FromSeconds(5).TotalMilliseconds;
+            int periodToStartGame = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
             _startGameTimer = new Timer(async _ => await StartGamesByTimerAsync(), null, periodToStartGame, periodToStartGame);
         }
         public static void Terminate()
@@ -113,8 +113,6 @@ namespace ChapubelichBot.Types.Managers
             if (user == null)
                 return;
 
-            string answerMessage;
-
             AliasGameSession alreadyHostingGameSession = await dbContext.AliasGameSessions
                 .Include(gs => gs.HostCandidates)
                 .Include(gs => gs.Host)
@@ -124,51 +122,69 @@ namespace ChapubelichBot.Types.Managers
                         .Any(c => c.CandidateId == user.UserId) || gs.Host.UserId == callbackQuery.From.Id);
             if (alreadyHostingGameSession != null)
             {
-                answerMessage = alreadyHostingGameSession.Group.GroupId != callbackQuery.Message.Chat.Id 
-                    ? "Ты не можешь быть ведущим в нескольких чатах сразу!" : "Ты уже являешься участвуешь в выборе ведущего!";
+                string answerMessage = alreadyHostingGameSession.Group.GroupId != callbackQuery.Message.Chat.Id
+                    ? "Ты не можешь быть ведущим в нескольких чатах сразу!"
+                    : "Ты уже являешься участвуешь в выборе ведущего!";
+                await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, answerMessage);
+                return;
             }
-            else
-            {
-                string candidateName = string.Empty;
-                ChatMember candidate = await Client.GetChatMemberAsync(gameSession.Group.GroupId, callbackQuery.From.Id);
-                if (candidate != null)
-                    candidateName = candidate.User.FirstName;
 
-                gameSession.HostCandidates.Add(new AliasHostCandidate {Candidate = user});
+            ChatMember candidate = await Client.GetChatMemberAsync(gameSession.Group.GroupId, callbackQuery.From.Id);
+            if (candidate == null)
+                return;
+            var candidateName = candidate.User.FirstName;
+
+            AliasHostCandidate newHostCandidate = new AliasHostCandidate {Candidate = user};
+            gameSession.HostCandidates.Add(newHostCandidate);
+            string newGameMessageText = gameSession.GameMessageText;
+            if (gameSession.HostCandidates.Count == 1)
+                newGameMessageText += "\nСписок желающих быть ведущим:";
+            newGameMessageText += $"\n<b>{gameSession.HostCandidates.Count}.</b> <i><a href=\"tg://user?id={callbackQuery.From.Id}\">{candidateName}</a></i>";
+            gameSession.GameMessageText = newGameMessageText;
+
+            bool saved = false;
+            while (!saved)
+            {
                 try
                 {
                     await dbContext.SaveChangesAsync();
+                    saved = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    foreach (var entry in ex.Entries)
+                        if (entry.Entity is AliasGameSession entryGameSession)
+                        {
+                            Console.WriteLine(
+                                "Конфликт параллелизма для сохранения текста игрового сообщения алиаса");
+                            await entry.ReloadAsync();
+
+                            entryGameSession.HostCandidates.Add(newHostCandidate);
+                            newGameMessageText = entryGameSession.GameMessageText;
+                            if (gameSession.HostCandidates.Count == 1)
+                                newGameMessageText += "\nСписок желающих быть ведущим:";
+                            newGameMessageText += $"\n<b>{gameSession.HostCandidates.Count}.</b> <i><a href=\"tg://user?id={callbackQuery.From.Id}\">{candidateName}</a></i>";
+                            entryGameSession.GameMessageText = newGameMessageText;
+                        }
                 }
                 catch (DbUpdateException)
                 {
                     Console.WriteLine("Повторное добавление юзера в кандидатов на хостинг алиаса");
                     return;
                 }
-
-                await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id);
-                answerMessage = "Ты успешно добавлен в желающих быть ведущим! ✅";
-                if (!string.IsNullOrEmpty(candidateName))
-                {
-                    string newGameMessageText = gameSession.GameMessageText;
-                    if (gameSession.HostCandidates.Count == 1)
-                        newGameMessageText += "\nСписок желающих быть ведущим:";
-                    newGameMessageText += $"\n<b>{gameSession.HostCandidates.Count}.</b> <i><a href=\"tg://user?id={callbackQuery.From.Id}\">{candidateName}</a></i>";
-                    await Client.TryEditMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId,
-                        newGameMessageText, ParseMode.Html,
-                    replyMarkup: InlineKeyboards.AliasRegistrationMarkup);
-
-                    gameSession.GameMessageText = newGameMessageText;
-                    await dbContext.SaveChangesAsync();
-                }
-
-                int maxNumberHostingCandidates = ChapubelichClient.GetConfig()
-                    .GetValue<int>("AliasSettings:MaxNumberHostingCandidates");
-                if (gameSession.HostCandidates.Count >= maxNumberHostingCandidates)
-                    await StartGameSessionAsync(gameSession);
             }
 
-            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, answerMessage);
+            await Client.TryEditMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId,
+                newGameMessageText, ParseMode.Html,
+                replyMarkup: InlineKeyboards.AliasRegistrationMarkup);
+            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "Ты успешно добавлен в список возможных ведущих! ✅");
+
+            int maxNumberHostingCandidates = ChapubelichClient.GetConfig()
+                .GetValue<int>("AliasSettings:MaxNumberHostingCandidates");
+            if (gameSession.HostCandidates.Count >= maxNumberHostingCandidates)
+                await StartGameSessionAsync(gameSession);
         }
+
         public static async Task ChooseWordRequestAsync(CallbackQuery callbackQuery)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
@@ -201,7 +217,7 @@ namespace ChapubelichBot.Types.Managers
             await dbContext.SaveChangesAsync();
             Task deletingCallbackMessage =
                 Client.TryDeleteMessageAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId);
-            Task sendingPrivateMessage = Client.TrySendTextMessageAsync(callbackQuery.Message.Chat.Id, 
+            Task sendingPrivateMessage = Client.TrySendTextMessageAsync(callbackQuery.Message.Chat.Id,
                 $"Ты выбрал слово \"<i>{choosenWord}</i>\"" +
                 "\nТеперь помоги другим игрокам отгадать его!",
                 ParseMode.Html);
@@ -272,7 +288,7 @@ namespace ChapubelichBot.Types.Managers
                         ParseMode.Html, replyMarkup: InlineKeyboards.AliasPlayAgainMarkup);
                     return;
                 }
-                
+
                 ChatMember hostMember = await Client.GetChatMemberAsync(gameSession.Group.GroupId, host.UserId);
                 if (hostMember == null)
                     return;
@@ -336,7 +352,7 @@ namespace ChapubelichBot.Types.Managers
                 gameSessions = dbContext.AliasGameSessions
                     .Include(gs => gs.HostCandidates)
                     .Include(gs => gs.Group)
-                    .Where(gs => gs.StartTime == null && gs.HostCandidates.Count > 1)
+                    .Where(gs => gs.StartTime == null && gs.HostCandidates.Count > 0)
                     .ToList();
             Parallel.ForEach(gameSessions, async gs =>
             {
@@ -395,7 +411,7 @@ namespace ChapubelichBot.Types.Managers
 
             dbContext.AliasGameSessions.Remove(gameSession);
         }
-
+        
         private static async Task<string[]> GetRandomWordsAsync(string pathOfWordsFile, int count)
         {
             Random rand = new Random();
@@ -409,8 +425,13 @@ namespace ChapubelichBot.Types.Managers
         {
             guessWord = Regex.Replace(guessWord, "э", "е", RegexOptions.IgnoreCase);
             guessWord = Regex.Replace(guessWord, "ё", "е", RegexOptions.IgnoreCase);
+
+            string originWord = gameSessionWord;
+            originWord = Regex.Replace(originWord, "э", "е", RegexOptions.IgnoreCase);
+            originWord = Regex.Replace(originWord, "ё", "е", RegexOptions.IgnoreCase);
+
             var compareOptions = CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols;
-            return String.Compare(guessWord, gameSessionWord, CultureInfo.InvariantCulture, compareOptions) == 0;
+            return String.Compare(guessWord, originWord, CultureInfo.InvariantCulture, compareOptions) == 0;
         }
         private static long GetPlayerReward(AliasGameSession gameSession)
         {
