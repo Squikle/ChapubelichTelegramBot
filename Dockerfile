@@ -3,6 +3,8 @@
 FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim-arm64v8 AS base
 WORKDIR /app
 
+ENV TZ=Europe/Kiev
+
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["Chapubelich/Chapubelich.csproj", "Chapubelich/"]
