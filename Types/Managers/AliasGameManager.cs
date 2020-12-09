@@ -31,7 +31,7 @@ namespace ChapubelichBot.Types.Managers
         // C-tor
         public static void Init()
         {
-            int periodToCollect = (int)TimeSpan.FromMinutes(1).TotalMilliseconds;
+            int periodToCollect = (int)TimeSpan.FromSeconds(15).TotalMilliseconds;
             _deadSessionsCollector = new Timer(async _ => await CollectDeadSessionsAsync(), null, periodToCollect, periodToCollect);
 
             int periodToStartGame = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
