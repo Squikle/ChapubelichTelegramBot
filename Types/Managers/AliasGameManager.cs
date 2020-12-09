@@ -318,6 +318,9 @@ namespace ChapubelichBot.Types.Managers
             if (guessingUser == null || guessingUser.UserId == gameSession.Host.UserId)
                 return;
 
+            UpdateLastActivity(gameSession);
+            await dbContext.SaveChangesAsync();
+
             if (IsWordGuessCorrect(message.Text, gameSession.GameWord))
                 await FinishGameAsync(gameSession, dbContext, guessingUser, message);
             else
