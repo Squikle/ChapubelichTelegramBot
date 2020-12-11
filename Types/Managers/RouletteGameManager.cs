@@ -384,7 +384,7 @@ namespace ChapubelichBot.Types.Managers
 
             Match matchString = Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase);
 
-            long maxBetSum = ChapubelichClient.GetConfig().GetValue<long>("RouletteSettings:MaxBetSum");
+            long maxBetSum = ChapubelichClient.GetConfig().GetValue<long>("RouletteSettings:RouletteMaxBetSum");
 
             if (!long.TryParse(matchString.Groups[1].Value, out long playerBetSum) || playerBetSum > maxBetSum)
             {
