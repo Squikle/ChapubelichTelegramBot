@@ -24,9 +24,9 @@
   },
   "AliasSettings": {
     "MaxNumberHostingCandidates": 10,
-    "MaxAliasReward": 25,
-    "MaxSecondsToGetAliasReward": 300,
-    "StartAliasGameDelaySeconds": 5,
+    "MaxAliasReward": 20,
+    "MaxSecondsToGetAliasReward": 150,
+    "StartAliasGameDelaySeconds": 25,
     "StopAliasGameDelay": 60
   },
   "Logger": {
@@ -54,8 +54,8 @@
     "_StopGameRouletteDelay": "time before roulette session is destroyed (in seconds): Default: 300 = 5min",
 
     "_MaxNumberHostingCandidates": "how many users can participate in the selection of a alias host: Default 10",
-    "_MaxAliasReward": "how much the player can get if he guesses the word in the alias game: Default: 50",
-    "_MaxSecondsToGetAliasReward": "how long can it take for the player to still get the reward for guessing the word in the alias game (in seconds): Default: 300 = 5min",
+    "_MaxAliasReward": "how much the player can get if he guesses the word in the alias game: Default: 25",
+    "_MaxSecondsToGetAliasReward": "how long can it take for the player to still get the reward for guessing the word in the alias game (in seconds): Default: 150 = 2.5min",
     "_StartAliasGameDelaySeconds": "time before alias session is started after last candidate added (in seconds): Default: 5",
     "_StopAliasGameDelay": "time before alias session is destroyed (in seconds): Default: 60 = 1min"
   }
