@@ -849,8 +849,11 @@ namespace ChapubelichBot.Types.Managers
 
             Parallel.ForEach(deadSessions, async gs =>
             {
+                if (gs == null)
+                    return;
+
                 await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-                dbContext.Attach(gs);
+                dbContext.RouletteGameSessions.Attach(gs);
 
                 var returnedBets = string.Empty;
 
@@ -876,6 +879,7 @@ namespace ChapubelichBot.Types.Managers
                 Task deletingMessage = null;
                 if (gs.GameMessageId != 0)
                     deletingMessage = Client.TryDeleteMessageAsync(gs.ChatId, gs.GameMessageId);
+
                 dbContext.RouletteGameSessions.Remove(gs);
 
                 bool saved = false;
