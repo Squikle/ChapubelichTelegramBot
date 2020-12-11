@@ -17,7 +17,7 @@ namespace ChapubelichBot.Main.CommandProcessors
             if (IsResponsiveForMessageType(message.Type) && IsResponsiveForChatType(message.Chat.Type))
             {
                 Group group = await UpdateGroupAsync(message, client);
-                if (group == null)
+                if (group == null || !group.IsAvailable)
                     return true;
                 bool isUserRegistered = IsMemberRegistered(message.From, group);
                 return await ProcessMessageAsync(message, isUserRegistered, client);
