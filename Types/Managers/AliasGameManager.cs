@@ -377,9 +377,6 @@ namespace ChapubelichBot.Types.Managers
 
             Parallel.ForEach(deadSessions, async gs =>
             {
-                if (gs == null)
-                    return;
-
                 await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
                 dbContext.AliasGameSessions.Attach(gs);
 
