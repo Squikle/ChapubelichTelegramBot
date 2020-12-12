@@ -26,7 +26,7 @@
     "MaxNumberHostingCandidates": 10,
     "MaxAliasReward": 20,
     "MaxSecondsToGetAliasReward": 150,
-    "StartAliasGameDelaySeconds": 25,
+    "StartAliasGameDelaySeconds": 5,
     "StopAliasGameDelay": 60
   },
   "Logger": {
