@@ -163,7 +163,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                             await entry.ReloadAsync();
                             if (!CanUserTheft(thief, theftCoolDownDuration))
                             {
-                                Console.WriteLine("Повторная попытка украсть деньги 167");
+                                Console.WriteLine("Повторная попытка украсть деньги");
                                 return;
                             }
                             if (user.UserId == theftFrom.UserId)
@@ -173,15 +173,10 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                         }
                         if (entry.Entity is UserTheft)
                         {
-                            Console.WriteLine("Повторная попытка украсть деньги 172");
+                            Console.WriteLine("Повторная попытка украсть деньги");
                             return;
                         }
                     }
-                }
-                catch (DbUpdateException)
-                {
-                    Console.WriteLine("Повторное добавление вора");
-                    return;
                 }
             }
 
