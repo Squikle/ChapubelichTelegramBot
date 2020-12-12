@@ -849,11 +849,8 @@ namespace ChapubelichBot.Types.Managers
 
             Parallel.ForEach(deadSessions, async gs =>
             {
-                if (gs == null)
-                    return;
-
                 await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
-                dbContext.RouletteGameSessions.Attach(gs);
+                await dbContext.Entry(gs).ReloadAsync();
 
                 var returnedBets = string.Empty;
 
@@ -896,8 +893,8 @@ namespace ChapubelichBot.Types.Managers
                         {
                             if (entry.Entity is User entryUser)
                             {
-                                Console.WriteLine("Конфликт параллелизма для баланса пользователя (RouletteGameManager:CancelBetAsync)");
                                 await entry.ReloadAsync();
+                                Console.WriteLine("Конфликт параллелизма для баланса пользователя (RouletteGameManager:CollectDeadSessionsAsync)");
 
                                 foreach (var token in groupedColorBetList)
                                     entryUser.Balance += token.BetSum;
@@ -905,6 +902,7 @@ namespace ChapubelichBot.Types.Managers
                                 foreach (var token in groupedNumberBetList)
                                     entryUser.Balance += token.BetSum;
                             }
+                            else Console.WriteLine($"Ошибка сохраненния {entry.Entity.GetType()} (RouletteGameManager:CollectDeadSessionsAsync)");
                         }
                     }
                     catch (DbUpdateException ex)
