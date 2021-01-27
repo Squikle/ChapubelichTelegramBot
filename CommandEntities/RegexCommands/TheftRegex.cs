@@ -179,15 +179,17 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                     }
                 }
             }
-
-            resultMessage += $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance).ToMoneyFormat()}</b> 💰";
-            if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
-
+            
             if (stolenSum <= 0)
             {
                 if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
-                    resultMessage += $"\n<i>{(theftFrom.Gender ? "он</i> хотел" : "она</i> хотела")} сказать: <i>\"{attachedMessage}\"</i>";
+                    resultMessage += $"\n<i>{(thief.Gender ? "он</i> хотел" : "она</i> хотела")} сказать: <i>\"{attachedMessage}\"</i>";
+            }
+            else
+            {
+                resultMessage += $"\nТеперь у <i>{message.From.FirstName}</i> <b>{(thief.Balance).ToMoneyFormat()}</b> 💰";
+                if (!string.IsNullOrEmpty(attachedMessage) && attachedMessage.Length < 50)
+                    resultMessage += $"\nПодпись: <i>\"{attachedMessage}\"</i>";
             }
 
             await client.TrySendTextMessageAsync(
@@ -198,8 +200,8 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
         }
         private bool CanUserTheft(User thief, int theftCoolDownDuration)
         {
-            return thief.UserTheft == null ||
-                   thief.UserTheft.LastMoneyTheft.AddSeconds(theftCoolDownDuration) < DateTime.UtcNow;
+            return thief.UserTheft == null
+                   || thief.UserTheft.LastMoneyTheft.AddSeconds(theftCoolDownDuration) < DateTime.UtcNow;
         }
     }
 }
