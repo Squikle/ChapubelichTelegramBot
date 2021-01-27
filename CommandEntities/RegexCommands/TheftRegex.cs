@@ -73,8 +73,8 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             if (theftSum == 0)
             {
                 await client.TrySendTextMessageAsync(
-                    message.Chat.Id,
-                    "Прикольно придумал 👍",
+                        message.Chat.Id, 
+                    $"Прикольно {(thief.Gender ? "придумал" : "придумала")} 👍",
                     replyToMessageId: message.MessageId);
                 return;
             }
@@ -99,7 +99,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             {
                 stolenSum = theftSum;
                 resultMessage =
-                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> украл <b>{stolenSum.ToMoneyFormat()}</b> 💵" +
+                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> украл{(thief.Gender ? "" : "а")} <b>{stolenSum.ToMoneyFormat()}</b> 💵" +
                     $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>";
             }
             else if (randCase < partialChance)
@@ -108,7 +108,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 stolenSum = (long)(theftSum * stealPercentage);
 
                 resultMessage =
-                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
+                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> {(thief.Gender ? "попытался" : "попыталась")} украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
                     $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
                     $"\nНо получилось украсть только <b>{stolenSum.ToMoneyFormat()}</b> 💵";
             }
@@ -116,16 +116,16 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
             if (stolenSum <= 0)
             {
                 resultMessage =
-                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
+                    $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> {(thief.Gender ? "попытался" : "попыталась")} украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
                     $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
-                    $"\nНо у <i>{message.From.FirstName}</i> ничего не получилось 😇";
+                    "\nНо ничего не получилось 😇";
             }
             else if (theftFrom.Balance < stolenSum)
             {
                 stolenSum = theftFrom.Balance;
 
                 resultMessage =
-                        $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> попытался украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
+                        $"<i><a href=\"tg://user?id={thief.UserId}\">{message.From.FirstName}</a></i> {(thief.Gender ? "попытался" : "попыталась")} украсть <b>{theftSum.ToMoneyFormat()}</b> 💵" +
                         $" у <i><a href=\"tg://user?id={theftFrom.UserId}\">{markedUser.FirstName}</a></i>" +
                         $"\nНо у <i>{(theftFrom.Gender ? "него" : "неё")}</i> было всего <b>{theftFrom.Balance.ToMoneyFormat()}</b> 💰";
             }
