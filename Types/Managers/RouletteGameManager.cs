@@ -75,8 +75,7 @@ namespace ChapubelichBot.Types.Managers
                 Task sendingMessage = Client.TrySendTextMessageAsync(message.Chat.Id,
                     "Игра уже запущена!",
                     replyToMessageId: gameSession.GameMessageId);
-                UpdateLastActivity(gameSession);
-                await dbContext.SaveChangesAsync();
+                await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
                 await sendingMessage;
                 return;
             }
@@ -107,12 +106,15 @@ namespace ChapubelichBot.Types.Managers
             Chat chat = await Client.GetChatAsync(chatId);
 
             // Удаление сообщений и отправка результатов
-            string result = await SummarizeAsync(gameSession);
+            string result;
 
             if (chat != null)
-                await RemoveSessionAndSaveResults(gameSession, dbContext, chat.Type);
+                result = await RemoveSessionAndSaveResultsAsync(gameSession, dbContext, chat.Type);
             else
-                await RemoveSessionAndSaveResults(gameSession, dbContext);
+                result = await RemoveSessionAndSaveResultsAsync(gameSession, dbContext);
+
+            if (result == null)
+                return;
 
             Task deletingAnimationMessage = null;
             if (gameSession.AnimationMessageId != 0)
@@ -142,8 +144,7 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession == null || gameSession.Resulting)
                 return;
 
-            UpdateLastActivity(gameSession);
-            await dbContext.SaveChangesAsync();
+            await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
             User user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == callbackQuery.From.Id);
             if (user == null)
@@ -168,8 +169,7 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession == null || gameSession.Resulting)
                 return;
 
-            UpdateLastActivity(gameSession);
-            await dbContext.SaveChangesAsync();
+            await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
             User user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id);
             if (user == null)
@@ -192,8 +192,7 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession == null || gameSession.Resulting)
                 return;
 
-            UpdateLastActivity(gameSession);
-            await dbContext.SaveChangesAsync();
+            await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
             User user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == callbackQuery.From.Id);
 
@@ -234,12 +233,13 @@ namespace ChapubelichBot.Types.Managers
 
             string answerMessage = await PlaceBetColorAsync(gameSession, playerChoose, user, dbContext, callbackQuery.From.FirstName, playerBetSum);
 
-            Task sendingMessage = Client.TrySendTextMessageAsync(
+            if (answerMessage != null)
+                await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage,
                 parseMode: ParseMode.Html);
-            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
-            await sendingMessage;
+            if (allInAlertMessage != null)
+                await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
         }
         public static async Task BetColorRequestAsync(Message message, string pattern)
         {
@@ -249,8 +249,7 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession == null || gameSession.Resulting)
                 return;
 
-            UpdateLastActivity(gameSession);
-            await dbContext.SaveChangesAsync();
+            await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
             Match matchString = Regex.Match(message.Text, pattern, RegexOptions.IgnoreCase);
 
@@ -304,14 +303,17 @@ namespace ChapubelichBot.Types.Managers
 
             string answerMessage = await PlaceBetColorAsync(gameSession, playerChoose, user, dbContext, message.From.FirstName, playerBetSum);
 
-            await Client.TrySendTextMessageAsync(
+            if (answerMessage!=null)
+                await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage + allInAlertMessage,
                 replyToMessageId: message.MessageId,
                 parseMode: ParseMode.Html);
 
             if (!string.IsNullOrEmpty(matchString.Groups[3].Value))
+            {
                 await EndGameSessionAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
+            }
         }
         public static async Task BetNumbersRequestAsync(CallbackQuery callbackQuery)
         {
@@ -321,8 +323,7 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession == null || gameSession.Resulting)
                 return;
 
-            UpdateLastActivity(gameSession);
-            await dbContext.SaveChangesAsync();
+            await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
             User user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == callbackQuery.From.Id);
 
@@ -349,12 +350,13 @@ namespace ChapubelichBot.Types.Managers
 
             string answerMessage = await PlaceBetNumbersAsync(gameSession, userBets, user, callbackQuery.From.FirstName, playerBetSum, dbContext);
 
-            Task sendingMessage = Client.TrySendTextMessageAsync(
+            if (answerMessage!=null)
+                await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage,
                 parseMode: ParseMode.Html);
-            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
-            await sendingMessage;
+            if (allInAlertMessage != null)
+                await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, allInAlertMessage);
         }
         public static async Task BetNumbersRequestAsync(Message message, string pattern)
         {
@@ -362,10 +364,9 @@ namespace ChapubelichBot.Types.Managers
 
             var gameSession = await GetGameSessionOrNullAsync(message.Chat.Id, dbContext);
             if (gameSession == null || gameSession.Resulting)
-                return; 
+                return;
 
-            UpdateLastActivity(gameSession);
-            await dbContext.SaveChangesAsync();
+            await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
             User user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id);
 
@@ -464,25 +465,25 @@ namespace ChapubelichBot.Types.Managers
 
             string answerMessage = await PlaceBetNumbersAsync(gameSession, userBet, user, message.From.FirstName, playerBetSum, dbContext);
 
-            await Client.TrySendTextMessageAsync(
+            if (answerMessage != null)
+                await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 answerMessage + allInAlertMessage,
                 replyToMessageId: message.MessageId,
                 parseMode: ParseMode.Html);
 
             if (!string.IsNullOrEmpty(matchString.Groups[5].Value))
+            {
                 await EndGameSessionAsync(gameSession, dbContext, message.Chat.Type, message.MessageId);
+            }
         }
         public static async Task RollRequestAsync(CallbackQuery callbackQuery)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
 
             var gameSession = await GetGameSessionOrNullAsync(callbackQuery.Message.Chat.Id, dbContext);
-            if (gameSession == null || gameSession.Resulting)
-                return;
 
-            UpdateLastActivity(gameSession);
-            await dbContext.SaveChangesAsync();
+            await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
             if (gameSession.ColorBetTokens
                     .All(x => x.UserId != callbackQuery.From.Id)
@@ -507,8 +508,7 @@ namespace ChapubelichBot.Types.Managers
             if (gameSession == null || gameSession.Resulting)
                 return;
 
-            UpdateLastActivity(gameSession);
-            await dbContext.SaveChangesAsync();
+            await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
             if (gameSession.ColorBetTokens
                     .All(x => x.UserId != message.From.Id)
@@ -531,8 +531,7 @@ namespace ChapubelichBot.Types.Managers
                 if (gameSession == null)
                     return;
 
-                UpdateLastActivity(gameSession);
-                await dbContext.SaveChangesAsync();
+                await UpdateLastActivityAndSaveAsync(gameSession, dbContext);
 
                 user = await dbContext.Users.FirstOrDefaultAsync(x => x.UserId == message.From.Id);
             }
@@ -572,68 +571,6 @@ namespace ChapubelichBot.Types.Managers
         }
 
         // Private
-        private static async Task<string> SummarizeAsync(RouletteGameSession gameSession)
-        {
-            StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
-            result.Append($"<i>{gameSession.ResultNumber}</i> {gameSession.ResultNumber.ToRouletteColor().ToEmoji()}");
-
-            List<RouletteColorBetToken> colorWinTokens = GetColorWinTokens(gameSession);
-            List<RouletteColorBetToken> colorLooseTokens = GetColorLooseTokens(gameSession);
-            List<RouletteNumbersBetToken> numberWinTokens = GetNumberWinTokens(gameSession);
-            List<RouletteNumbersBetToken> numberLooseTokens = GetNumberLooseTokens(gameSession);
-
-            List<RouletteBetToken> allWinTokens = new List<RouletteBetToken>(colorWinTokens.Count + numberWinTokens.Count);
-            allWinTokens.AddRange(colorWinTokens);
-            allWinTokens.AddRange(numberWinTokens);
-
-            List<RouletteBetToken> allLooseTokens = new List<RouletteBetToken>(colorLooseTokens.Count + numberLooseTokens.Count);
-            allLooseTokens.AddRange(colorLooseTokens);
-            allLooseTokens.AddRange(numberLooseTokens);
-
-            // Определение победителей
-            if (allWinTokens.Any())
-            {
-                result.Append("\n🏆<b>Выиграли:</b>");
-                foreach (var token in allWinTokens.GroupByUsers())
-                {
-                    long gainSum = token.GetGainSum();
-                    User user = token.User;
-                    if (user != null)
-                    {
-                        ChatMember chatMember = await Client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
-                        if (chatMember != null)
-                        {
-                            string userFirstName = chatMember.User.FirstName;
-                            result.Append(
-                                $"\n<b>·</b><i><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a></i>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
-                        }
-                        user.Balance += gainSum + token.BetSum;
-                    }
-                }
-            }
-
-            // Определение проигравших
-            if (allLooseTokens.Any())
-            {
-                result.Append("\n😔<b>Проиграли:</b>");
-                foreach (var token in allLooseTokens.GroupByUsers())
-                {
-                    User user = token.User;
-                    if (user != null)
-                    {
-                        ChatMember chatMember = await Client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
-                        if (chatMember != null)
-                        {
-                            string userFirstName = chatMember.User.FirstName;
-                            result.Append(
-                                $"\n<b>·</b><i><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a></i>: <b>-{token.BetSum.ToMoneyFormat()}</b>💵");
-                        }
-                    }
-                }
-            }
-
-            return result.ToString();
-        }
         private static async Task EndGameSessionAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType chatType, int startMessageId = 0)
         {
             gameSession.Resulting = true;
@@ -643,13 +580,12 @@ namespace ChapubelichBot.Types.Managers
             }
             catch (DbUpdateConcurrencyException)
             {
-                Console.WriteLine("Повторная попытка крутить рулетку");
+                Console.WriteLine("Повторная попытка закончить игровую сессию рулетки");
                 return;
             }
 
             Message animationMessage = await Client.TrySendAnimationAsync(gameSession.ChatId,
                 GetRandomAnimationLink(), disableNotification: true, caption: "Крутим барабан...");
-
             if (animationMessage != null)
             {
                 gameSession.AnimationMessageId = animationMessage.MessageId;
@@ -662,14 +598,19 @@ namespace ChapubelichBot.Types.Managers
             Task task = Task.Delay(animationDuration >= maxLimitAnimationDuration ? maxLimitAnimationDuration : animationDuration);
 
             // Удаление сообщений и отправка результатов
-            string result = await SummarizeAsync(gameSession);
-            await task;
+            string result = await RemoveSessionAndSaveResultsAsync(gameSession, dbContext, chatType);
 
-            await RemoveSessionAndSaveResults(gameSession, dbContext, chatType);
+            await task;
 
             Task deletingAnimationMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
 
             Task deletingGameMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.GameMessageId);
+
+            await deletingAnimationMessage;
+            await deletingGameMessage;
+
+            if (result == null)
+                return;
 
             Task sendingResult = Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
@@ -677,32 +618,99 @@ namespace ChapubelichBot.Types.Managers
                 ParseMode.Html,
                 replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup,
                 replyToMessageId: startMessageId);
-
-            await deletingAnimationMessage;
-            await deletingGameMessage;
+            
             await sendingResult;
         }
-        private static async Task RemoveSessionAndSaveResults(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType? chatType = null)
+        private static async Task<string> RemoveSessionAndSaveResultsAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType? chatType = null)
         {
+            await dbContext.Entry(gameSession).ReloadAsync();
+
             if (chatType.HasValue)
                 await UpdateLogAsync(gameSession, dbContext, chatType.Value);
-            dbContext.Remove(gameSession);
+            dbContext.RouletteGameSessions.Remove(gameSession);
 
+            async Task<string> GetResultMessage()
+            {
+                StringBuilder result = new StringBuilder("Игра окончена.\nРезультат: ");
+                result.Append($"<i>{gameSession.ResultNumber}</i> {gameSession.ResultNumber.ToRouletteColor().ToEmoji()}");
+
+                List<RouletteColorBetToken> colorWinTokens = GetColorWinTokens(gameSession);
+                List<RouletteColorBetToken> colorLooseTokens = GetColorLooseTokens(gameSession);
+                List<RouletteNumbersBetToken> numberWinTokens = GetNumberWinTokens(gameSession);
+                List<RouletteNumbersBetToken> numberLooseTokens = GetNumberLooseTokens(gameSession);
+
+                List<RouletteBetToken> allWinTokens = new List<RouletteBetToken>(colorWinTokens.Count + numberWinTokens.Count);
+                allWinTokens.AddRange(colorWinTokens);
+                allWinTokens.AddRange(numberWinTokens);
+
+                List<RouletteBetToken> allLooseTokens = new List<RouletteBetToken>(colorLooseTokens.Count + numberLooseTokens.Count);
+                allLooseTokens.AddRange(colorLooseTokens);
+                allLooseTokens.AddRange(numberLooseTokens);
+
+                // Определение победителей
+                if (allWinTokens.Any())
+                {
+                    result.Append("\n🏆<b>Выиграли:</b>");
+                    foreach (var token in allWinTokens.GroupByUsers())
+                    {
+                        long gainSum = token.GetGainSum();
+                        User user = token.User;
+                        if (user != null)
+                        {
+                            ChatMember chatMember = await Client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
+                            if (chatMember != null)
+                            {
+                                string userFirstName = chatMember.User.FirstName;
+                                result.Append(
+                                    $"\n<b>·</b><i><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a></i>: <b>+{gainSum.ToMoneyFormat()}</b>💵");
+                            }
+                            user.Balance += gainSum + token.BetSum;
+                        }
+                    }
+                }
+
+                // Определение проигравших
+                if (allLooseTokens.Any())
+                {
+                    result.Append("\n😔<b>Проиграли:</b>");
+                    foreach (var token in allLooseTokens.GroupByUsers())
+                    {
+                        User user = token.User;
+                        if (user != null)
+                        {
+                            ChatMember chatMember = await Client.GetChatMemberAsync(gameSession.ChatId, user.UserId);
+                            if (chatMember != null)
+                            {
+                                string userFirstName = chatMember.User.FirstName;
+                                result.Append(
+                                    $"\n<b>·</b><i><a href=\"tg://user?id={user.UserId}\">{userFirstName}</a></i>: <b>-{token.BetSum.ToMoneyFormat()}</b>💵");
+                            }
+                        }
+                    }
+                }
+
+                return result.ToString();
+            }
+
+            string result = null;
             bool saved = false;
             while (!saved)
             {
                 try
                 {
                     await dbContext.SaveChangesAsync();
+                    result = await GetResultMessage();
                     saved = true;
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
                     foreach (var entry in ex.Entries)
                     {
+                        await entry.ReloadAsync();
                         if (entry.Entity is User user)
                         {
-                            Console.WriteLine("Конфликт параллелизма для баланса пользователя (RouletteGameManager:RemoveSessionAndSAveResults)");
+                            Console.WriteLine(
+                                "Конфликт параллелизма для баланса пользователя (RouletteGameManager:RemoveSessionAndSaveResultsAsync)");
                             await entry.ReloadAsync();
 
                             GetColorWinTokens(gameSession)
@@ -714,17 +722,24 @@ namespace ChapubelichBot.Types.Managers
                                 .Where(bt => bt.UserId == user.UserId)
                                 .ToList()
                                 .ForEach(bt => user.Balance += bt.GetGainSum() + bt.BetSum);
+
+                            if (chatType.HasValue)
+                                await UpdateLogAsync(gameSession, dbContext, chatType.Value);
+                        }
+                        else if (entry.Entity is RouletteGameSession)
+                        {
+                            Console.WriteLine("Повторное удаление сессии рулетки");
+                            return null;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Ошибка сохраненния {entry.Entity.GetType()} (RouletteGameManager:RemoveSessionAndSaveResultsAsync)");
                         }
                     }
                 }
-                catch (DbUpdateException ex)
-                {
-                    foreach (var entry in ex.Entries)
-                        Console.WriteLine(entry.Entity is RouletteGameSession
-                            ? "Повторное удаление игровой сессии рулетки"
-                            : $"Ошибка сохраненния {entry.Entity.GetType()} (RouletteGameManager)");
-                }
             }
+
+            return result;
         }
         private static StringBuilder UserBetsToStringAsync(RouletteGameSession gameSession, int userId)
         {
@@ -829,9 +844,18 @@ namespace ChapubelichBot.Types.Managers
                 }
             }
         }
-        private static void UpdateLastActivity(RouletteGameSession gameSession)
+        private static async Task UpdateLastActivityAndSaveAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext)
         {
             gameSession.LastActivity = DateTime.UtcNow;
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                if (ex.Entries.Single().Entity is RouletteGameSession)
+                    Console.WriteLine("Конфликт параллелизма при обновлении времени последней активности");
+            }
         }
         private static async Task CollectDeadSessionsAsync()
         {
@@ -902,16 +926,13 @@ namespace ChapubelichBot.Types.Managers
                                 foreach (var token in groupedNumberBetList)
                                     entryUser.Balance += token.BetSum;
                             }
+                            else if (entry.Entity is RouletteGameSession)
+                            {
+                                Console.WriteLine("Повторное удаление сессии рулетки");
+                                    return;
+                            }
                             else Console.WriteLine($"Ошибка сохраненния {entry.Entity.GetType()} (RouletteGameManager:CollectDeadSessionsAsync)");
                         }
-                    }
-                    catch (DbUpdateException ex)
-                    {
-                        foreach (var entry in ex.Entries)
-                            Console.WriteLine(entry.Entity is RouletteGameSession
-                                ? "Повторное удаление сессии рулетки"
-                                : $"Ошибка сохраненния {entry.Entity.GetType()} (RouletteGameManager:CollectDeadSessionsAsync)");
-                        return;
                     }
                 }
 
@@ -947,6 +968,8 @@ namespace ChapubelichBot.Types.Managers
             {
                 try
                 {
+                    if (gameSession.Resulting)
+                        return null;
                     await dbContext.SaveChangesAsync();
                     saved = true;
                 }
@@ -954,18 +977,27 @@ namespace ChapubelichBot.Types.Managers
                 {
                     foreach (var entry in ex.Entries)
                     {
-                        await entry.ReloadAsync();
                         if (entry.Entity is User entryUser)
                         {
+                            await entry.ReloadAsync();
                             Console.WriteLine(
                                 "Конфликт параллелизма для баланса пользователя (RouletteGameManager:PlaceBetColorAsync)");
-                            entryUser.Balance -= betSum;
+                            if (entryUser.Balance >= betSum)
+                                entryUser.Balance -= betSum;
+                            else return null;
                         }
                         else if (entry.Entity is RouletteColorBetToken currentBetTokenEntry)
                         {
+                            await entry.ReloadAsync();
                             Console.WriteLine(
                                 "Конфликт параллелизма для суммы ставки (RouletteGameManager:PlaceBetColorAsync)");
                             currentBetTokenEntry.BetSum += betSum;
+                        }
+                        else if (entry.Entity is RouletteGameSession)
+                        {
+                            await entry.ReloadAsync();
+                            Console.WriteLine(
+                                "Конфликт параллелизма для игровой сессии рулетки (RouletteGameManager:PlaceBetColorAsync)");
                         }
                     }
                 }
@@ -1007,7 +1039,9 @@ namespace ChapubelichBot.Types.Managers
                         {
                             Console.WriteLine(
                                 "Конфликт параллелизма для баланса пользователя (RouletteGameManager:PlaceBetNumbersAsync)");
-                            entryUser.Balance -= betSum;
+                            if (entryUser.Balance >= betSum)
+                                entryUser.Balance -= betSum;
+                            else return null;
                         }
                         else if (entry.Entity is RouletteNumbersBetToken currentBetTokenEntry)
                         {
@@ -1060,15 +1094,12 @@ namespace ChapubelichBot.Types.Managers
                                 foreach (var token in userNumberTokens)
                                     entryUser.Balance += token.BetSum;
                             }
+                            else if (entry.Entity is RouletteColorBetToken || entry.Entity is RouletteNumbersBetToken)
+                            {
+                                Console.WriteLine("Повторное удаление ставок на рулетку пользователя");
+                                return null;
+                            }
                         }
-                    }
-                    catch (DbUpdateException ex)
-                    {
-                        foreach (var entry in ex.Entries)
-                            Console.WriteLine(entry.Entity is RouletteColorBetToken || entry.Entity is RouletteNumbersBetToken
-                                ? "Повторное удаление ставок на рулетку пользователя"
-                                : $"Ошибка сохраненния {entry.Entity.GetType()} (RouletteGameManager:CancelBetAsync)");
-                        return null;
                     }
                 }
                 return $"<i><a href=\"tg://user?id={user.UserId}\">{firstName}</a></i>, твоя ставка отменена \U0001F44D";

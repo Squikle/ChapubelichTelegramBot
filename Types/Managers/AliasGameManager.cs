@@ -150,6 +150,7 @@ namespace ChapubelichBot.Types.Managers
                 catch (DbUpdateConcurrencyException ex)
                 {
                     foreach (var entry in ex.Entries)
+                    {
                         if (entry.Entity is AliasGameSession entryGameSession)
                         {
                             Console.WriteLine(
@@ -163,11 +164,12 @@ namespace ChapubelichBot.Types.Managers
                             newGameMessageText += $"\n<b>{gameSession.HostCandidates.Count}.</b> <i><a href=\"tg://user?id={callbackQuery.From.Id}\">{candidateName}</a></i>";
                             entryGameSession.GameMessageText = newGameMessageText;
                         }
-                }
-                catch (DbUpdateException)
-                {
-                    Console.WriteLine("Повторное добавление юзера в кандидатов на хостинг алиаса");
-                    return;
+                        else if (entry.Entity is AliasHostCandidate)
+                        {
+                            Console.WriteLine("Повторное добавление юзера в кандидатов на хостинг алиаса");
+                            return;
+                        }
+                    } 
                 }
             }
 
@@ -498,15 +500,12 @@ namespace ChapubelichBot.Types.Managers
 
                             user.Balance += reward;
                         }
+                        else if (entry.Entity is AliasGameSession)
+                        {
+                            Console.WriteLine("Повторное удаление игровой сессии алиаса");
+                            return;
+                        }
                     }
-                }
-                catch (DbUpdateException ex)
-                {
-                    foreach (var entry in ex.Entries)
-                        Console.WriteLine(entry.Entity is AliasGameSession
-                            ? "Повторное удаление игровой сессии алиаса"
-                            : $"Ошибка сохраненния {entry.Entity.GetType()} (AliasGameManager)");
-                    return;
                 }
             }
 

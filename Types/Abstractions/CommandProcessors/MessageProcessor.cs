@@ -13,7 +13,7 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
     {
         protected static async Task<Group> UpdateGroupAsync(Message message, ITelegramBotClient client)
         {
-            Telegram.Bot.Types.User bot = await client.GetMeAsync();
+            User bot = await client.GetMeAsync();
             if (bot == null)
                 return null;
             Task<ChatMember> gettingChatMember = client.GetChatMemberAsync(message.Chat.Id, bot.Id);
@@ -85,7 +85,7 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
         }
         protected static async Task<Group> UpdateGroupAsync(CallbackQuery callbackQuery, ITelegramBotClient client)
         {
-            Telegram.Bot.Types.User bot = await client.GetMeAsync();
+            User bot = await client.GetMeAsync();
             if (bot == null)
                 return null;
             Task<ChatMember> gettingChatMember = client.GetChatMemberAsync(callbackQuery.Message.Chat.Id, bot.Id);
@@ -154,12 +154,12 @@ namespace ChapubelichBot.Types.Abstractions.CommandProcessors
 
             return group;
         }
-        protected async Task<bool> IsUserRegisteredAsync(Telegram.Bot.Types.User user)
+        protected async Task<bool> IsUserRegisteredAsync(User user)
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             return await dbContext.Users.AnyAsync(x => x.UserId == user.Id);
         }
-        protected bool IsMemberRegistered(Telegram.Bot.Types.User user, Group group)
+        protected bool IsMemberRegistered(User user, Group group)
         {
             return group.Users.Any(x => x.UserId == user.Id);
         }
