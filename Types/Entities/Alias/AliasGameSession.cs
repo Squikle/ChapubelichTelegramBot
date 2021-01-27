@@ -16,6 +16,7 @@ namespace ChapubelichBot.Types.Entities.Alias
         public int GameMessageId { get; set; }
         [ConcurrencyCheck]
         public string GameMessageText { get; set; }
+        [ConcurrencyCheck]
         public DateTime? StartTime { get; set; }
         [ConcurrencyCheck]
         public int Attempts { get; set; }

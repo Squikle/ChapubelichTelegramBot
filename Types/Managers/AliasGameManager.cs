@@ -120,8 +120,8 @@ namespace ChapubelichBot.Types.Managers
             if (alreadyHostingGameSession != null)
             {
                 string answerMessage = alreadyHostingGameSession.Group.GroupId != callbackQuery.Message.Chat.Id
-                    ? "Ты не можешь быть ведущим в нескольких чатах сразу!"
-                    : "Ты уже являешься участвуешь в выборе ведущего!";
+                    ? $"Ты не можешь быть {(user.Gender ? "ведущим" : "ведущей")} в нескольких чатах сразу!"
+                    : "Ты уже являешься участвуешь в выборе ведущего игрока!";
                 await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, answerMessage);
                 return;
             }
@@ -176,7 +176,7 @@ namespace ChapubelichBot.Types.Managers
             await Client.TryEditMessageAsync(gameSession.Group.GroupId, gameSession.GameMessageId,
                 newGameMessageText, ParseMode.Html,
                 replyMarkup: InlineKeyboards.AliasRegistrationMarkup);
-            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, "Ты успешно добавлен в список возможных ведущих! ✅");
+            await Client.TryAnswerCallbackQueryAsync(callbackQuery.Id, $"Ты успешно добавлен{(user.Gender ? "" : "а")} в список возможных ведущих! ✅");
 
             int maxNumberHostingCandidates = ChapubelichClient.GetConfig()
                 .GetValue<int>("AliasSettings:MaxNumberHostingCandidates");
@@ -213,17 +213,24 @@ namespace ChapubelichBot.Types.Managers
 
             gameSession.GameWord = choosenWord;
             gameSession.StartTime = DateTime.UtcNow;
-            await dbContext.SaveChangesAsync();
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                Console.WriteLine("Повторное изменение время старта игровой сессии Алиаса");
+                return;
+            }
             Task deletingCallbackMessage =
                 Client.TryDeleteMessageAsync(callbackQuery.Message.Chat.Id, callbackQuery.Message.MessageId);
             Task sendingPrivateMessage = Client.TrySendTextMessageAsync(callbackQuery.Message.Chat.Id,
-                $"Ты выбрал слово \"<i>{choosenWord}</i>\"" +
+                $"Ты выбрал{(gameSession.Host.Gender ? "" : "а")} слово \"<i>{choosenWord}</i>\"" +
                 "\nТеперь помоги другим игрокам отгадать его!",
                 ParseMode.Html);
             Message newGameMessage = await Client.TrySendTextMessageAsync(gameSession.GroupId, "<b>Игра началась!</b>" +
-                $"\nЗагаданное слово отправлено в личные сообщения ведущему <i>{callbackQuery.From.FirstName}</i>" +
-                "\n👑<i>Ведущий</i> должен объяснить загаданное слово не используя однокоренные слова" +
-                "\n👤<i>Остальные</i> учасники должны отгадать что это за слово как можно быстрее, написав .*загаданное слово*, чтобы получить награду",
+                "\n👑<i>Ведущий игрок</i> должен объяснить загаданное слово не используя однокоренные слова" +
+                "\n👤<i>Остальные учасники</i> должны отгадать что это за слово как можно быстрее, написав .*загаданное слово*, чтобы получить награду",
                 ParseMode.Html);
             gameSession.GameMessageId = newGameMessage?.MessageId ?? 0;
             await dbContext.SaveChangesAsync();
@@ -234,10 +241,7 @@ namespace ChapubelichBot.Types.Managers
         {
             await using ChapubelichdbContext dbContext = new ChapubelichdbContext();
             gameSession = await GetGameSessionOrNullAsync(gameSession.Group.GroupId, dbContext);
-            if (gameSession == null)
-                return;
-
-            if (gameSession.StartTime != null)
+            if (gameSession == null || gameSession.StartTime != null)
                 return;
 
             UpdateLastActivity(gameSession);
@@ -264,7 +268,7 @@ namespace ChapubelichBot.Types.Managers
                         continue;
 
                     wordChooseMessage = await Client.TrySendTextMessageAsync(host.UserId,
-                        $"Ты выбран в качестве ведущего в группе <i>{gameSession.Group.Name}</i>. Выбери одно из 3 предложенных слов:",
+                        $"Ты выбран{(host.Gender ? "" : "а")} в качестве {(host.Gender ? "ведущего" : "ведущей")} в группе <i>{gameSession.Group.Name}</i>. Выбери одно из 3 предложенных слов:",
                         replyMarkup: InlineKeyboards.GetAliasChooseWordMarkup(gameSession.WordVariants[0], gameSession.WordVariants[1], gameSession.WordVariants[2]),
                         parseMode: ParseMode.Html);
 
@@ -292,8 +296,8 @@ namespace ChapubelichBot.Types.Managers
                 if (hostMember == null)
                     return;
 
-                string choosenHostText = "<b>Ведущий выбран!</b>\n" +
-                                         $"Загаданное слово отправлено в личные сообщения Ведущему <i><a href=\"tg://user?id={hostMember.User.Id}\">{hostMember.User.FirstName}</a></i>";
+                string choosenHostText = "<b>Ведущий игрок выбран!</b>\n" +
+                                         $"Загаданное слово отправлено в личные сообщения {(host.Gender ? "Ведущему" : "Ведущей")} <i><a href=\"tg://user?id={hostMember.User.Id}\">{hostMember.User.FirstName}</a></i>";
                 Message newGameMessage = await Client.TrySendTextMessageAsync(gameSession.Group.GroupId,
                     choosenHostText,
                     ParseMode.Html);
@@ -305,7 +309,14 @@ namespace ChapubelichBot.Types.Managers
                 gameSession.GameMessageId = newGameMessage?.MessageId ?? 0;
                 gameSession.GameMessageText = null;
                 gameSession.StartTime = DateTime.UtcNow;
-                await dbContext.SaveChangesAsync();
+                try
+                {
+                    await dbContext.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    Console.WriteLine($"Ошибка обновления игровой сессии Алиаса {ex.GetType()}");
+                }
             }
         }
 
@@ -512,8 +523,8 @@ namespace ChapubelichBot.Types.Managers
             await AddAttemptsAndSaveAsync(gameSession, dbContext);
 
             string answer = "Правильно!" +
-                            $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал слово \"<i>{gameSession.GameWord}</i>\"" +
-                            $"{(reward > 0 ? $" и получил <b>{reward}</b> 💰!" : " но ничего не получил 😔")}" +
+                            $"\nИгрок <i><a href=\"tg://user?id={message.From.Id}\">{message.From.FirstName}</a></i> разгадал{(guessingUser.Gender ? "" : "а")} слово \"<i>{gameSession.GameWord}</i>\"" +
+                            $"{(reward > 0 ? $" и получил{(guessingUser.Gender ? "" : "а")} <b>{reward}</b> 💰!" : $" но ничего не получил{(guessingUser.Gender ? "" : "а")} 😔")}" +
                             $"\nВсего было попыток: <b>{gameSession.Attempts}</b>";
             await Client.TrySendTextMessageAsync(gameSession.GroupId, answer,
                 ParseMode.Html, replyToMessageId: message.MessageId,
