@@ -10,7 +10,7 @@ namespace ChapubelichBot.CommandEntities.RegexCommands.Roulette
 {
     class BetColorRegex : RegexCommand
     {
-        public override string Pattern => @"^\/?(\d+) *(к(?:расный)?|ч(?:ерный)?|з(?:еленый)?|r(?:ed)?|b(?:lack)?|g(?:reen)?) *(го|г|ролл|погнали|крути|roll|go)?(?:@ChapubelichBot)?$";
+        public override string Pattern => @"^\/?(\d+) *(к(?:расн(?:ый|ое))?|ч(?:ерн(?:ый|ое))?|з(?:елен(?:ый|ое))?|r(?:ed)?|b(?:lack)?|g(?:reen)?) *(го|г|ролл|погнали|крути|roll|go)?(?:@ChapubelichBot)?$";
         public override async Task ExecuteAsync(Message message, ITelegramBotClient client)
         {
             RouletteGameSession gameSession;
