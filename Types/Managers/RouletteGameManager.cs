@@ -597,9 +597,6 @@ namespace ChapubelichBot.Types.Managers
             int maxLimitAnimationDuration = (int)TimeSpan.FromSeconds(10).TotalMilliseconds;
             Task task = Task.Delay(animationDuration >= maxLimitAnimationDuration ? maxLimitAnimationDuration : animationDuration);
 
-            // Удаление сообщений и отправка результатов
-            string result = await RemoveSessionAndSaveResultsAsync(gameSession, dbContext, chatType);
-
             await task;
 
             Task deletingAnimationMessage = Client.TryDeleteMessageAsync(gameSession.ChatId, gameSession.AnimationMessageId);
@@ -608,18 +605,18 @@ namespace ChapubelichBot.Types.Managers
 
             await deletingAnimationMessage;
             await deletingGameMessage;
-
+            
+            // Удаление сообщений и отправка результатов
+            string result = await RemoveSessionAndSaveResultsAsync(gameSession, dbContext, chatType);
             if (result == null)
                 return;
 
-            Task sendingResult = Client.TrySendTextMessageAsync(
+            await Client.TrySendTextMessageAsync(
                 gameSession.ChatId,
                 result,
                 ParseMode.Html,
                 replyMarkup: InlineKeyboards.RoulettePlayAgainMarkup,
                 replyToMessageId: startMessageId);
-            
-            await sendingResult;
         }
         private static async Task<string> RemoveSessionAndSaveResultsAsync(RouletteGameSession gameSession, ChapubelichdbContext dbContext, ChatType? chatType = null)
         {
@@ -698,8 +695,8 @@ namespace ChapubelichBot.Types.Managers
             {
                 try
                 {
-                    await dbContext.SaveChangesAsync();
                     result = await GetResultMessage();
+                    await dbContext.SaveChangesAsync();
                     saved = true;
                 }
                 catch (DbUpdateConcurrencyException ex)
