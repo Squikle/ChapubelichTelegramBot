@@ -41,12 +41,12 @@ namespace ChapubelichBot.CommandEntities.RegexCommands
                 .OrderByDescending(u => u.Balance)
                 .Take(usersToOutput)
                 .AsParallel()
+                .AsOrdered()
                 .Select(tu =>
             {
                 ChatMember member = client.GetChatMemberAsync(message.Chat.Id, tu.UserId).Result;
                 return new KeyValuePair<User, string>(tu, member?.User?.FirstName);
             })
-                .OrderByDescending(p => p.Key.Balance)
                 .ToList();
 
             List<long> topThreeBalances = topUsersNamed.Select(tu => tu.Key.Balance).TakeTopValues(3).ToList();
